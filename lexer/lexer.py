@@ -43,11 +43,9 @@ def lexer(input_string: str) -> list[Token]:
         else:
             # 6. keywords
             for keyword, token_type in KEYWORDS:
-                if input_string.startswith(keyword, i):
-                    end = i + len(keyword)
-                    # must end at a word boundary (so HAIR isn't HAI + R)
-                    if (keyword[-1].isalnum() and 
-                        end < str_len and 
+                if input_string.startswith(keyword, i): # at char i, check if keyword matches
+                    end = i + len(keyword) # must end at a word boundary 
+                    if (end < str_len and 
                         (input_string[end].isalnum() or 
                          input_string[end] == "_")):
                         continue
@@ -55,12 +53,12 @@ def lexer(input_string: str) -> list[Token]:
                     i = end
                     break
             else:
-                # 7. identifier
+                # check for identifiers
                 m = re.match(r"[A-Za-z][A-Za-z0-9_]*", input_string[i:])
                 if m:
                     tokens.append(Token(T.IDENT, m[0], line))
                     i += len(m[0])
-                #nothing matched: error, never skip silently
+                # nothing matched: error
                 else:
                     raise SyntaxError(f"Line {line}: unexpected character {char!r}")
     # Indicate end of file

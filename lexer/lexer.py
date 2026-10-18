@@ -22,7 +22,17 @@ def lexer(input_string: str) -> list[Token]:
         if char in ' \t\r':
             i += 1
             
-    
+        elif input_string.startswith("BTW", i):
+            while i < str_len and input_string[i] != '\n':
+                i += 1
+            
+        elif input_string.startswith("OBTW", i):
+            while i < str_len and not input_string.startswith("TLDR", i):
+                i += 1
+                if i < str_len and input_string[i] == '\n':
+                    line += 1
+            i += 4  # Skip "TLDR"
+        
         # Check for newline/semicolon
         elif char == '\n' or char == ';':
             tokens.append(Token(T.NEWLINE, char, line))

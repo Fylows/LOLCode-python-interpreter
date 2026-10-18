@@ -41,7 +41,6 @@ def lexer(input_string: str) -> list[Token]:
         
         # Check for keywords
         else:
-            # 6. keywords
             for keyword, token_type in KEYWORDS:
                 if input_string.startswith(keyword, i): # at char i, check if keyword matches
                     end = i + len(keyword) # must end at a word boundary 

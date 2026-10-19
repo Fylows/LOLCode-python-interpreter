@@ -1,3 +1,0 @@
-HAI BTW start here
-    VISIBLE "TITE MALAKE"
-KTHXBYE

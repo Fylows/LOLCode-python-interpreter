@@ -20,3 +20,4 @@ class Literal(Node):
 @dataclass
 class Var(Node):
     name: str
+    value: any = None

@@ -1,0 +1,2 @@
+HAI;VISIBLE "a";VISIBLE "abc"
+KTHXBYE

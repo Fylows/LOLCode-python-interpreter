@@ -10,6 +10,7 @@ def main():
         
     if (sys.argv[1] == "-h"):
         print_tokens(sys.argv[2])
+
         sys.exit(1)
         
     src = open(sys.argv[1]).read()
@@ -17,7 +18,7 @@ def main():
     tokens = lexer(src)
     parser = Parser(tokens)
     ast = parser.parse_program()
-    
+    print(ast)
     interpreter = Interpreter(ast)
     interpreter.run(ast)
 

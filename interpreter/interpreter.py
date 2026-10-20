@@ -15,6 +15,8 @@ class Interpreter():
     # executes a print statement by printing the values of its arguments
     def exec_Print(self, n):
         for arg in n.args:
+            if arg.value is None:
+                raise RuntimeError(f"Variable {arg.name} is not defined")
             print(arg.value, end=' ')
         print()
         

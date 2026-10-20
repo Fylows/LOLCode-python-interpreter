@@ -62,8 +62,8 @@ class Parser:
     # expression := literal |IDENT | NUMBAR | NUMBR | YARN
     def parse_expr(self):
         t: T = self.advance()
-        if t.type in (T.IDENT, T.NUMBAR, T.NUMBR, T.YARN):
+        if t.type in (T.NUMBAR, T.NUMBR, T.YARN):
             return Literal(t.value)
-        if t.type == T.IDENT: 
+        elif t.type == T.IDENT: 
             return Var(t.value)
         raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")

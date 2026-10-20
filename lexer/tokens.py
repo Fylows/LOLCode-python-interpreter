@@ -21,12 +21,85 @@ class T(Enum):
     NUMBAR = auto()
     NUMBR = auto()
     YARN = auto()
-    
+
+    # variable declarations
+    WAZZUP = auto()
+    BUHBYE = auto()
+    VAR_DECLARE = auto()
+    VAR_TYPE = auto()
+    VAR_ASSIGN = auto()
+
+    # operations
+
+    # arithmetic
+    ADD = auto()
+    SUB = auto()
+    MUL = auto()
+    DIV = auto()
+    MOD = auto()
+
+    # minmax
+    MIN = auto()
+    MAX = auto()
+
+    # equality
+    AND = auto()
+    OR = auto()
+    ONE = auto()
+    NOT = auto()
+    ANY = auto()
+    ALL = auto()
+    EQUAL = auto()
+    NOT_EQUAL = auto()
+
+    # concat
+    CONCAT = auto()
+
+    # typecast
+    TYPECAST = auto()
+    A = auto()
+    REASSIGN = auto()
+
+    # delimiter
+    MKAY = auto()
 
 # ALL KEYWORDS OF OUR LANGUAGE
 KEYWORDS = [
     ("HAI", T.HAI),
     ("KTHXBYE", T.KTHXBYE),
+
+    ("WAZZUP", T.WAZZUP),
+    ("BUHBYE", T.BUHBYE),
+
+    ("I HAS A", T.VAR_DECLARE),
+    ("ITZ", T.VAR_TYPE),
+    ("R", T.VAR_ASSIGN),
+
+    ("SUM OF", T.ADD),
+    ("DIFF OF", T.SUB),
+    ("PRODUKT OF", T.MUL),
+    ("QUOSHUNT OF", T.DIV),
+    ("MOD OF", T.MOD),
+    ("BIGGR OF", T.MAX),
+    ("SMALLR OF", T.MIN),
+
+    ("BOTH OF", T.AND),
+    ("EITHER OF", T.OR),
+    ("WON OF", T.ONE),
+    ("NOT", T.NOT),
+    ("ANY OF", T.ANY),
+    ("ALL OF", T.ALL),
+    ("BOTH SAEM", T.EQUAL),
+    ("DIFFRINT", T.NOT_EQUAL),
+
+    ("SMOOSH", T.CONCAT),
+
+    ("MAEK", T.TYPECAST),
+    ("A", T.A),
+    ("IS NOW A", T.REASSIGN),
+
+    ("MKAY", T.MKAY),
+
     ("VISIBLE", T.VISIBLE)
 ]
  

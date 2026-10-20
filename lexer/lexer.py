@@ -7,6 +7,10 @@ in: input_string: str
 out: list of tokens
 """
 
+#numbr = re.compile(r"?[0-9]+")
+#numbar = re.compile(r"-?[0-9]+\.[0-9]+")
+ident = re.compile(r"[A-Za-z][A-Za-z0-9_]*")
+
 def test():
     print("Lexer test")
 
@@ -14,6 +18,7 @@ def lexer(input_string: str) -> list[Token]:
     tokens = []
     i, line = 0, 1
     str_len = len(input_string)
+
     
     while i < str_len:
         char = input_string[i]
@@ -48,7 +53,7 @@ def lexer(input_string: str) -> list[Token]:
                 raise SyntaxError(f"Line {line}: unterminated string")
             tokens.append(Token(T.YARN, input_string[i + 1:end], line))
             i = end + 1
-        
+
         # Check for keywords
         else:
             for keyword, token_type in KEYWORDS:
@@ -63,7 +68,7 @@ def lexer(input_string: str) -> list[Token]:
                     break
             else:
                 # check for identifiers
-                m = re.match(r"[A-Za-z][A-Za-z0-9_]*", input_string[i:])
+                m = re.match(ident, input_string[i:])
                 if m:
                     tokens.append(Token(T.IDENT, m[0], line))
                     i += len(m[0])

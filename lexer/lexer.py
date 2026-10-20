@@ -6,13 +6,11 @@ lexer function
 in: input_string: str
 out: list of tokens
 """
-
-#numbr = re.compile(r"?[0-9]+")
-#numbar = re.compile(r"-?[0-9]+\.[0-9]+")
+# https://www.geeksforgeeks.org/python/re-compile-in-python/
+# compile for faster performance
+numbr = re.compile(r"-?[0-9]+")
+numbar = re.compile(r"-?[0-9]+\.[0-9]+")
 ident = re.compile(r"[A-Za-z][A-Za-z0-9_]*")
-
-def test():
-    print("Lexer test")
 
 def lexer(input_string: str) -> list[Token]:
     tokens = []
@@ -22,11 +20,10 @@ def lexer(input_string: str) -> list[Token]:
     
     while i < str_len:
         char = input_string[i]
-        
         # skip whitespace
-        if char in ' \t\r':
+        if char in " \t\r":
             i += 1
-            
+        
         elif input_string.startswith("BTW", i):
             while i < str_len and input_string[i] != '\n':
                 i += 1
@@ -46,13 +43,24 @@ def lexer(input_string: str) -> list[Token]:
             i += 1
             continue
         
-        # String literal
+        # literals
         elif char == '"':
             end = input_string.find('"', i + 1)
             if end == -1:
                 raise SyntaxError(f"Line {line}: unterminated string")
             tokens.append(Token(T.YARN, input_string[i + 1:end], line))
             i = end + 1
+        # float
+        elif re.match(numbar, input_string[i:]):
+            m = re.match(numbar, input_string[i:])
+            tokens.append(Token(T.NUMBAR, m[0], line))
+            i += len(m[0])
+
+        # int
+        elif re.match(numbr, input_string[i:]):
+            m = re.match(numbr, input_string[i:])
+            tokens.append(Token(T.NUMBR, m[0], line))
+            i += len(m[0])
 
         # Check for keywords
         else:

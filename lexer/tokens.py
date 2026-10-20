@@ -99,8 +99,9 @@ KEYWORDS = [
     ("IS NOW A", T.REASSIGN),
 
     ("MKAY", T.MKAY),
-
     ("VISIBLE", T.VISIBLE)
+
+    # Missing: Starting from GIMMEH to I IZ
 ]
  
 """

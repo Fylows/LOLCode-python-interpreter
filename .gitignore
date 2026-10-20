@@ -1,4 +1,4 @@
 /interpreter/__pycache__/*
 /lexer/__pycache__/*
 /parser/__pycache__/*
-/testcases/test.lol
+/testcases/__pycache/*

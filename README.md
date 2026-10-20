@@ -12,3 +12,10 @@
 /interpreter
     interpreter.py # interpreter for walking through AST and executing its nodes
 ```
+
+References:
+
+
+[Bernard Jezua LOLCODE Interpreter 2024](https://github.com/bernardjezua/LOLCODE-Interpreter/blob/main/initial_vals/parser_functions.py)
+
+[Tree Walk Interpreter in Java](https://github.com/bernardjezua/LOLCODE-Interpreter/blob/main/initial_vals/parser_functions.py)

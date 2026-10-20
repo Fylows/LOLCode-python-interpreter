@@ -21,6 +21,10 @@ class T(Enum):
     NUMBAR = auto()
     NUMBR = auto()
     YARN = auto()
+    TROOF = auto()
+    NOOB = auto()
+    WIN = auto()
+    FAIL = auto()
 
     # variable declarations
     WAZZUP = auto()
@@ -28,8 +32,6 @@ class T(Enum):
     VAR_DECLARE = auto()
     VAR_TYPE = auto()
     VAR_ASSIGN = auto()
-
-    # operations
 
     # arithmetic
     ADD = auto()
@@ -55,6 +57,7 @@ class T(Enum):
     # concat
     CONCAT = auto()
 
+    AN = auto()
     # typecast
     TYPECAST = auto()
     A = auto()
@@ -62,6 +65,37 @@ class T(Enum):
 
     # delimiter
     MKAY = auto()
+
+    # input
+    INPUT = auto()
+
+    # conditionals
+    IF = auto()
+    THEN = auto()
+    ELIF = auto()
+    ELSE = auto()
+    ENDIF = auto()
+    SWITCH = auto()
+    CASE = auto()
+    DEFAULT = auto()
+
+    # loops
+    LOOP_START = auto()
+    INC = auto()
+    DEC = auto()
+    UNTIL = auto()
+    WHILE = auto()
+    LOOP_END = auto()
+    BREAK = auto()
+
+    # functions
+    FUNC_START = auto()
+    FUNC_END = auto()
+    RETURN = auto()
+    FUNC_CALL = auto()
+
+    # func and loop connector
+    YR = auto() 
 
 # ALL KEYWORDS OF OUR LANGUAGE
 KEYWORDS = [
@@ -92,6 +126,16 @@ KEYWORDS = [
     ("BOTH SAEM", T.EQUAL),
     ("DIFFRINT", T.NOT_EQUAL),
 
+    ("NUMBR", T.NUMBR), 
+    ("NUMBAR", T.NUMBAR),  
+    ("YARN", T.YARN),
+    ("TROOF", T.TROOF),
+    ("WIN", T.WIN),
+    ("FAIL", T.FAIL),
+    ("NOOB", T.NOOB),
+    ("AN", T.AN),
+
+
     ("SMOOSH", T.CONCAT),
 
     ("MAEK", T.TYPECAST),
@@ -99,9 +143,33 @@ KEYWORDS = [
     ("IS NOW A", T.REASSIGN),
 
     ("MKAY", T.MKAY),
-    ("VISIBLE", T.VISIBLE)
+    ("VISIBLE", T.VISIBLE),
 
-    # Missing: Starting from GIMMEH to I IZ
+    ("GIMMEH", T.INPUT),
+
+    ("O RLY?", T.IF),
+    ("YA RLY", T.THEN),
+    ("MEBBE", T.ELIF),
+    ("NO WAI", T.ELSE),
+    ("OIC", T.ENDIF),
+    ("WTF?", T.SWITCH),
+    ("OMG", T.CASE),
+    ("OMGWTF", T.DEFAULT),
+
+    ("YR", T.YR),
+    
+    ("IM IN YR", T.LOOP_START),
+    ("UPPIN", T.INC),
+    ("NERFIN", T.DEC),
+    ("TIL", T.UNTIL),
+    ("WILE", T.WHILE),
+    ("IM OUTTA YR", T.LOOP_END),
+    ("GTFO", T.BREAK),
+    
+    ("HOW IZ I", T.FUNC_START),
+    ("IF U SAY SO", T.FUNC_END),
+    ("FOUND YR", T.RETURN),
+    ("I IZ", T.FUNC_CALL)
 ]
  
 """

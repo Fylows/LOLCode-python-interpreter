@@ -112,9 +112,10 @@ class Parser:
         args = []
         if (self.advance().type == T.YR):
             args.append(self.advance() if self.peek().type == T.IDENT else self.parse_expr())
-            while self.peek().type is not T.NEWLINE:
+            while self.peek().type is not T.MKAY:
                 self.expect(T.AN)
                 self.expect(T.YR)
                 # append var if IDENT, else parse expression (raw value)
                 args.append(self.advance() if self.peek().type == T.IDENT else self.parse_expr())
+            self.expect(T.MKAY)
         return FunctionCall(name, args if args else None)

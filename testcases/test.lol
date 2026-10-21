@@ -10,7 +10,7 @@ HAI
     
     I HAS A var ITZ 10
     I HAS A varf ITZ 120
-    I IZ fxn YR var AN YR varf
-    I IZ fxn2
+    I IZ fxn YR var AN YR varf MKAY
+    I IZ fxn2 MKAY
     VISIBLE var
 KTHXBYE

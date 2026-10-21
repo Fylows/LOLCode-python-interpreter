@@ -1,5 +1,5 @@
 from parser import *
-from parser.nodes import Identifier, Literal, Var
+from parser.nodes import Literal
 from lexer.tokens import T  
 # initialize vars in dictionary
 # when IDENT is encountered, check if IDENT in dictionary, if not, throw error
@@ -9,6 +9,8 @@ class Interpreter():
     def __init__(self, ast):
         self.ast = ast
 
+        # dictionary of functions, key is function name, value is function body
+        self.functions = {}
         # current working variables dictionary
         self.variables = {}
 
@@ -29,14 +31,14 @@ class Interpreter():
     def exec_FunctionCall(self, n):
         # get function's name and arg names
         function_var = n.name
-        if function_var not in self.variables:
+        if function_var not in self.functions:
             raise RuntimeError(f"Function {function_var} is not defined")
 
         # store function block to execute
-        function = self.variables[function_var]
-
+        function = self.functions[function_var]
+    
         # get function's expected argument names and the arguments passed to the function
-        function_var_names = self.variables[function_var].args if self.variables[function_var].args else []
+        function_var_names = self.functions[function_var].args if self.functions[function_var].args else []
         arguments = []
         if n.args:
             for arg in n.args:
@@ -55,7 +57,7 @@ class Interpreter():
 
         self.var_stack.append(self.variables.copy())  # save current scope
         self.variables = {}  # create new scope for function
-        
+
         # load args into variables dictionary
         for i, arg in enumerate(arguments):
             self.variables[function_var_names[i]] = arg
@@ -86,4 +88,7 @@ class Interpreter():
 
     # assigns a variable
     def exec_Var(self, n):
-        self.variables[n.name] = n.value
+        if n.type == T.FUNCTION:
+            self.functions[n.name] = n.value
+        else:
+            self.variables[n.name] = n.value

@@ -3,6 +3,7 @@ HAI
         VISIBLE var2
         VISIBLE var
     IF U SAY SO
+
     HOW IZ I fxn2
         VISIBLE 5
     IF U SAY SO

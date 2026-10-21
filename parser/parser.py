@@ -57,7 +57,7 @@ class Parser:
             body.append(self.parse_statement())
             self.skip_newlines()
         self.expect(T.FUNC_END)
-        return Var(name, Function(body, args if args else None))
+        return Var(name, Function(body, args if args else None), T.FUNCTION)
 
     # parse_statement parses a single statement and returns the corresponding node
     # statement := print_statement | function | var decl | function_call

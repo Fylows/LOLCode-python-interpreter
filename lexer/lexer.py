@@ -50,6 +50,17 @@ def lexer(input_string: str) -> list[Token]:
                 raise SyntaxError(f"Line {line}: unterminated string")
             tokens.append(Token(T.YARN, input_string[i + 1:end], line))
             i = end + 1
+        # float
+        elif re.match(numbar, input_string[i:]):
+            m = re.match(numbar, input_string[i:])
+            tokens.append(Token(T.NUMBAR, m[0], line))
+            i += len(m[0])
+
+        # int
+        elif re.match(numbr, input_string[i:]):
+            m = re.match(numbr, input_string[i:])
+            tokens.append(Token(T.NUMBR, m[0], line))
+            i += len(m[0])
 
         # float
         elif re.match(numbar, input_string[i:]):

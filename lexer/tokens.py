@@ -89,6 +89,7 @@ class T(Enum):
     BREAK = auto()
 
     # functions
+    FUNCTION = auto()
     FUNC_START = auto()
     FUNC_END = auto()
     RETURN = auto()

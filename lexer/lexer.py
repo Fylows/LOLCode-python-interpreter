@@ -62,6 +62,18 @@ def lexer(input_string: str) -> list[Token]:
             tokens.append(Token(T.NUMBR, m[0], line))
             i += len(m[0])
 
+        # float
+        elif re.match(numbar, input_string[i:]):
+            m = re.match(numbar, input_string[i:])
+            tokens.append(Token(T.NUMBAR, m[0], line))
+            i += len(m[0])
+
+        # int
+        elif re.match(numbr, input_string[i:]):
+            m = re.match(numbr, input_string[i:])
+            tokens.append(Token(T.NUMBR, m[0], line))
+            i += len(m[0])
+
         # Check for keywords
         else:
             for keyword, token_type in KEYWORDS:

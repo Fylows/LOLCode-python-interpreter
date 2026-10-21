@@ -17,7 +17,7 @@ def main():
     tokens = lexer(src)
     parser = Parser(tokens)
     ast = parser.parse_program()
-    print(ast)
+
     interpreter = Interpreter(ast)
     interpreter.run(ast)
 
@@ -27,5 +27,10 @@ def print_tokens(filename):
     for token in tokens:
         print(token)
 
+def print1(var):
+    print1(var)
+
 if __name__ == "__main__":
     main()
+
+

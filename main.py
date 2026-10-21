@@ -17,7 +17,7 @@ def main():
     tokens = lexer(src)
     parser = Parser(tokens)
     ast = parser.parse_program()
-    print(ast)
+
     interpreter = Interpreter(ast)
     interpreter.run(ast)
 

@@ -30,6 +30,7 @@ class Parser:
     
     # entry of parser, parse program parses the entire program and returns a Program node
     def parse_program(self):
+        self.skip_newlines()
         self.expect(T.HAI)
         self.skip_newlines()
         body = []
@@ -39,12 +40,32 @@ class Parser:
         self.expect(T.KTHXBYE)
         return Program(body)
 
+    def parse_function(self):
+        self.advance()
+        name = self.expect(T.IDENT).value
+        if (self.peek().type != T.NEWLINE):
+            # parse function arguments here
+            pass
+        self.skip_newlines()
+        body = []
+        while self.peek().type != T.FUNC_END:
+            body.append(self.parse_statement())
+            self.skip_newlines()
+        self.expect(T.FUNC_END)
+        return Var(name, Function(body))
+
     # parse_statement parses a single statement and returns the corresponding node
-    # statement := print_statement
+    # statement := print_statement | function | var decl
     def parse_statement(self):
         t: T = self.peek()
         if t.type == T.VISIBLE:
             return self.parse_print()
+        if t.type == T.FUNC_START:
+            return self.parse_function()
+        if t.type == T.IDENT:
+            return self.parse_expr()
+        if t.type == T.VAR_DECLARE:
+            return self.parse_var_decl()
         else:
             raise SyntaxError(f"Line {t.line}: unexpected token {t.type.name}")
         
@@ -64,6 +85,15 @@ class Parser:
         t: T = self.advance()
         if t.type in (T.NUMBAR, T.NUMBR, T.YARN):
             return Literal(t.value)
-        elif t.type == T.IDENT: 
-            return Var(t.value)
+        if t.type == T.IDENT:
+            return Identifier(t.value)
         raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")
+
+    # parse_var_decl parses a variable declaration and returns a Var node
+    # var_decl := VAR_ASSIGN IDENT expression
+    def parse_var_decl(self):
+        self.expect(T.VAR_DECLARE)
+        name = self.expect(T.IDENT).value
+        self.expect(T.VAR_TYPE)
+        value = self.parse_expr()
+        return Var(name, value)

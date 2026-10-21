@@ -21,3 +21,13 @@ class Literal(Node):
 class Var(Node):
     name: str
     value: any = None
+
+# functions are always attatched to a variable
+@dataclass
+class Function(Node):
+    body: list
+    args: list = None
+
+@dataclass 
+class Identifier(Node):
+    name: str

@@ -16,6 +16,6 @@
 References:
 
 
-[Bernard Jezua LOLCODE Interpreter 2024](https://github.com/bernardjezua/LOLCODE-Interpreter/blob/main/initial_vals/parser_functions.py)
+[Bernard Jezua LOLCODE Interpreter 2024](https://github.com/bernardjezua/LOLCODE-Interpreter/)
 
-[Tree Walk Interpreter in Java](https://github.com/bernardjezua/LOLCODE-Interpreter/blob/main/initial_vals/parser_functions.py)
+[Tree Walk Interpreter in Java](https://craftinginterpreters.com/a-tree-walk-interpreter.html)

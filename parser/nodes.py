@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from lexer.tokens import T
 
 class Node: pass
 
@@ -21,10 +22,9 @@ class Literal(Node):
 @dataclass
 class Var(Node):
     name: str
-    value: any = None
+    value: any
     type: any = None
 
-# functions are always attatched to a variable
 @dataclass
 class Function(Node):
     body: list
@@ -33,8 +33,16 @@ class Function(Node):
 @dataclass
 class FunctionCall(Node):
     name: str
-    args: list = None
+    argv: list
+    argc: int
+    type: any = T.FUNCTION
 
 @dataclass 
 class Identifier(Node):
     name: str
+    type: any = None
+
+@dataclass
+class Return(Node):
+    value: any
+    type: any = None

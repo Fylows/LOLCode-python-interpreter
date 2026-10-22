@@ -1,3 +1,5 @@
+from ast import Return
+
 from lexer.tokens import T
 from parser.nodes import *
 
@@ -63,18 +65,23 @@ class Parser:
     # statement := print_statement | function | var decl | function_call
     def parse_statement(self):
         t: T = self.peek()
-        if t.type == T.VISIBLE:
-            return self.parse_print()
-        if t.type == T.FUNC_START:
-            return self.parse_function()
-        if t.type == T.IDENT:
-            return self.parse_expr()
-        if t.type == T.VAR_DECLARE:
-            return self.parse_var_decl()
-        if t.type == T.FUNC_CALL:
-            return self.parse_function_call()
-        else:
-            raise SyntaxError(f"Line {t.line}: unexpected token {t.type.name}")
+        match t.type:
+            case T.VISIBLE:
+                return self.parse_print()
+            case T.FUNC_START:
+                return self.parse_function()
+            case T.IDENT:
+                return self.parse_expr()
+            case T.VAR_DECLARE:
+                return self.parse_var_decl()
+            case T.RETURN:
+                return self.parse_return()
+            case T.FUNC_CALL:
+                return self.parse_function_call()
+            case T.BREAK:
+                return self.parse_return() # return the BREAK token
+            case _: # default case, no match
+                raise SyntaxError(f"Line {t.line}: unexpected token {t.type.name}")
         
     # parse_print parses a print statement and returns a Print node
     # print_statement := VISIBLE expression
@@ -87,13 +94,16 @@ class Parser:
         return Print(args)
 
     # parse_expr parses an expression and returns the corresponding node
-    # expression := literal |IDENT | NUMBAR | NUMBR | YARN
+    # expression := literal |IDENT | NUMBAR | NUMBR | YARN | FUNC_CALL
     def parse_expr(self):
         t: T = self.advance()
         if t.type in (T.NUMBAR, T.NUMBR, T.YARN, T.TROOF):
-            return Literal(t.value, t.type)
+            val = int(t.value) if t.type == T.NUMBR else float(t.value) if t.type == T.NUMBAR else str(t.value)
+            return Literal(val, t.type)
         if t.type == T.IDENT:
-            return t
+            return Identifier(t.value, t.type)
+        if t.type == T.FUNC_CALL:
+            return self.parse_function_call()
         raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")
 
     # parse_var_decl parses a variable declaration and returns a Var node
@@ -107,7 +117,10 @@ class Parser:
 
     # returns a function call node and the function's name 
     def parse_function_call(self):
-        self.advance()
+        # since function calls can be nested
+        if self.peek().type == T.FUNC_CALL:
+            self.advance()
+        # get function name and args it requires
         name = self.expect(T.IDENT).value
         args = []
         if (self.advance().type == T.YR):
@@ -118,4 +131,17 @@ class Parser:
                 # append var if IDENT, else parse expression (raw value)
                 args.append(self.advance() if self.peek().type == T.IDENT else self.parse_expr())
             self.expect(T.MKAY)
-        return FunctionCall(name, args if args else None)
+
+        # make a FunctionCall node with the function name, arg count and arg vector, if any 
+        return FunctionCall(name, args if args else None, len(args) if args else 0)
+
+    # Return node is a <val, type>
+    # if breaking, return is noob
+    def parse_return(self):
+        t: T = self.peek()
+        if t.type == T.BREAK:
+            self.advance()
+            return Return(T.NOOB, T.NOOB)
+        self.expect(T.RETURN)
+        value = self.parse_expr()
+        return Return(value, value.type)

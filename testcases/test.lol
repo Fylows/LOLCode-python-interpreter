@@ -9,8 +9,10 @@ HAI
         FOUND YR 20
     IF U SAY SO    
 
-    I HAS A var
+    I HAS A var ITZ "Spaces          between"
     I HAS A varf
+
+    VISIBLE var
 
     var R I IZ fxn YR 20 AN YR 10 MKAY
 

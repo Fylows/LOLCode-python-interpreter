@@ -16,7 +16,7 @@ def lexer(input_string: str) -> list[Token]:
     tokens = []
     i, line = 0, 1
     str_len = len(input_string)
-
+    
     
     while i < str_len:
         char = input_string[i]
@@ -29,10 +29,15 @@ def lexer(input_string: str) -> list[Token]:
                 i += 1
             
         elif input_string.startswith("OBTW", i):
+            if (input_string[i-1] != '\n'):
+                raise SyntaxError("Multi-line comments must start on a new line")
+
             while i < str_len and not input_string.startswith("TLDR", i):
                 i += 1
                 if i < str_len and input_string[i] == '\n':
                     line += 1
+                if i >= str_len:
+                    raise SyntaxError(f"Line {line}: unterminated multi-line comment")
             i += 4  # Skip "TLDR"
         
         # Check for newline/semicolon

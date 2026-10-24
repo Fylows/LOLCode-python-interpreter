@@ -1,6 +1,6 @@
 from ast import Return
 
-from lexer.tokens import T
+from lexer.tokens import T, KEYWORDS
 from parser.nodes import *
 
 class Parser:
@@ -119,7 +119,6 @@ class Parser:
     def parse_var_decl(self):
         self.expect(T.VAR_DECLARE)
         name = self.expect(T.IDENT).value
-
         if self.peek().type != T.VAR_TYPE:
             return Var(name, None, T.NOOB)
 

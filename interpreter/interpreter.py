@@ -2,7 +2,7 @@ from ast import Return
 
 from parser import *
 from parser.nodes import FunctionCall, Identifier, Literal, Function, Typecast
-from lexer.tokens import T  
+from lexer.tokens import KEYWORDS, T  
 # initialize vars in dictionary
 # when IDENT is encountered, check if IDENT in dictionary, if not, throw error
 
@@ -105,6 +105,9 @@ class Interpreter():
     # assigns a variable
     # variables are stored as Literal objects
     def exec_Var(self, n):
+        if n.name in self.variables or n.name in self.functions:
+            raise RuntimeError(f"Variable {n.name} is already defined")
+
         if n.type == T.FUNCTION:
             self.functions[n.name] = n.value
         else:

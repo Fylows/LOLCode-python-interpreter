@@ -98,6 +98,11 @@ class T(Enum):
     # func and loop connector
     YR = auto() 
 
+    # comments
+    BTW = auto()
+    OBTW = auto()
+    TLDR = auto()
+
 # ALL KEYWORDS OF OUR LANGUAGE
 KEYWORDS = [
     ("HAI", T.HAI),
@@ -170,7 +175,11 @@ KEYWORDS = [
     ("HOW IZ I", T.FUNC_START),
     ("IF U SAY SO", T.FUNC_END),
     ("FOUND YR", T.RETURN),
-    ("I IZ", T.FUNC_CALL)
+    ("I IZ", T.FUNC_CALL),
+
+    ("BTW", T.BTW),
+    ("OBTW", T.OBTW),
+    ("TLDR", T.TLDR)
 ]
  
 """

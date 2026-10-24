@@ -1,6 +1,7 @@
 from interpreter.interpreter import Interpreter
 from parser.parser import Parser
 from lexer.lexer import lexer
+from testcases import printer
 import sys
 
 def main():

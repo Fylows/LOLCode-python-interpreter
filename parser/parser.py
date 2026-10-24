@@ -66,12 +66,14 @@ class Parser:
     def parse_statement(self):
         t: T = self.peek()
         match t.type:
+            case T.IDENT:
+                return self.parse_reassign()
+            case T.TYPECAST:
+                return self.parse_typecast()
             case T.VISIBLE:
                 return self.parse_print()
             case T.FUNC_START:
                 return self.parse_function()
-            case T.IDENT:
-                return self.parse_expr()
             case T.VAR_DECLARE:
                 return self.parse_var_decl()
             case T.RETURN:
@@ -97,13 +99,19 @@ class Parser:
     # expression := literal |IDENT | NUMBAR | NUMBR | YARN | FUNC_CALL
     def parse_expr(self):
         t: T = self.advance()
-        if t.type in (T.NUMBAR, T.NUMBR, T.YARN, T.TROOF):
-            val = int(t.value) if t.type == T.NUMBR else float(t.value) if t.type == T.NUMBAR else str(t.value)
-            return Literal(val, t.type)
-        if t.type == T.IDENT:
-            return Identifier(t.value, t.type)
-        if t.type == T.FUNC_CALL:
-            return self.parse_function_call()
+        match t.type:
+            case (T.NUMBAR | T.NUMBR | T.YARN | T.TROOF):
+                val = int(t.value) if t.type == T.NUMBR else float(t.value) if t.type == T.NUMBAR else str(t.value)
+                return Literal(val, t.type)
+            case T.IDENT:
+                return Identifier(t.value, t.type)
+            case T.FUNC_CALL:
+                return self.parse_function_call()
+            case T.TYPECAST:
+                self.pos -= 1
+                # trace back steps because MAEK can also be before R
+                # or MAEK can start the expression
+                return self.parse_typecast()
         raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")
 
     # parse_var_decl parses a variable declaration and returns a Var node
@@ -111,9 +119,13 @@ class Parser:
     def parse_var_decl(self):
         self.expect(T.VAR_DECLARE)
         name = self.expect(T.IDENT).value
+
+        if self.peek().type != T.VAR_TYPE:
+            return Var(name, None, T.NOOB)
+
         self.expect(T.VAR_TYPE)
         value = self.parse_expr()
-        return Var(name, value)
+        return Var(name, value.value, value.type)
 
     # returns a function call node and the function's name 
     def parse_function_call(self):
@@ -145,3 +157,44 @@ class Parser:
         self.expect(T.RETURN)
         value = self.parse_expr()
         return Return(value, value.type)
+
+    # typecast := MAEK expression A type
+    def parse_typecast(self):
+        self.expect(T.TYPECAST)
+        value = self.parse_expr()
+        self.advance() if self.peek().type == T.A else None  # consume A
+        type = self.parse_type()
+        source = value
+        return Typecast(source, type)
+
+    # reassignment is in the form of
+    # reassign := IDENT R expression
+    def parse_reassign(self):
+        var = self.expect(T.IDENT)
+        operator = self.advance()
+        # if in the form of
+        # reassign := IDENT IS NOW A expression A type
+        if operator.type == T.REASSIGN:
+            if self.peek().type not in (T.NUMBAR, T.NUMBR, T.YARN, T.TROOF):
+                raise SyntaxError(
+                    f"Line {self.peek().line}: expected NUMBAR, NUMBR, YARN or TROOF, got {self.peek().value}"
+                )
+            return Reassign(var.value, None, self.parse_type())
+
+        if operator.type != T.VAR_ASSIGN:
+            raise SyntaxError(
+                f"Line {operator.line}: expected R or IS NOW A, got {operator.type.name}"
+            )
+
+        value = self.parse_expr()
+        if isinstance(value, FunctionCall):
+            return Reassign(var.value, value, T.FUNCTION)
+        return Reassign(var.value, value, value.type)
+
+    def parse_type(self):
+        type = self.advance()
+        if type.value not in ("NUMBAR", "NUMBR", "YARN", "TROOF"):
+            raise SyntaxError(
+                f"Line {type.line}: expected NUMBAR, NUMBR, YARN or TROOF, got {type.value}"
+            )
+        return type.type

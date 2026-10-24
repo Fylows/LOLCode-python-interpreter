@@ -1,7 +1,7 @@
 from ast import Return
 
 from parser import *
-from parser.nodes import Identifier, Literal, Function
+from parser.nodes import FunctionCall, Identifier, Literal, Function, Typecast
 from lexer.tokens import T  
 # initialize vars in dictionary
 # when IDENT is encountered, check if IDENT in dictionary, if not, throw error
@@ -51,13 +51,17 @@ class Interpreter():
         arguments = []
         if n.argv:
             for arg in n.argv:
-                if arg.type == T.IDENT: # get value of variable if it is an identifier
-                    try:
-                        arguments.append(self.variables[arg.value])
-                    except KeyError:
-                        raise RuntimeError(f"Variable {arg.value} is not defined")
+                if isinstance(arg, Identifier): # get value of variable if it is an identifier
+                    arguments.append(self.evaluate_expression(arg))
+
+                elif isinstance(arg, FunctionCall): # get value of function call if it is a function call
+                    raise RuntimeError(f"Function calls are not allowed as arguments to functions. Function {function_var} called with function call as argument.")
+
+                elif isinstance(arg, Typecast): # get value of typecast if it is a typecast
+                    arguments.append(self.evaluate_expression(arg))
+
                 elif isinstance(arg, Literal): # get value of literal
-                    arguments.append(arg.value)
+                    arguments.append(arg)
 
         # check of number of arguments passed to function matches number of expected arguments
         if len(arguments) != n.argc:
@@ -78,39 +82,99 @@ class Interpreter():
     # executes a print statement by printing the values of its arguments
     def exec_Print(self, n):
         for arg in n.args:
+            if isinstance(arg, Typecast):
+                self.exec_Typecast(arg)
+                print("NOOB" if self.IT.value is None else self.IT.value, end=' ')
             # if identifier, check if it exists in variables
-            if isinstance(arg, Identifier):
+            elif isinstance(arg, Identifier):
                 # if identifier is a function, raise error
                 if self.functions.get(arg.name):
                     raise RuntimeError(f"Variable {arg.name} is a function")
-                try:
-                    print(self.variables[arg.name].value, end=' ')
-                except KeyError:
+                if arg.name not in self.variables:
                     raise RuntimeError(f"Variable {arg.name} is not defined")
+                print(f"NOOB" if self.variables[arg.name].value is None else self.variables[arg.name].value, end=' ')
         
             # if function call, execute it and print the value of IT
-            elif arg.type == T.FUNCTION:
+            elif isinstance(arg, FunctionCall):
                 self.run(arg)
-                print(self.IT, end = '')
+                print(f"NOOB" if self.IT.value is None else self.IT.value, end = '')
             else:
-                # for printing literals
-                print(arg.value, end=' ')
+                raise RuntimeError(f"Cannot print argument of type {type(arg).__name__}")
             print()
 
     # assigns a variable
+    # variables are stored as Literal objects
     def exec_Var(self, n):
         if n.type == T.FUNCTION:
             self.functions[n.name] = n.value
         else:
-            self.variables[n.name] = n.value
+            self.variables[n.name] = Literal(n.value, n.type)
+
 
     # for function return values, assigning to IT
     def exec_Return(self, n):
         if n.type == T.NOOB:
-            self.IT = T.NOOB
-        elif n.value.type == T.IDENT:
-            if n.value.name not in self.variables:
-                raise RuntimeError(f"Variable {n.value.name} is not defined")
-            self.IT = self.variables[n.value.name].value
+            self.IT = Literal(None, T.NOOB)
         else:
-            self.IT = n.value.value
+            self.IT = self.evaluate_expression(n.value)
+
+    # typecasting is just changing value and type of a literal
+    def exec_Typecast(self, n):
+        value = self.evaluate_expression(n.value)
+        self.IT = self.cast_literal(value, n.type)
+
+    # Reassigning a variable is changing value of a variable
+    # and possibly also its type
+    def exec_Reassign(self, n):
+        if n.name not in self.variables:
+            raise RuntimeError(f"Variable {n.name} is not defined")
+
+        value = (
+            self.variables[n.name]
+            if n.value is None
+            else self.evaluate_expression(n.value)
+        )
+        target_type = n.type if n.value is None else value.type
+        self.variables[n.name] = self.cast_literal(value, target_type)
+
+    # evaluates an expression and returns the corresponding value
+    def evaluate_expression(self, expression):
+        if isinstance(expression, Identifier):
+            if expression.name not in self.variables:
+                raise RuntimeError(f"Variable {expression.name} is not defined")
+            return self.variables[expression.name]
+
+        if isinstance(expression, Typecast):
+            self.exec_Typecast(expression)
+            return self.IT
+
+        if isinstance(expression, FunctionCall):
+            self.exec_FunctionCall(expression)
+            if not isinstance(self.IT, Literal):
+                raise RuntimeError("Function call did not produce a Literal result")
+            return self.IT
+
+        if isinstance(expression, Literal):
+            return expression
+
+        raise RuntimeError(
+            f"Cannot evaluate expression of type {type(expression).__name__}"
+        )
+
+    # makes a new literal based on the new type
+    def cast_literal(self, value, target_type):
+        if value.type is T.NOOB:
+            return Literal(None, target_type)
+
+        converted = (
+            int(value.value)
+            if target_type == T.NUMBR
+            else float(value.value)
+            if target_type == T.NUMBAR
+            else str(value.value)
+            if target_type == T.YARN
+            else bool(value.value)
+            if target_type == T.TROOF
+            else value.value
+        )
+        return Literal(converted, target_type)

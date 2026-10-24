@@ -1,17 +1,18 @@
 HAI
+
     HOW IZ I fxn YR var AN YR var2
-        VISIBLE var2
-        FOUND YR 100
+        VISIBLE I IZ fxn2 MKAY
+        FOUND YR MAEK 10 A YARN
     IF U SAY SO
 
     HOW IZ I fxn2
-        FOUND YR 10
-    IF U SAY SO
-    
-    I HAS A var ITZ 10
-    I HAS A varf ITZ 120
-    VISIBLE I IZ fxn YR varf AN YR var MKAY
-    VISIBLE 20
-    VISIBLE 10
-    VISIBLE "HI 😭😭😭"
+        FOUND YR 20
+    IF U SAY SO    
+
+    I HAS A var
+    I HAS A varf
+
+    var R I IZ fxn YR 20 AN YR 10 MKAY
+
+    VISIBLE var
 KTHXBYE

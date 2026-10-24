@@ -35,7 +35,6 @@ class FunctionCall(Node):
     name: str
     argv: list
     argc: int
-    type: any = T.FUNCTION
 
 @dataclass 
 class Identifier(Node):
@@ -45,4 +44,17 @@ class Identifier(Node):
 @dataclass
 class Return(Node):
     value: any
+    type: any = None
+
+@dataclass
+# name of var and what to reasign it to
+class Typecast(Node):
+    value: any
+    type: any = None
+
+@dataclass
+# what value to reassign
+class Reassign(Node):
+    name: str
+    value: any = None
     type: any = None

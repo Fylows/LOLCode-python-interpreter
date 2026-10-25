@@ -112,7 +112,7 @@ class Parser:
 
         value = self.parse_expr()
         if isinstance(value, FunctionCall):
-            raise SyntaxError(f"Line {self.peek().line}: cannot assign function call to variable declaration")
+            return Var(name, value, T.FUNC_CALL)
 
         elif isinstance(value, Identifier):
             return Var(name, value.name, value.type)
@@ -144,10 +144,10 @@ class Parser:
         t: T = self.peek()
         if t.type == T.BREAK:
             self.advance()
-            return Return(T.NOOB, T.NOOB)
+            return MyReturn(T.NOOB, T.NOOB)
         self.expect(T.RETURN)
         value = self.parse_expr()
-        return Return(value, value.type)
+        return MyReturn(value, value.type)
 
     # typecast := MAEK expression A type
     def parse_typecast(self):

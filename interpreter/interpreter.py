@@ -1,3 +1,5 @@
+from ast import Return
+
 from parser import *
 from parser.nodes import FunctionCall, Identifier, Literal, Function, MyReturn, Typecast
 from lexer.tokens import KEYWORDS, T  

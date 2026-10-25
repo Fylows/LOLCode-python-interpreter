@@ -110,9 +110,11 @@ class Interpreter():
 
         if n.type == T.FUNCTION:
             self.functions[n.name] = n.value
-        else:
-            self.variables[n.name] = Literal(n.value, n.type)
 
+        else:
+            if (isinstance(n.value, Literal)):
+                n.value = n.value.value
+            self.variables[n.name] = Literal(n.value, n.type)
 
     # for function return values, assigning to IT
     def exec_Return(self, n):

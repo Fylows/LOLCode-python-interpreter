@@ -1,5 +1,3 @@
-from ast import Return
-
 from lexer.tokens import T, KEYWORDS
 from parser.nodes import *
 
@@ -34,12 +32,7 @@ class Parser:
     def parse_program(self):
         self.skip_newlines()
         self.expect(T.HAI)
-        self.skip_newlines()
-        body = []
-        while self.peek().type != T.KTHXBYE:
-            body.append(self.parse_statement())
-            self.skip_newlines()
-        self.expect(T.KTHXBYE)
+        body = self.parse_block(T.KTHXBYE)
         return Program(body)
 
     # when parsing function add it to a var node with a function type
@@ -54,11 +47,7 @@ class Parser:
                 self.expect(T.YR)
                 args.append(self.expect(T.IDENT).value)
         self.skip_newlines()
-        body = []
-        while self.peek().type != T.FUNC_END:
-            body.append(self.parse_statement())
-            self.skip_newlines()
-        self.expect(T.FUNC_END)
+        body = self.parse_block(T.FUNC_END)
         return Var(name, Function(body, args if args else None), T.FUNCTION)
 
     # parse_statement parses a single statement and returns the corresponding node
@@ -109,21 +98,25 @@ class Parser:
                 return self.parse_function_call()
             case T.TYPECAST:
                 self.pos -= 1
-                # trace back steps because MAEK can also be before R
-                # or MAEK can start the expression
                 return self.parse_typecast()
         raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")
 
     # parse_var_decl parses a variable declaration and returns a Var node
-    # var_decl := VAR_ASSIGN IDENT expression
+    # var_decl := I HAS A IDENT ITZ expression
     def parse_var_decl(self):
-        self.expect(T.VAR_DECLARE)
+        self.expect(T.VAR_DECLARE)         
         name = self.expect(T.IDENT).value
         if self.peek().type != T.VAR_TYPE:
             return Var(name, None, T.NOOB)
-
         self.expect(T.VAR_TYPE)
+
         value = self.parse_expr()
+        if isinstance(value, FunctionCall):
+            raise SyntaxError(f"Line {self.peek().line}: cannot assign function call to variable declaration")
+
+        elif isinstance(value, Identifier):
+            return Var(name, value.name, value.type)
+
         return Var(name, value.value, value.type)
 
     # returns a function call node and the function's name 
@@ -135,14 +128,13 @@ class Parser:
         name = self.expect(T.IDENT).value
         args = []
         if (self.advance().type == T.YR):
-            args.append(self.advance() if self.peek().type == T.IDENT else self.parse_expr())
+            args.append(self.parse_expr())
             while self.peek().type is not T.MKAY:
                 self.expect(T.AN)
                 self.expect(T.YR)
                 # append var if IDENT, else parse expression (raw value)
-                args.append(self.advance() if self.peek().type == T.IDENT else self.parse_expr())
+                args.append(self.parse_expr())
             self.expect(T.MKAY)
-
         # make a FunctionCall node with the function name, arg count and arg vector, if any 
         return FunctionCall(name, args if args else None, len(args) if args else 0)
 
@@ -184,8 +176,9 @@ class Parser:
             raise SyntaxError(
                 f"Line {operator.line}: expected R or IS NOW A, got {operator.type.name}"
             )
-
+    
         value = self.parse_expr()
+        
         if isinstance(value, FunctionCall):
             return Reassign(var.value, value, T.FUNCTION)
         return Reassign(var.value, value, value.type)
@@ -197,3 +190,24 @@ class Parser:
                 f"Line {type.line}: expected NUMBAR, NUMBR, YARN or TROOF, got {type.value}"
             )
         return type.type
+
+    def end_statement(self):
+        t = self.peek()
+        if t.type != T.NEWLINE:
+            raise SyntaxError(
+                f"Line {t.line}: Expected end of line, got {t.type.name}"
+            )
+        self.skip_newlines()
+
+    def parse_block(self, end_token):
+        self.skip_newlines()
+        body = []
+        while self.peek().type != end_token:
+            if self.peek().type == T.EOF:
+                raise SyntaxError(
+                    f"Line {self.peek().line}: Reached end of file, expected {end_token.name}"
+                )
+            body.append(self.parse_statement())
+            self.end_statement()
+        self.expect(end_token)
+        return body

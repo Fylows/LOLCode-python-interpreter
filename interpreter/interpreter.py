@@ -92,13 +92,9 @@ class Interpreter():
                 # if identifier is a function, or variable is not defined, raise error
                 if self.functions.get(arg.name):
                     raise RuntimeError(f"Line: Variable {arg} is a function")
-                if arg.name not in self.variables:
+                elif arg.name not in self.variables:
                     raise RuntimeError(f"Variable {arg.name} is not defined")
                 
-                # if variable is function call, execute it and print the value of IT, else print the value of the variable
-                if isinstance(self.variables[arg.name].value, FunctionCall):
-                    self.run(self.variables[arg.name].value)
-                    print(f"NOOB" if self.IT.value is None else self.IT.value, end=' ')
                 else:
                     print(f"NOOB" if self.variables[arg.name].value is None else self.variables[arg.name].value, end=' ')
             
@@ -126,6 +122,12 @@ class Interpreter():
         else:
             if (isinstance(n.value, Literal)):
                 n.value = n.value.value
+            if (isinstance(n.value, FunctionCall)):
+                if n.value.name not in self.functions:
+                    raise RuntimeError(f"Function {n.value.name} is not defined")
+                self.exec_FunctionCall(n.value)
+                n.value = self.IT.value
+                n.type = self.IT.type
             self.variables[n.name] = Literal(n.value, n.type)
 
     # for function return values, assigning to IT

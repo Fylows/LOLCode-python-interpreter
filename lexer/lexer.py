@@ -44,7 +44,11 @@ def lexer(input_string: str) -> list[Token]:
                 i += 1
             
         elif keyword_at(input_string, i, "OBTW"):
-            if i > 0 and input_string[i-1] != '\n':
+            j = i-1
+            while j >= 0 and input_string[j] in " \t\r":
+                j -= 1
+            has_newline = j < 0 or input_string[j] == '\n'
+            if not has_newline:
                 raise SyntaxError(f"Line {line}: multi-line comments must start on a new line")
             start_line = line
             end = input_string.find("TLDR", i + 4)

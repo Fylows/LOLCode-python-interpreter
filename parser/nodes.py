@@ -42,7 +42,7 @@ class Identifier(Node):
     type: any = None
 
 @dataclass
-class Return(Node):
+class MyReturn(Node):
     value: any
     type: any = None
 

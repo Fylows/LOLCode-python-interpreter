@@ -1,7 +1,7 @@
 from ast import Return
 
 from parser import *
-from parser.nodes import FunctionCall, Identifier, Literal, Function, Typecast
+from parser.nodes import FunctionCall, Identifier, Literal, Function, MyReturn, Typecast
 from lexer.tokens import KEYWORDS, T  
 # initialize vars in dictionary
 # when IDENT is encountered, check if IDENT in dictionary, if not, throw error
@@ -31,7 +31,7 @@ class Interpreter():
     def exec_Program(self, n):
         for stmt in n.body: 
              # if return statement is encountered, execute it and break out of the loop
-            if isinstance(stmt, Return):
+            if isinstance(stmt, MyReturn):
                 self.exec_Return(stmt)
                 break
             self.run(stmt)
@@ -76,6 +76,9 @@ class Interpreter():
 
         # recursively executes the function body by executing each statement in its body
         for stmt in function.body:
+            if isinstance(stmt, MyReturn): # early return if return statement is encountered
+                self.exec_Return(stmt)
+                break
             self.run(stmt)
         self.variables = self.var_stack.pop()  # restore previous scope
     
@@ -85,19 +88,26 @@ class Interpreter():
             if isinstance(arg, Typecast):
                 self.exec_Typecast(arg)
                 print("NOOB" if self.IT.value is None else self.IT.value, end=' ')
+            
             # if identifier, check if it exists in variables
             elif isinstance(arg, Identifier):
-                # if identifier is a function, raise error
+                # if identifier is a function, or variable is not defined, raise error
                 if self.functions.get(arg.name):
-                    raise RuntimeError(f"Variable {arg.name} is a function")
-                if arg.name not in self.variables:
+                    raise RuntimeError(f"Line: Variable {arg} is a function")
+                elif arg.name not in self.variables:
                     raise RuntimeError(f"Variable {arg.name} is not defined")
-                print(f"NOOB" if self.variables[arg.name].value is None else self.variables[arg.name].value, end=' ')
-        
+                
+                else:
+                    print(f"NOOB" if self.variables[arg.name].value is None else self.variables[arg.name].value, end=' ')
+            
             # if function call, execute it and print the value of IT
             elif isinstance(arg, FunctionCall):
-                self.run(arg)
+                self.exec_FunctionCall(arg)
                 print(f"NOOB" if self.IT.value is None else self.IT.value, end = '')
+
+            # printing literals
+            elif isinstance(arg, Literal):
+                print(f"NOOB" if arg.value is None else arg.value, end=' ')
             else:
                 raise RuntimeError(f"Cannot print argument of type {type(arg).__name__}")
             print()
@@ -110,9 +120,17 @@ class Interpreter():
 
         if n.type == T.FUNCTION:
             self.functions[n.name] = n.value
-        else:
-            self.variables[n.name] = Literal(n.value, n.type)
 
+        else:
+            if (isinstance(n.value, Literal)):
+                n.value = n.value.value
+            if (isinstance(n.value, FunctionCall)):
+                if n.value.name not in self.functions:
+                    raise RuntimeError(f"Function {n.value.name} is not defined")
+                self.exec_FunctionCall(n.value)
+                n.value = self.IT.value
+                n.type = self.IT.type
+            self.variables[n.name] = Literal(n.value, n.type)
 
     # for function return values, assigning to IT
     def exec_Return(self, n):
@@ -176,7 +194,7 @@ class Interpreter():
             if target_type == T.NUMBAR
             else str(value.value)
             if target_type == T.YARN
-            else bool(value.value)
+            else "WIN" if bool(value.value) == True else "FAIL" if bool(value.value) == False else None
             if target_type == T.TROOF
             else value.value
         )

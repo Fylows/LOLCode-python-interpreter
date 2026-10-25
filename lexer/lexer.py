@@ -12,6 +12,12 @@ numbr = re.compile(r"-?[0-9]+")
 numbar = re.compile(r"-?[0-9]+\.[0-9]+")
 ident = re.compile(r"[A-Za-z][A-Za-z0-9_]*")
 
+# check if a keyword is at a specific index in the string
+# and that it is not part of a larger identifier
+def keyword_at(string: str, index: int, keyword: str) -> bool:
+    end = index + len(keyword)
+    return string.startswith(keyword, index) and not (end < len(string) and (string[end].isalnum() or string[end] == "_"))
+
 def lexer(input_string: str) -> list[Token]:
     tokens = []
     i, line = 0, 1
@@ -24,24 +30,35 @@ def lexer(input_string: str) -> list[Token]:
         if char in " \t\r":
             i += 1
         
-        elif input_string.startswith("BTW", i):
+        elif input_string.startswith("...", i):
+            end = input_string.find('\n', i)
+            if end == -1:
+                end = str_len
+            if input_string[i+3:end].strip():
+                raise SyntaxError(f"Line {line}: unexpected text after '...'")
+            i = min(end + 1, str_len)
+            line += 1
+
+        elif keyword_at(input_string, i, "BTW"):
             while i < str_len and input_string[i] != '\n':
                 i += 1
             
-        elif input_string.startswith("OBTW", i):
-            if (input_string[i-1] != '\n'):
-                raise SyntaxError("Multi-line comments must start on a new line")
-
-            while i < str_len and not input_string.startswith("TLDR", i):
-                i += 1
-                if i < str_len and input_string[i] == '\n':
-                    line += 1
-                if i >= str_len:
-                    raise SyntaxError(f"Line {line}: unterminated multi-line comment")
-            i += 4  # Skip "TLDR"
+        elif keyword_at(input_string, i, "OBTW"):
+            j = i-1
+            while j >= 0 and input_string[j] in " \t\r":
+                j -= 1
+            has_newline = j < 0 or input_string[j] == '\n'
+            if not has_newline:
+                raise SyntaxError(f"Line {line}: multi-line comments must start on a new line")
+            start_line = line
+            end = input_string.find("TLDR", i + 4)
+            if end == -1:
+                raise SyntaxError(f"Line {start_line}: unterminated multi-line comment")
+            line += input_string.count('\n', i, end)
+            i = end + 4
         
         # Check for newline/semicolon
-        elif char == '\n' or char == ';':
+        elif char == '\n' or char == ',':
             tokens.append(Token(T.NEWLINE, char, line))
             if char == '\n':
                 line += 1

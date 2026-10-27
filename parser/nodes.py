@@ -58,3 +58,10 @@ class Reassign(Node):
     name: str
     value: any = None
     type: any = None
+    
+@dataclass
+class Expression(Node):
+    operand: any
+    left_expr: any
+    right_expr: any
+    

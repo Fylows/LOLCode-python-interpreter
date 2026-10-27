@@ -1,7 +1,7 @@
 from ast import Return
 
 from parser import *
-from parser.nodes import FunctionCall, Identifier, Literal, Function, MyReturn, Typecast
+from parser.nodes import FunctionCall, Identifier, Literal, Function, MyReturn, Typecast, Expression
 from lexer.tokens import KEYWORDS, T  
 # initialize vars in dictionary
 # when IDENT is encountered, check if IDENT in dictionary, if not, throw error
@@ -108,6 +108,11 @@ class Interpreter():
             # printing literals
             elif isinstance(arg, Literal):
                 print(f"NOOB" if arg.value is None else arg.value, end=' ')
+
+            elif isinstance(arg, Expression):
+                self.exec_ArithOp(arg)
+                print(f"NOOB" if self.IT.value is None else self.IT.value, end=' ')
+
             else:
                 raise RuntimeError(f"Cannot print argument of type {type(arg).__name__}")
             print()
@@ -158,6 +163,51 @@ class Interpreter():
         target_type = n.type if n.value is None else value.type
         self.variables[n.name] = self.cast_literal(value, target_type)
 
+    def exec_ArithOp(self, n):
+        print(n)
+
+        left_expr = n.left_expr
+        right_expr = n.right_expr
+
+        if isinstance(right_expr, Expression):
+            right_expr = self.exec_ArithOp(n.right_expr)
+
+        if isinstance(left_expr, Expression):
+            left_expr = self.exec_ArithOp(n.left_expr)
+        
+        is_div_or_mod = n.operand == T.DIV or n.operand == T.MOD and left_expr.value%right_expr.value!=0
+        type = T.NUMBAR if (left_expr.type == T.NUMBAR or right_expr.type == T.NUMBAR) or is_div_or_mod else T.NUMBR
+
+        if n.operand == T.ADD:
+            value = Literal(left_expr.value + right_expr.value, type)
+            self.IT = value
+            return value
+         
+        if n.operand == T.SUB:
+            value = Literal(left_expr.value - right_expr.value, type)
+            self.IT = value
+            return value
+        if n.operand == T.MUL:
+            value =  Literal(left_expr.value * right_expr.value, type)
+            self.IT = value
+            return value
+        if n.operand == T.DIV:
+            value = Literal(left_expr.value / right_expr.value, type)
+            self.IT = value
+            return value
+        if n.operand == T.MOD:
+            value = Literal(left_expr.value % right_expr.value, type)
+            self.IT = value
+            return value
+        if n.operand == T.MAX:
+            value = Literal(max(left_expr.value,  right_expr.value), type)
+            self.IT = value
+            return value
+        if n.operand == T.MIN:
+            value = Literal(min(left_expr.value,  right_expr.value), type)
+            self.IT = value
+            return value
+
     # evaluates an expression and returns the corresponding value
     def evaluate_expression(self, expression):
         if isinstance(expression, Identifier):
@@ -173,6 +223,10 @@ class Interpreter():
             self.exec_FunctionCall(expression)
             if not isinstance(self.IT, Literal):
                 raise RuntimeError("Function call did not produce a Literal result")
+            return self.IT
+
+        if isinstance(expression, Expression):
+            self.exec_ArithOp(expression)
             return self.IT
 
         if isinstance(expression, Literal):

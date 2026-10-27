@@ -35,6 +35,8 @@ class Parser:
         body = self.parse_block(T.KTHXBYE)
         return Program(body)
 
+        
+
     # when parsing function add it to a var node with a function type
     def parse_function(self):
         self.advance()
@@ -99,6 +101,12 @@ class Parser:
             case T.TYPECAST:
                 self.pos -= 1
                 return self.parse_typecast()
+            case (T.ADD | T.SUB | T.DIV | T.MUL | T.MOD | T.MAX | T.MIN):                # Arithmetic Operations
+                left = self.parse_expr()
+                self.expect(T.AN)
+                right = self.parse_expr()
+                return Expression(operand=t.type, left_expr=left, right_expr=right)
+        
         raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")
 
     # parse_var_decl parses a variable declaration and returns a Var node

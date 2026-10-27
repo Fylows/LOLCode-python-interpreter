@@ -1,4 +1,4 @@
-from lexer.tokens import T, KEYWORDS
+from lexer.tokens import T, LITERALS, TYPES
 from parser.nodes import *
 
 class Parser:
@@ -35,7 +35,7 @@ class Parser:
         self.add_fxn()
 
         self.expect(T.HAI)
-        if (self.peek().type == T.NUMBR):
+        if (self.peek().type == T.NUMBAR_TYPE):
             if self.peek().value in ["1.0", "1.1", "1.2", "1.3"]:
                 self.advance()
             else:
@@ -113,8 +113,8 @@ class Parser:
     def parse_expr(self):
         t: T = self.advance()
         match t.type:
-            case (T.NUMBAR | T.NUMBR | T.YARN | T.TROOF | T.NOOB | T.WIN | T.FAIL):
-                val = int(t.value) if t.type == T.NUMBR else float(t.value) if t.type == T.NUMBAR else str(t.value)
+            case t.type if t.type in LITERALS:
+                val = int(t.value) if t.type == T.NUMBR_LIT else float(t.value) if t.type == T.NUMBAR_LIT else str(t.value) 
                 return Literal(val, t.type)
             case T.IDENT:
                 return Identifier(t.value, t.type)
@@ -195,7 +195,7 @@ class Parser:
         # if in the form of
         # reassign := IDENT IS NOW A expression A type
         if operator.type == T.REASSIGN:
-            if self.peek().type not in (T.NUMBAR, T.NUMBR, T.YARN, T.TROOF):
+            if self.peek().type not in TYPES:
                 raise SyntaxError(
                     f"Line {self.peek().line}: expected NUMBAR, NUMBR, YARN or TROOF, got {self.peek().value}"
                 )
@@ -214,7 +214,7 @@ class Parser:
 
     def parse_type(self):
         type = self.advance()
-        if type.value not in ("NUMBAR", "NUMBR", "YARN", "TROOF"):
+        if type.type not in TYPES:
             raise SyntaxError(
                 f"Line {type.line}: expected NUMBAR, NUMBR, YARN or TROOF, got {type.value}"
             )

@@ -6,8 +6,9 @@ HAI
         I HAS A var ITZ I IZ echo YR 10 MKAY
         I HAS A var2 ITZ MAEK var A TROOF
     BUHBYE
-    var2 R YARN
+
     VISIBLE var
+    var IS NOW A TROOF
     VISIBLE var2
 KTHXBYE
 HOW IZ I echo2 YR x

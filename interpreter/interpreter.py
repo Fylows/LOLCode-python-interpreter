@@ -196,13 +196,14 @@ class Interpreter():
 
         converted = (
             int(1 if value.value == "WIN" else 0 if value.value == "FAIL" else value.value)
-            if target_type == T.NUMBR
+            if target_type == T.NUMBR_TYPE
             else float(1 if value.value == "WIN" else 0 if value.value == "FAIL" else value.value)
-            if target_type == T.NUMBAR
+            if target_type == T.NUMBAR_TYPE
             else str(value.value)
-            if target_type == T.YARN
+            if target_type == T.YARN_TYPE
             else "WIN" if bool(value.value) == True else "FAIL" if bool(value.value) == False else None
-            if target_type == T.TROOF
+            if target_type == T.TROOF_TYPE
             else value.value
         )
+        
         return Literal(converted, target_type)

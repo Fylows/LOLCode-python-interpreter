@@ -22,6 +22,8 @@ class Interpreter():
         self.IT = T.NOOB
 
     def run(self, node):
+        if not node:
+            return
         method = getattr(self, f"exec_{type(node).__name__}")
         return method(node)
 

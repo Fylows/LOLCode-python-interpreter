@@ -6,7 +6,7 @@ class Parser:
         self.tokens = tokens
         self.pos = 0
         self.fxns = []
-        
+        self.vars = []
     # peek returns the current token without advancing the position
     def peek(self):
         return self.tokens[self.pos]
@@ -34,18 +34,20 @@ class Parser:
         body = []
         self.add_fxn()
 
-        
         self.expect(T.HAI)
-        if (self.peek().type == T.NUMBAR):
+        if (self.peek().type == T.NUMBR):
             if self.peek().value in ["1.0", "1.1", "1.2", "1.3"]:
                 self.advance()
             else:
                 raise SyntaxError(f"Line {self.peek().line}: expected version 1.0, 1.1, 1.2 or 1.3, got {self.peek().value}")
+        self.skip_newlines()
+        if (self.peek().type == T.WAZZUP):
+            self.parse_decl()
         body += self.parse_block(T.KTHXBYE)
 
         self.add_fxn()
 
-        return [Program(body), Program(self.fxns) if self.fxns else None]
+        return [Program(body), Program(self.vars) if self.vars else None, Program(self.fxns) if self.fxns else None]
     # when parsing function add it to a var node with a function type
     def parse_function(self):
         self.advance()
@@ -61,6 +63,17 @@ class Parser:
         body = self.parse_block(T.FUNC_END)
         return Var(name, Function(body, args if args else None), T.FUNCTION)
 
+    def parse_decl(self):
+        self.skip_newlines()
+        while self.advance().type != T.BUHBYE:
+            self.skip_newlines()
+            if self.peek().type == T.EOF:
+                raise SyntaxError(
+                    f"Line {self.peek().line}: Reached end of file, expected WAZZUP"
+                )
+            self.vars.append(self.parse_var_decl())
+            self.end_statement()
+        self.skip_newlines()
     # parse_statement parses a single statement and returns the corresponding node
     # statement := print_statement | function | var decl | function_call
     def parse_statement(self):
@@ -74,8 +87,6 @@ class Parser:
                 return self.parse_print()
             case T.FUNC_START:
                 return self.parse_function()
-            case T.VAR_DECLARE:
-                return self.parse_var_decl()
             case T.RETURN:
                 return self.parse_return()
             case T.FUNC_CALL:
@@ -202,7 +213,7 @@ class Parser:
             )
         return type.type
 
-""" --- HELPER FUNCTIONS --- """
+    # --- HELPER FUNCTIONS --- """ #
     def end_statement(self):
         t = self.peek()
         if t.type != T.NEWLINE and t.type != T.EOF:

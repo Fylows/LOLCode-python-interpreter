@@ -19,8 +19,10 @@ def main():
     parser = Parser(tokens)
     ast = parser.parse_program()
 
+    
     interpreter = Interpreter()
-    interpreter.run(ast[1]) # run functions first so they are defined before the main program runs
+    interpreter.run(ast[2]) # run functions first so they are defined before the main program runs
+    interpreter.run(ast[1]) # run variables first so they are defined before the main program runs
     interpreter.run(ast[0]) # then run main program
 
 def print_tokens(filename):
@@ -28,10 +30,6 @@ def print_tokens(filename):
     tokens = lexer(src)
     for token in tokens:
         print(token)
-
-
-def print1(var):
-    print1(var)
 
 if __name__ == "__main__":
     main()

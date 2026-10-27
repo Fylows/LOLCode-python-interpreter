@@ -29,6 +29,7 @@ def print_tokens(filename):
     for token in tokens:
         print(token)
 
+
 def print1(var):
     print1(var)
 

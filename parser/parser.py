@@ -32,10 +32,7 @@ class Parser:
     # entry of parser, parse program parses the entire program and returns a Program node
     def parse_program(self):
         body = []
-        self.skip_newlines()
-        if (self.peek().type == T.FUNC_START):
-            self.fxns.append(self.parse_function())
-            self.end_statement()
+        self.add_fxn()
 
         
         self.expect(T.HAI)
@@ -46,15 +43,9 @@ class Parser:
                 raise SyntaxError(f"Line {self.peek().line}: expected version 1.0, 1.1, 1.2 or 1.3, got {self.peek().value}")
         body += self.parse_block(T.KTHXBYE)
 
-
-        self.skip_newlines()
-        if (self.peek().type == T.FUNC_START):
-            self.fxns.append(self.parse_function())
-            self.end_statement()
-        self.skip_newlines()
+        self.add_fxn()
 
         return [Program(body), Program(self.fxns) if self.fxns else None]
-
     # when parsing function add it to a var node with a function type
     def parse_function(self):
         self.advance()
@@ -211,6 +202,7 @@ class Parser:
             )
         return type.type
 
+""" --- HELPER FUNCTIONS --- """
     def end_statement(self):
         t = self.peek()
         if t.type != T.NEWLINE and t.type != T.EOF:
@@ -227,11 +219,15 @@ class Parser:
                 raise SyntaxError(
                     f"Line {self.peek().line}: Reached end of file, expected {end_token.name}"
                 )
-            if self.peek().type == T.FUNC_CALL:
-                self.fxns.append(self.parse_function_call())
-                self.end_statement()
-                continue
+            self.add_fxn()
             body.append(self.parse_statement())
             self.end_statement()
         self.expect(end_token)
         return body
+    
+    def add_fxn(self):
+        self.skip_newlines()
+        if (self.peek().type == T.FUNC_START):
+            self.fxns.append(self.parse_function())
+            self.end_statement()
+        self.skip_newlines()

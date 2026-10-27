@@ -5,6 +5,7 @@ class Parser:
     def __init__(self, tokens: list[T]):
         self.tokens = tokens
         self.pos = 0
+        self.fxns = []
         
     # peek returns the current token without advancing the position
     def peek(self):
@@ -31,10 +32,9 @@ class Parser:
     # entry of parser, parse program parses the entire program and returns a Program node
     def parse_program(self):
         body = []
-
         self.skip_newlines()
         if (self.peek().type == T.FUNC_START):
-            body.append(self.parse_function())
+            self.fxns.append(self.parse_function())
             self.end_statement()
 
         
@@ -49,11 +49,11 @@ class Parser:
 
         self.skip_newlines()
         if (self.peek().type == T.FUNC_START):
-            body.append(self.parse_function())
+            self.fxns.append(self.parse_function())
             self.end_statement()
         self.skip_newlines()
 
-        return Program(body)
+        return [Program(body), Program(self.fxns) if self.fxns else None]
 
     # when parsing function add it to a var node with a function type
     def parse_function(self):
@@ -227,6 +227,10 @@ class Parser:
                 raise SyntaxError(
                     f"Line {self.peek().line}: Reached end of file, expected {end_token.name}"
                 )
+            if self.peek().type == T.FUNC_CALL:
+                self.fxns.append(self.parse_function_call())
+                self.end_statement()
+                continue
             body.append(self.parse_statement())
             self.end_statement()
         self.expect(end_token)

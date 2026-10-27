@@ -2,9 +2,9 @@ HOW IZ I echo YR x
     FOUND YR x
 IF U SAY SO  
 HAI
-    I HAS A var ITZ NOOB
-    var IS NOW A NUMBR
-    VISIBLE var
+    I HAS A var ITZ WIN
+    var IS NOW A YARN
+    VISIBLE I IZ echo2 YR 10 MKAY
 KTHXBYE
 HOW IZ I echo2 YR x
     FOUND YR x

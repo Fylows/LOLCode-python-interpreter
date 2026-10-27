@@ -8,9 +8,7 @@ from lexer.tokens import KEYWORDS, T
 
 
 class Interpreter():
-    def __init__(self, ast):
-        self.ast = ast
-
+    def __init__(self):
         # dictionary of functions, key is function name, value is function body
         self.functions = {}
         # current working variables dictionary

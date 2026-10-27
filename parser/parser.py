@@ -30,14 +30,29 @@ class Parser:
     
     # entry of parser, parse program parses the entire program and returns a Program node
     def parse_program(self):
+        body = []
+
         self.skip_newlines()
+        if (self.peek().type == T.FUNC_START):
+            body.append(self.parse_function())
+            self.end_statement()
+
+        
         self.expect(T.HAI)
-        if (self.peek()):
+        if (self.peek().type == T.NUMBAR):
             if self.peek().value in ["1.0", "1.1", "1.2", "1.3"]:
                 self.advance()
             else:
                 raise SyntaxError(f"Line {self.peek().line}: expected version 1.0, 1.1, 1.2 or 1.3, got {self.peek().value}")
-        body = self.parse_block(T.KTHXBYE)
+        body += self.parse_block(T.KTHXBYE)
+
+
+        self.skip_newlines()
+        if (self.peek().type == T.FUNC_START):
+            body.append(self.parse_function())
+            self.end_statement()
+        self.skip_newlines()
+
         return Program(body)
 
     # when parsing function add it to a var node with a function type
@@ -94,7 +109,7 @@ class Parser:
     def parse_expr(self):
         t: T = self.advance()
         match t.type:
-            case (T.NUMBAR | T.NUMBR | T.YARN | T.TROOF):
+            case (T.NUMBAR | T.NUMBR | T.YARN | T.TROOF | T.NOOB | T.WIN | T.FAIL):
                 val = int(t.value) if t.type == T.NUMBR else float(t.value) if t.type == T.NUMBAR else str(t.value)
                 return Literal(val, t.type)
             case T.IDENT:
@@ -198,7 +213,7 @@ class Parser:
 
     def end_statement(self):
         t = self.peek()
-        if t.type != T.NEWLINE:
+        if t.type != T.NEWLINE and t.type != T.EOF:
             raise SyntaxError(
                 f"Line {t.line}: Expected end of line, got {t.type.name}"
             )

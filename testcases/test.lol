@@ -1,13 +1,11 @@
-HAI 1.2
-    HOW IZ I echo YR x
-        FOUND YR x
-    IF U SAY SO
-    
-    VISIBLE I IZ echo YR 10 MKAY
-    I HAS A var ITZ 10
-    var IS NOW A NUMBAR
+HOW IZ I echo YR x
+    FOUND YR x
+IF U SAY SO  
+HAI
+    I HAS A var ITZ NOOB
+    var IS NOW A NUMBR
     VISIBLE var
 KTHXBYE
-
-
-
+HOW IZ I echo2 YR x
+    FOUND YR x
+IF U SAY SO  

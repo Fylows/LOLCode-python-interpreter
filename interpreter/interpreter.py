@@ -188,9 +188,9 @@ class Interpreter():
             return Literal(None, target_type)
 
         converted = (
-            int(value.value)
+            int(1 if value.value == "WIN" else 0 if value.value == "FAIL" else value.value)
             if target_type == T.NUMBR
-            else float(value.value)
+            else float(1 if value.value == "WIN" else 0 if value.value == "FAIL" else value.value)
             if target_type == T.NUMBAR
             else str(value.value)
             if target_type == T.YARN

@@ -4,9 +4,9 @@ IF U SAY SO
 HAI
     WAZZUP
         I HAS A var ITZ I IZ echo YR 10 MKAY
-        I HAS A var2 ITZ MAEK var A TROOF 
+        I HAS A var2 ITZ MAEK var A TROOF
     BUHBYE
-    
+    var2 R YARN
     VISIBLE var
     VISIBLE var2
 KTHXBYE

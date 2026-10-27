@@ -136,7 +136,6 @@ class Parser:
 
         
         value = self.parse_expr()
-        print(value)
         if isinstance(value, FunctionCall):
             return Var(name, value, T.FUNC_CALL)
         

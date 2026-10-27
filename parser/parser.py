@@ -32,6 +32,11 @@ class Parser:
     def parse_program(self):
         self.skip_newlines()
         self.expect(T.HAI)
+        if (self.peek()):
+            if self.peek().value in ["1.0", "1.1", "1.2", "1.3"]:
+                self.advance()
+            else:
+                raise SyntaxError(f"Line {self.peek().line}: expected version 1.0, 1.1, 1.2 or 1.3, got {self.peek().value}")
         body = self.parse_block(T.KTHXBYE)
         return Program(body)
 

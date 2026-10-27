@@ -127,10 +127,11 @@ KEYWORDS = [
     ("EITHER OF", T.OR),
     ("WON OF", T.ONE),
     ("NOT", T.NOT),
-    ("ANY OF", T.ANY),
-    ("ALL OF", T.ALL),
     ("BOTH SAEM", T.EQUAL),
     ("DIFFRINT", T.NOT_EQUAL),
+
+    ("ANY OF", T.ANY),
+    ("ALL OF", T.ALL),
 
     ("NUMBR", T.NUMBR), 
     ("NUMBAR", T.NUMBAR),  

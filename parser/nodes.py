@@ -63,5 +63,5 @@ class Reassign(Node):
 class Expression(Node):
     operand: any
     left_expr: any
-    right_expr: any
+    right_expr: any = None
     

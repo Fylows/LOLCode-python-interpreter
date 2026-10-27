@@ -174,15 +174,21 @@ class Interpreter():
 
         if isinstance(left_expr, Expression):
             left_expr = self.exec_ArithOp(n.left_expr)
-        
+
+        is_boolean = n.operand == T.AND or n.operand == T.OR or n.operand == T.ONE or n.operand == T.OR
         is_div_or_mod = n.operand == T.DIV or n.operand == T.MOD and left_expr.value%right_expr.value!=0
-        type = T.NUMBAR if (left_expr.type == T.NUMBAR or right_expr.type == T.NUMBAR) or is_div_or_mod else T.NUMBR
+
+
+        if(right_expr != None):
+            type = T.NUMBAR if (left_expr.type == T.NUMBAR or right_expr.type == T.NUMBAR) or is_div_or_mod else T.TROOF if is_boolean else T.NUMBR
+        else:
+            type = T.WIN if (left_expr.type == T.WIN) else T.FAIL if (right_expr.type == T.FAIL) else T.FAIL
+
 
         if n.operand == T.ADD:
             value = Literal(left_expr.value + right_expr.value, type)
             self.IT = value
             return value
-         
         if n.operand == T.SUB:
             value = Literal(left_expr.value - right_expr.value, type)
             self.IT = value
@@ -207,6 +213,24 @@ class Interpreter():
             value = Literal(min(left_expr.value,  right_expr.value), type)
             self.IT = value
             return value
+
+        if n.operand == T.AND:
+            value = Literal(left_expr.value and  right_expr.value, type)
+            self.IT = value
+            return value
+        if n.operand == T.OR:
+            value = Literal(left_expr.value or  right_expr.value, type)
+            self.IT = value
+            return value
+        if n.operand == T.NOT:
+            value = Literal(not left_expr.value, type)
+            self.IT = value
+            return value
+        if n.operand == T.ONE:
+            value = Literal(left_expr.value ^ right_expr.value, type)
+            self.IT = value
+            return value
+
 
     # evaluates an expression and returns the corresponding value
     def evaluate_expression(self, expression):

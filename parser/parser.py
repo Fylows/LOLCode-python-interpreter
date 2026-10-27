@@ -90,8 +90,9 @@ class Parser:
     # expression := literal |IDENT | NUMBAR | NUMBR | YARN | FUNC_CALL
     def parse_expr(self):
         t: T = self.advance()
+
         match t.type:
-            case (T.NUMBAR | T.NUMBR | T.YARN | T.TROOF):
+            case (T.NUMBAR | T.NUMBR | T.YARN | T.WIN | T.FAIL):
                 val = int(t.value) if t.type == T.NUMBR else float(t.value) if t.type == T.NUMBAR else str(t.value)
                 return Literal(val, t.type)
             case T.IDENT:
@@ -101,7 +102,12 @@ class Parser:
             case T.TYPECAST:
                 self.pos -= 1
                 return self.parse_typecast()
-            case (T.ADD | T.SUB | T.DIV | T.MUL | T.MOD | T.MAX | T.MIN):                # Arithmetic Operations
+            case T.NOT:
+                left = self.parse_expr()
+                return Expression(operand=t.type, left_expr=left, right_expr=None)
+            case ( T.ADD | T.SUB | T.DIV | T.MUL | T.MOD | T.MAX | T.MIN | # Arithmetic Operations
+                  T.AND | T.OR | T.ONE | # Boolean
+                  T.EQUAL | T.NOT_EQUAL):   # Equality
                 left = self.parse_expr()
                 self.expect(T.AN)
                 right = self.parse_expr()

@@ -127,13 +127,17 @@ class Interpreter():
         else:
             if (isinstance(n.value, Literal)):
                     n.value = n.value
-            if (isinstance(n.value, FunctionCall)):
+            elif (isinstance(n.value, FunctionCall)):
                 if n.value.name not in self.functions:
                     raise RuntimeError(f"Function {n.value.name} is not defined")
                 self.exec_FunctionCall(n.value)
                 n.value = self.IT.value
                 n.type = self.IT.type
-            self.variables[n.name] = Literal(n.value, n.type)
+            elif (isinstance(n.value, Typecast)):
+                self.exec_Typecast(n.value)
+                n.value = self.IT.value
+                n.type = self.IT.type
+        self.variables[n.name] = Literal(n.value, n.type)
 
     # for function return values, assigning to IT
     def exec_Return(self, n):

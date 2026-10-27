@@ -134,14 +134,20 @@ class Parser:
             return Var(name, None, T.NOOB)
         self.expect(T.VAR_TYPE)
 
+        
         value = self.parse_expr()
+        print(value)
         if isinstance(value, FunctionCall):
             return Var(name, value, T.FUNC_CALL)
-
+        
+        elif isinstance(value, Typecast):
+            return Var(name, value, value.type)
+        
         elif isinstance(value, Identifier):
             return Var(name, value.name, value.type)
         
-        return Var(name, value.value, value.type)
+        elif isinstance(value, Literal):
+            return Var(name, value.value, value.type)
 
     # returns a function call node and the function's name 
     def parse_function_call(self):

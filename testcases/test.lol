@@ -3,12 +3,12 @@ HOW IZ I echo YR x
 IF U SAY SO  
 HAI
     WAZZUP
-        I HAS A var ITZ WIN
+        I HAS A var ITZ I IZ echo YR 10 MKAY
+        I HAS A var2 ITZ var
     BUHBYE
-    var R FAIL
-    var IS NOW A YARN
+    
     VISIBLE var
-    VISIBLE I IZ echo2 YR 10 MKAY
+    VISIBLE var2
 KTHXBYE
 HOW IZ I echo2 YR x
     FOUND YR x

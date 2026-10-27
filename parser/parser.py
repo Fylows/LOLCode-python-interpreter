@@ -42,7 +42,9 @@ class Parser:
                 raise SyntaxError(f"Line {self.peek().line}: expected version 1.0, 1.1, 1.2 or 1.3, got {self.peek().value}")
         self.skip_newlines()
         if (self.peek().type == T.WAZZUP):
+            self.advance()
             self.parse_decl()
+            self.advance()
         body += self.parse_block(T.KTHXBYE)
 
         self.add_fxn()
@@ -65,7 +67,7 @@ class Parser:
 
     def parse_decl(self):
         self.skip_newlines()
-        while self.advance().type != T.BUHBYE:
+        while self.peek().type != T.BUHBYE:
             self.skip_newlines()
             if self.peek().type == T.EOF:
                 raise SyntaxError(
@@ -126,7 +128,7 @@ class Parser:
     # parse_var_decl parses a variable declaration and returns a Var node
     # var_decl := I HAS A IDENT ITZ expression
     def parse_var_decl(self):
-        self.expect(T.VAR_DECLARE)         
+        self.expect(T.VAR_DECLARE) 
         name = self.expect(T.IDENT).value
         if self.peek().type != T.VAR_TYPE:
             return Var(name, None, T.NOOB)
@@ -138,7 +140,7 @@ class Parser:
 
         elif isinstance(value, Identifier):
             return Var(name, value.name, value.type)
-
+        
         return Var(name, value.value, value.type)
 
     # returns a function call node and the function's name 

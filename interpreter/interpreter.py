@@ -120,10 +120,13 @@ class Interpreter():
 
         if n.type == T.FUNCTION:
             self.functions[n.name] = n.value
-
+        elif n.type == T.IDENT:
+            if n.value not in self.variables:
+                raise RuntimeError(f"Variable {n.value} is not defined")
+            self.variables[n.name] = self.variables[n.value]
         else:
             if (isinstance(n.value, Literal)):
-                n.value = n.value.value
+                    n.value = n.value
             if (isinstance(n.value, FunctionCall)):
                 if n.value.name not in self.functions:
                     raise RuntimeError(f"Function {n.value.name} is not defined")

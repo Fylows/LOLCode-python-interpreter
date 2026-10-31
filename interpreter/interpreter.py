@@ -8,9 +8,7 @@ from lexer.tokens import KEYWORDS, T
 
 
 class Interpreter():
-    def __init__(self, ast):
-        self.ast = ast
-
+    def __init__(self):
         # dictionary of functions, key is function name, value is function body
         self.functions = {}
         # current working variables dictionary
@@ -24,6 +22,8 @@ class Interpreter():
         self.IT = T.NOOB
 
     def run(self, node):
+        if not node:
+            return
         method = getattr(self, f"exec_{type(node).__name__}")
         return method(node)
 
@@ -125,17 +125,24 @@ class Interpreter():
 
         if n.type == T.FUNCTION:
             self.functions[n.name] = n.value
-
+        elif n.type == T.IDENT:
+            if n.value not in self.variables:
+                raise RuntimeError(f"Variable {n.value} is not defined")
+            self.variables[n.name] = self.variables[n.value]
         else:
             if (isinstance(n.value, Literal)):
-                n.value = n.value.value
-            if (isinstance(n.value, FunctionCall)):
+                    n.value = n.value
+            elif (isinstance(n.value, FunctionCall)):
                 if n.value.name not in self.functions:
                     raise RuntimeError(f"Function {n.value.name} is not defined")
                 self.exec_FunctionCall(n.value)
                 n.value = self.IT.value
                 n.type = self.IT.type
-            self.variables[n.name] = Literal(n.value, n.type)
+            elif (isinstance(n.value, Typecast)):
+                self.exec_Typecast(n.value)
+                n.value = self.IT.value
+                n.type = self.IT.type
+        self.variables[n.name] = Literal(n.value, n.type)
 
     # for function return values, assigning to IT
     def exec_Return(self, n):
@@ -266,14 +273,15 @@ class Interpreter():
             return Literal(None, target_type)
 
         converted = (
-            int(value.value)
-            if target_type == T.NUMBR
-            else float(value.value)
-            if target_type == T.NUMBAR
+            int(1 if value.value == "WIN" else 0 if value.value == "FAIL" else value.value)
+            if target_type == T.NUMBR_TYPE
+            else float(1 if value.value == "WIN" else 0 if value.value == "FAIL" else value.value)
+            if target_type == T.NUMBAR_TYPE
             else str(value.value)
-            if target_type == T.YARN
+            if target_type == T.YARN_TYPE
             else "WIN" if bool(value.value) == True else "FAIL" if bool(value.value) == False else None
-            if target_type == T.TROOF
+            if target_type == T.TROOF_TYPE
             else value.value
         )
+        
         return Literal(converted, target_type)

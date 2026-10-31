@@ -18,13 +18,19 @@ class T(Enum):
     
     # literals
     IDENT = auto()
-    NUMBAR = auto()
-    NUMBR = auto()
-    YARN = auto()
-    TROOF = auto()
+    NUMBAR_LIT = auto()
+    NUMBR_LIT = auto()
+    YARN_LIT = auto()
+    TROOF_LIT = auto()
     NOOB = auto()
     WIN = auto()
     FAIL = auto()
+
+    # literal types
+    NUMBAR_TYPE = auto()
+    NUMBR_TYPE = auto()
+    YARN_TYPE = auto()
+    TROOF_TYPE = auto()
 
     # variable declarations
     WAZZUP = auto()
@@ -102,6 +108,9 @@ class T(Enum):
     BTW = auto()
     OBTW = auto()
     TLDR = auto()
+    
+LITERALS = {T.NUMBAR_LIT, T.NUMBR_LIT, T.YARN_LIT, T.TROOF_LIT, T.NOOB, T.WIN, T.FAIL}
+TYPES = {T.NUMBAR_TYPE, T.NUMBR_TYPE, T.YARN_TYPE, T.TROOF_TYPE}
 
 # ALL KEYWORDS OF OUR LANGUAGE
 KEYWORDS = [
@@ -133,10 +142,11 @@ KEYWORDS = [
     ("ANY OF", T.ANY),
     ("ALL OF", T.ALL),
 
-    ("NUMBR", T.NUMBR), 
-    ("NUMBAR", T.NUMBAR),  
-    ("YARN", T.YARN),
-    ("TROOF", T.TROOF),
+
+    ("NUMBR", T.NUMBR_TYPE), 
+    ("NUMBAR", T.NUMBAR_TYPE),  
+    ("YARN", T.YARN_TYPE),
+    ("TROOF", T.TROOF_TYPE),
     ("WIN", T.WIN),
     ("FAIL", T.FAIL),
     ("NOOB", T.NOOB),
@@ -182,7 +192,9 @@ KEYWORDS = [
     ("OBTW", T.OBTW),
     ("TLDR", T.TLDR)
 ]
- 
+
+
+
 """
 TOKEN is a 
 type, which is an enum that represents what kind it is

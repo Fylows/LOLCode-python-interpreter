@@ -1,11 +1,12 @@
-from lexer.tokens import T, KEYWORDS
+from lexer.tokens import T, LITERALS, TYPES
 from parser.nodes import *
 
 class Parser:
     def __init__(self, tokens: list[T]):
         self.tokens = tokens
         self.pos = 0
-        
+        self.fxns = []
+        self.vars = []
     # peek returns the current token without advancing the position
     def peek(self):
         return self.tokens[self.pos]
@@ -30,13 +31,25 @@ class Parser:
     
     # entry of parser, parse program parses the entire program and returns a Program node
     def parse_program(self):
-        self.skip_newlines()
+        body = []
+        self.add_fxn()
+
         self.expect(T.HAI)
-        body = self.parse_block(T.KTHXBYE)
-        return Program(body)
+        if (self.peek().type == T.NUMBAR_TYPE):
+            if self.peek().value in ["1.0", "1.1", "1.2", "1.3"]:
+                self.advance()
+            else:
+                raise SyntaxError(f"Line {self.peek().line}: expected version 1.0, 1.1, 1.2 or 1.3, got {self.peek().value}")
+        self.skip_newlines()
+        if (self.peek().type == T.WAZZUP):
+            self.advance()
+            self.parse_decl()
+            self.advance()
+        body += self.parse_block(T.KTHXBYE)
 
-        
+        self.add_fxn()
 
+        return [Program(body), Program(self.vars) if self.vars else None, Program(self.fxns) if self.fxns else None]
     # when parsing function add it to a var node with a function type
     def parse_function(self):
         self.advance()
@@ -52,6 +65,17 @@ class Parser:
         body = self.parse_block(T.FUNC_END)
         return Var(name, Function(body, args if args else None), T.FUNCTION)
 
+    def parse_decl(self):
+        self.skip_newlines()
+        while self.peek().type != T.BUHBYE:
+            self.skip_newlines()
+            if self.peek().type == T.EOF:
+                raise SyntaxError(
+                    f"Line {self.peek().line}: Reached end of file, expected WAZZUP"
+                )
+            self.vars.append(self.parse_var_decl())
+            self.end_statement()
+        self.skip_newlines()
     # parse_statement parses a single statement and returns the corresponding node
     # statement := print_statement | function | var decl | function_call
     def parse_statement(self):
@@ -65,8 +89,6 @@ class Parser:
                 return self.parse_print()
             case T.FUNC_START:
                 return self.parse_function()
-            case T.VAR_DECLARE:
-                return self.parse_var_decl()
             case T.RETURN:
                 return self.parse_return()
             case T.FUNC_CALL:
@@ -92,8 +114,8 @@ class Parser:
         t: T = self.advance()
 
         match t.type:
-            case (T.NUMBAR | T.NUMBR | T.YARN | T.WIN | T.FAIL):
-                val = int(t.value) if t.type == T.NUMBR else float(t.value) if t.type == T.NUMBAR else str(t.value)
+            case t.type if t.type in LITERALS:
+                val = int(t.value) if t.type == T.NUMBR_LIT else float(t.value) if t.type == T.NUMBAR_LIT else str(t.value) 
                 return Literal(val, t.type)
             case T.IDENT:
                 return Identifier(t.value, t.type)
@@ -118,20 +140,25 @@ class Parser:
     # parse_var_decl parses a variable declaration and returns a Var node
     # var_decl := I HAS A IDENT ITZ expression
     def parse_var_decl(self):
-        self.expect(T.VAR_DECLARE)         
+        self.expect(T.VAR_DECLARE) 
         name = self.expect(T.IDENT).value
         if self.peek().type != T.VAR_TYPE:
             return Var(name, None, T.NOOB)
         self.expect(T.VAR_TYPE)
 
+        
         value = self.parse_expr()
         if isinstance(value, FunctionCall):
             return Var(name, value, T.FUNC_CALL)
-
+        
+        elif isinstance(value, Typecast):
+            return Var(name, value, value.type)
+        
         elif isinstance(value, Identifier):
             return Var(name, value.name, value.type)
-
-        return Var(name, value.value, value.type)
+        
+        elif isinstance(value, Literal):
+            return Var(name, value.value, value.type)
 
     # returns a function call node and the function's name 
     def parse_function_call(self):
@@ -180,7 +207,7 @@ class Parser:
         # if in the form of
         # reassign := IDENT IS NOW A expression A type
         if operator.type == T.REASSIGN:
-            if self.peek().type not in (T.NUMBAR, T.NUMBR, T.YARN, T.TROOF):
+            if self.peek().type not in TYPES:
                 raise SyntaxError(
                     f"Line {self.peek().line}: expected NUMBAR, NUMBR, YARN or TROOF, got {self.peek().value}"
                 )
@@ -199,15 +226,16 @@ class Parser:
 
     def parse_type(self):
         type = self.advance()
-        if type.value not in ("NUMBAR", "NUMBR", "YARN", "TROOF"):
+        if type.type not in TYPES:
             raise SyntaxError(
                 f"Line {type.line}: expected NUMBAR, NUMBR, YARN or TROOF, got {type.value}"
             )
         return type.type
 
+    # --- HELPER FUNCTIONS --- """ #
     def end_statement(self):
         t = self.peek()
-        if t.type != T.NEWLINE:
+        if t.type != T.NEWLINE and t.type != T.EOF:
             raise SyntaxError(
                 f"Line {t.line}: Expected end of line, got {t.type.name}"
             )
@@ -221,7 +249,15 @@ class Parser:
                 raise SyntaxError(
                     f"Line {self.peek().line}: Reached end of file, expected {end_token.name}"
                 )
+            self.add_fxn()
             body.append(self.parse_statement())
             self.end_statement()
         self.expect(end_token)
         return body
+    
+    def add_fxn(self):
+        self.skip_newlines()
+        if (self.peek().type == T.FUNC_START):
+            self.fxns.append(self.parse_function())
+            self.end_statement()
+        self.skip_newlines()

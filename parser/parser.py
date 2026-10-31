@@ -115,7 +115,7 @@ class Parser:
 
         match t.type:
             case t.type if t.type in LITERALS:
-                val = int(t.value) if t.type == T.NUMBR_LIT else float(t.value) if t.type == T.NUMBAR_LIT else str(t.value) 
+                val = int(t.value) if t.type == T.NUMBR_LIT else float(t.value) if t.type == T.NUMBAR_LIT else str(t.value) if t.type == T.YARN_LIT else t.value == "WIN" if t.type == T.TROOF_LIT else None
                 return Literal(val, t.type)
             case T.IDENT:
                 return Identifier(t.value, t.type)

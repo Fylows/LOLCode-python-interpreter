@@ -105,6 +105,8 @@ class Parser:
         # IDEALLY EXPRESSION PARSING HERE
         args = [self.parse_expr()]
         while self.peek().type not in (T.NEWLINE, T.EOF):
+            if self.peek().type == T.AN:
+                self.advance()
             args.append(self.parse_expr())
         return Print(args)
 
@@ -124,17 +126,29 @@ class Parser:
             case T.TYPECAST:
                 self.pos -= 1
                 return self.parse_typecast()
+            # CASE: Single Operand Operations
             case T.NOT:
-                left = self.parse_expr()
-                return Expression(operand=t.type, left_expr=left, right_expr=None)
-            case ( T.ADD | T.SUB | T.DIV | T.MUL | T.MOD | T.MAX | T.MIN | # Arithmetic Operations
+                return Operation(operand=t.type, args=[self.parse_expr()])
+            # CASE: Non-Variadic Operations
+            case ( T.ADD | T.SUB | T.DIV | T.MUL | T.MOD | T.MAX | T.MIN | # Arithmetic
                   T.AND | T.OR | T.ONE | # Boolean
-                  T.EQUAL | T.NOT_EQUAL):   # Equality
+                  T.EQUAL | T.NOT_EQUAL): # Equality 
                 left = self.parse_expr()
                 self.expect(T.AN)
                 right = self.parse_expr()
-                return Expression(operand=t.type, left_expr=left, right_expr=right)
-        
+                if self.peek().type == T.MKAY:
+                    self.advance()
+                return Operation(operand=t.type, args=[left,right])
+            # CASE: Variadic Operations
+            case (T.CONCAT | T.ANY | T.ALL):
+                args = [self.parse_expr()]
+                while self.peek().type == T.AN:
+                    self.advance()                      
+                    args.append(self.parse_expr())
+                if self.peek().type == T.MKAY:
+                    self.advance()
+                return Operation(operand=t.type, args=args)
+            
         raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")
 
     # parse_var_decl parses a variable declaration and returns a Var node
@@ -159,7 +173,7 @@ class Parser:
         elif isinstance(value, Literal):
             return Var(name, value.value, value.type)
 
-        elif isinstance(value, Expression):
+        elif isinstance(value, Operation):
             return Var(name, value, value.operand)
             
 

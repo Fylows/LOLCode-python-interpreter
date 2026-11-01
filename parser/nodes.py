@@ -60,8 +60,8 @@ class Reassign(Node):
     type: any = None
     
 @dataclass
-class Expression(Node):
+class Operation(Node):
     operand: any
-    left_expr: any
-    right_expr: any = None
+    args: list
+    type: any = None
     

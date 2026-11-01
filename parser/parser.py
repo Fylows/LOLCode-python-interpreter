@@ -145,7 +145,6 @@ class Parser:
         if self.peek().type != T.VAR_TYPE:
             return Var(name, None, T.NOOB)
         self.expect(T.VAR_TYPE)
-
         
         value = self.parse_expr()
         if isinstance(value, FunctionCall):
@@ -159,6 +158,10 @@ class Parser:
         
         elif isinstance(value, Literal):
             return Var(name, value.value, value.type)
+
+        elif isinstance(value, Expression):
+            return Var(name, value, value.operand)
+            
 
     # returns a function call node and the function's name 
     def parse_function_call(self):

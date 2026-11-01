@@ -107,10 +107,10 @@ class Interpreter():
 
             # printing literals
             elif isinstance(arg, Literal):
-                self.printing(arg.value)
+                self.printintg(arg.value)
 
             elif isinstance(arg, Expression):
-                self.exec_ArithOp(arg)
+                self.exec_Ops(arg)
                 self.printintg(self.IT.value)
 
             else:
@@ -142,6 +142,10 @@ class Interpreter():
                 self.exec_Typecast(n.value)
                 n.value = self.IT.value
                 n.type = self.IT.type
+            elif (isinstance(n.value, Expression)):
+                self.exec_Ops(n.value)
+                n.value = self.IT.value
+                n.type = self.IT.type
         self.variables[n.name] = Literal(n.value, n.type)
 
     # for function return values, assigning to IT
@@ -170,16 +174,31 @@ class Interpreter():
         target_type = n.type if n.value is None else value.type
         self.variables[n.name] = self.cast_literal(value, target_type)
 
-    def exec_ArithOp(self, n):
+    def exec_Ops(self, n):
         left_expr = n.left_expr
         right_expr = n.right_expr
 
         if isinstance(right_expr, Expression):
-            right_expr = self.exec_ArithOp(n.right_expr)
+            right_expr = self.exec_Ops(n.right_expr)
+
+        if isinstance(right_expr, Identifier):
+            if self.functions.get(right_expr.name):
+                raise RuntimeError(f"Line: Variable {right_expr} is a function")
+            elif right_expr.name not in self.variables:
+                raise RuntimeError(f"Variable {right_expr.name} is not defined")
+            else:
+                right_expr = self.variables[right_expr.name]
 
         if isinstance(left_expr, Expression):
-            left_expr = self.exec_ArithOp(n.left_expr)
+            left_expr = self.exec_Ops(n.left_expr)
 
+        if isinstance(left_expr, Identifier):
+            if self.functions.get(left_expr.name):
+                raise RuntimeError(f"Line: Variable {left_expr} is a function")
+            elif left_expr.name not in self.variables:
+                raise RuntimeError(f"Variable {left_expr.name} is not defined")
+            else:
+                left_expr = self.variables[left_expr.name]
 
         if n.operand == T.AND:
             value = Literal(left_expr.value and  right_expr.value, left_expr.type)
@@ -197,10 +216,9 @@ class Interpreter():
             value = Literal(left_expr.value ^ right_expr.value, left_expr.type)
             self.IT = value
             return value
-
-        is_boolean = n.operand == T.AND or n.operand == T.OR or n.operand == T.ONE or n.operand == T.OR
+        
         is_div_or_mod = n.operand == T.DIV or n.operand == T.MOD and left_expr.value%right_expr.value!=0
-        type = T.NUMBAR_TYPE if (left_expr.type == T.NUMBAR_TYPE or right_expr.type == T.NUMBAR_TYPE) or is_div_or_mod else T.TROOF_TYPE if is_boolean else T.NUMBR_TYPE
+        type = T.NUMBAR_TYPE if (left_expr.type == T.NUMBAR_TYPE or right_expr.type == T.NUMBAR_TYPE) or is_div_or_mod else T.NUMBR_TYPE
 
         if n.operand == T.ADD:
             value = Literal(left_expr.value + right_expr.value, type)
@@ -231,8 +249,6 @@ class Interpreter():
             self.IT = value
             return value
 
-
-
     # evaluates an expression and returns the corresponding value
     def evaluate_expression(self, expression):
         if isinstance(expression, Identifier):
@@ -251,7 +267,7 @@ class Interpreter():
             return self.IT
 
         if isinstance(expression, Expression):
-            self.exec_ArithOp(expression)
+            self.exec_Ops(expression)
             return self.IT
 
         if isinstance(expression, Literal):

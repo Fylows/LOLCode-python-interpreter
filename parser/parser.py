@@ -105,6 +105,8 @@ class Parser:
         # IDEALLY EXPRESSION PARSING HERE
         args = [self.parse_expr()]
         while self.peek().type not in (T.NEWLINE, T.EOF):
+            if self.peek().type == T.AN:
+                self.advance()
             args.append(self.parse_expr())
         return Print(args)
 
@@ -112,9 +114,10 @@ class Parser:
     # expression := literal |IDENT | NUMBAR | NUMBR | YARN | FUNC_CALL
     def parse_expr(self):
         t: T = self.advance()
+
         match t.type:
             case t.type if t.type in LITERALS:
-                val = int(t.value) if t.type == T.NUMBR_LIT else float(t.value) if t.type == T.NUMBAR_LIT else str(t.value) 
+                val = int(t.value) if t.type == T.NUMBR_LIT else float(t.value) if t.type == T.NUMBAR_LIT else str(t.value) if t.type == T.YARN_LIT else t.value == "WIN" if t.type == T.TROOF_LIT else None
                 return Literal(val, t.type)
             case T.IDENT:
                 return Identifier(t.value, t.type)
@@ -123,6 +126,26 @@ class Parser:
             case T.TYPECAST:
                 self.pos -= 1
                 return self.parse_typecast()
+            # CASE: Single Operand Operations
+            case T.NOT:
+                return Operation(operand=t.type, args=[self.parse_expr()])
+            # CASE: Non-Variadic Operations
+            case ( T.ADD | T.SUB | T.DIV | T.MUL | T.MOD | T.MAX | T.MIN | # Arithmetic
+                  T.AND | T.OR | T.ONE | # Boolean
+                  T.EQUAL | T.NOT_EQUAL): # Equality 
+                left = self.parse_expr()
+                self.expect(T.AN)
+                right = self.parse_expr()
+                return Operation(operand=t.type, args=[left,right])
+            # CASE: Variadic Operations
+            case (T.CONCAT | T.ANY | T.ALL):
+                args = [self.parse_expr()]
+                while self.peek().type == T.AN:
+                    self.expect(T.AN)                      
+                    args.append(self.parse_expr())
+                self.expect(T.MKAY)                      
+                return Operation(operand=t.type, args=args)
+            
         raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")
 
     # parse_var_decl parses a variable declaration and returns a Var node
@@ -133,7 +156,6 @@ class Parser:
         if self.peek().type != T.VAR_TYPE:
             return Var(name, None, T.NOOB)
         self.expect(T.VAR_TYPE)
-
         
         value = self.parse_expr()
         if isinstance(value, FunctionCall):
@@ -147,6 +169,10 @@ class Parser:
         
         elif isinstance(value, Literal):
             return Var(name, value.value, value.type)
+
+        elif isinstance(value, Operation):
+            return Var(name, value, value.operand)
+            
 
     # returns a function call node and the function's name 
     def parse_function_call(self):

@@ -1,23 +1,23 @@
 HAI
     WAZZUP
         BTW variable dec
-        I HAS A x
-        I HAS A y
+        I HAS A x ITZ 10
+        I HAS A y ITZ 5
     BUHBYE
     
-    GIMMEH x
-    GIMMEH y
+    BTW GIMMEH x
+    BTW GIMMEH y
     x IS NOW A NUMBR
     y IS NOW A NUMBR
 
     VISIBLE SMOOSH x AN "+" AN y AN "=" AN SUM OF x AN y MKAY
     VISIBLE SMOOSH x AN "-" AN y AN "=" AN DIFF OF x AN y MKAY
-    VISIBLE SMOOSH x AN "*" AN y AN "=" PRODUKT OF x AN y MKAY
-    VISIBLE SMOOSH x AN "/" AN y AN "=" QUOSHUNT OF x AN y MKAY
-    VISIBLE SMOOSH x AN "%" AN y "=" MOD OF x AN y MKAY
+    VISIBLE SMOOSH x AN "*" AN y AN "=" AN PRODUKT OF x AN y MKAY
+    VISIBLE SMOOSH x AN "/" AN y AN "=" AN QUOSHUNT OF x AN y MKAY
+    VISIBLE SMOOSH x AN "%" AN y "=" AN MOD OF x AN y MKAY
 
-    VISIBLE SMOOSH "max(" AN x AN "," AN y AN ")" "=" BIGGR OF x AN y MKAY
-    VISIBLE SMOOSH "min(" AN x AN "," AN y AN ")" "=" SMALLR OF x AN y MKAY
+    VISIBLE SMOOSH "max(" AN x AN "," AN y AN ")" "=" AN BIGGR OF x AN y MKAY
+    VISIBLE SMOOSH "min(" AN x AN "," AN y AN ")" "=" AN SMALLR OF x AN y MKAY
     
     BTW x^2 + y^2
     VISIBLE SUM OF PRODUKT OF x AN x AN PRODUKT OF y AN y

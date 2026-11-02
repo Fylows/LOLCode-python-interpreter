@@ -136,17 +136,14 @@ class Parser:
                 left = self.parse_expr()
                 self.expect(T.AN)
                 right = self.parse_expr()
-                if self.peek().type == T.MKAY:
-                    self.advance()
                 return Operation(operand=t.type, args=[left,right])
             # CASE: Variadic Operations
             case (T.CONCAT | T.ANY | T.ALL):
                 args = [self.parse_expr()]
                 while self.peek().type == T.AN:
-                    self.advance()                      
+                    self.expect(T.AN)                      
                     args.append(self.parse_expr())
-                if self.peek().type == T.MKAY:
-                    self.advance()
+                self.expect(T.MKAY)                      
                 return Operation(operand=t.type, args=args)
             
         raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")

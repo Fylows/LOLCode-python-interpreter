@@ -93,8 +93,15 @@ class Parser:
                 return self.parse_return()
             case T.FUNC_CALL:
                 return self.parse_function_call()
+            # --- CONTROL FLOW ---
+            case T.IF:
+                return self.parse_if_then()
+            case T.SWITCH:
+                return self.parse_switch_case()
+            case T.LOOP_START:
+                return self.parse_loop()
             case T.BREAK:
-                return self.parse_return() # return the BREAK token
+                return self.parse_gtfo()
             case _: # default case, no match
                 raise SyntaxError(f"Line {t.line}: unexpected token {t.type.name}")
         
@@ -275,3 +282,168 @@ class Parser:
             self.fxns.append(self.parse_function())
             self.end_statement()
         self.skip_newlines()
+
+    # ==================== CONTROL FLOW PARSING ====================
+
+    def parse_statement_block_until(self, stop_token_types: tuple[T, ...]) -> list:
+        """
+        Parses a sequence of statements until one of the stop_token_types is peeked.
+        Does not consume the stop token.
+        """
+        body = []
+        self.skip_newlines()
+        while self.peek().type not in stop_token_types:
+            if self.peek().type == T.EOF:
+                expected = ", ".join(t.name for t in stop_token_types)
+                raise SyntaxError(
+                    f"Line {self.peek().line}: Reached EOF, expected one of [{expected}]"
+                )
+            stmt = self.parse_statement()
+            if stmt is not None:
+                body.append(stmt)
+            self.end_statement()
+            self.skip_newlines()
+        return body
+
+    def parse_if_then(self) -> IfThen:
+        """
+        Parses an IF-THEN statement:
+            O RLY?
+                YA RLY
+                    <then_block>
+                [MEBBE <expr>
+                    <mebbe_block>...]
+                [NO WAI
+                    <else_block>]
+            OIC
+        """
+        self.expect(T.IF)  # O RLY?
+        self.end_statement()
+        self.skip_newlines()
+
+        self.expect(T.THEN)  # YA RLY
+        self.end_statement()
+        self.skip_newlines()
+
+        # Parse YA RLY block until MEBBE, NO WAI, or OIC
+        then_block = self.parse_statement_block_until((T.ELIF, T.ELSE, T.ENDIF))
+
+        # Parse any MEBBE clauses
+        mebbe_clauses = []
+        while self.peek().type == T.ELIF:
+            self.advance()  # consume MEBBE
+            mebbe_cond = self.parse_expr()
+            self.end_statement()
+            self.skip_newlines()
+            mebbe_body = self.parse_statement_block_until((T.ELIF, T.ELSE, T.ENDIF))
+            mebbe_clauses.append(MebbeClause(condition=mebbe_cond, body=mebbe_body))
+
+        # Parse optional NO WAI (else) block
+        else_block = None
+        if self.peek().type == T.ELSE:
+            self.advance()  # consume NO WAI
+            self.end_statement()
+            self.skip_newlines()
+            else_block = self.parse_statement_block_until((T.ENDIF,))
+
+        self.expect(T.ENDIF)  # OIC
+        return IfThen(
+            then_block=then_block,
+            mebbe_clauses=mebbe_clauses,
+            else_block=else_block,
+        )
+
+    def parse_switch_case(self) -> SwitchCase:
+        """
+        Parses a SWITCH-CASE statement:
+            WTF?
+                OMG <literal>
+                    <code block>
+                [OMG <literal>
+                    <code block>...]
+                [OMGWTF
+                    <code block>]
+            OIC
+        """
+        self.expect(T.SWITCH)  # WTF?
+        self.end_statement()
+        self.skip_newlines()
+
+        cases = []
+        while self.peek().type == T.CASE:
+            self.advance()  # consume OMG
+            case_val = self.parse_expr()
+            self.end_statement()
+            self.skip_newlines()
+            case_body = self.parse_statement_block_until((T.CASE, T.DEFAULT, T.ENDIF))
+            cases.append(CaseClause(value=case_val, body=case_body))
+
+        default_block = None
+        if self.peek().type == T.DEFAULT:
+            self.advance()  # consume OMGWTF
+            self.end_statement()
+            self.skip_newlines()
+            default_block = self.parse_statement_block_until((T.ENDIF,))
+
+        self.expect(T.ENDIF)  # OIC
+        return SwitchCase(cases=cases, default_block=default_block)
+
+    def parse_loop(self) -> Loop:
+        """
+        Parses a LOOP statement:
+            IM IN YR <label> <operation> YR <variable> [TIL|WILE <expression>]
+                <code block>
+            IM OUTTA YR <label>
+        """
+        self.expect(T.LOOP_START)  # IM IN YR
+        start_label_token = self.expect(T.IDENT)
+        start_label = start_label_token.value
+
+        op_token = self.advance()
+        if op_token.type not in (T.INC, T.DEC):
+            raise SyntaxError(
+                f"Line {op_token.line}: Expected UPPIN or NERFIN in loop header, got {op_token.type.name}"
+            )
+        operation = op_token.type
+
+        self.expect(T.YR)
+        var_token = self.expect(T.IDENT)
+        var_name = var_token.value
+
+        condition_type = None
+        condition = None
+        if self.peek().type in (T.UNTIL, T.WHILE):
+            cond_token = self.advance()
+            condition_type = cond_token.type
+            condition = self.parse_expr()
+
+        self.end_statement()
+        self.skip_newlines()
+
+        body = self.parse_statement_block_until((T.LOOP_END,))
+
+        self.expect(T.LOOP_END)  # IM OUTTA YR
+        end_label_token = self.expect(T.IDENT)
+        end_label = end_label_token.value
+
+        if start_label != end_label:
+            raise SyntaxError(
+                f"Line {end_label_token.line}: Loop closing label '{end_label}' "
+                f"does not match opening label '{start_label}'"
+            )
+
+        return Loop(
+            label=start_label,
+            operation=operation,
+            variable=var_name,
+            condition_type=condition_type,
+            condition=condition,
+            body=body,
+        )
+
+    def parse_gtfo(self) -> GTFO:
+        """
+        Parses a GTFO (break) statement.
+        """
+        self.expect(T.BREAK)
+        return GTFO()

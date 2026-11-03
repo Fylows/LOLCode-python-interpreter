@@ -35,7 +35,7 @@ def is_truthy(val) -> bool:
     if raw_val is None or raw_val is T.NOOB:
         return False
 
-    if val_type == T.TROOF:
+    if val_type in (T.TROOF_TYPE, T.TROOF_LIT):
         return raw_val in (True, "WIN")
 
     if isinstance(raw_val, bool):
@@ -84,7 +84,7 @@ class ControlFlowEvaluator:
                 interpreter.IT = (
                     cond_val
                     if isinstance(cond_val, Literal)
-                    else Literal(cond_val, T.TROOF)
+                    else Literal(cond_val, T.TROOF_TYPE)
                 )
                 if is_truthy(cond_val):
                     for stmt in mebbe.body:

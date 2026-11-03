@@ -115,7 +115,8 @@ class Interpreter():
 
             else:
                 raise RuntimeError(f"Cannot print argument of type {type(arg).__name__}")
-            print()
+            if n.newline:
+                print()
 
     # assigns a variable
     # variables are stored as Literal objects
@@ -329,6 +330,6 @@ class Interpreter():
 
     def printintg(self, val1):
         if val1 in [True, False]:
-            print(f"WIN" if val1 else "FAIL", end=' ')
+            print(f"WIN" if val1 else "FAIL", end='')
         else:
-            print(f"NOOB" if val1 is None else val1, end=' ')
+            print(f"NOOB" if val1 is None else val1, end='')

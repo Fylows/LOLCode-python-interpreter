@@ -11,5 +11,4 @@ HAI
 
     GIMMEH var
     VISIBLE SUM OF MAEK var A NUMBAR AN 10  BTW shoud work
-    VISIBLE MAEK "Str" A NUMBAR
 KTHXBYE

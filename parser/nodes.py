@@ -65,4 +65,7 @@ class Operation(Node):
     operand: any
     args: list
     type: any = None
-    
+
+@dataclass
+class Input(Node):
+    var: str

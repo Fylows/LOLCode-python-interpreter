@@ -87,7 +87,7 @@ class Interpreter():
         for arg in n.args:
             if isinstance(arg, Typecast):
                 self.exec_Typecast(arg)
-                self.printintg(self.IT.value)
+                self.printing(self.IT.value)
             
             # if identifier, check if it exists in variables
             elif isinstance(arg, Identifier):
@@ -98,20 +98,20 @@ class Interpreter():
                     raise RuntimeError(f"Variable {arg.name} is not defined")
                 
                 else:
-                    self.printintg(self.variables[arg.name].value)
+                    self.printing(self.variables[arg.name].value)
             
             # if function call, execute it and print the value of IT
             elif isinstance(arg, FunctionCall):
                 self.exec_FunctionCall(arg)
-                self.printintg(self.IT.value)
+                self.printing(self.IT.value)
 
             # printing literals
             elif isinstance(arg, Literal):
-                self.printintg(arg.value)
+                self.printing(arg.value)
 
             elif isinstance(arg, Operation):
                 self.exec_Ops(arg)
-                self.printintg(self.IT.value)
+                self.printing(self.IT.value)
 
             else:
                 raise RuntimeError(f"Cannot print argument of type {type(arg).__name__}")
@@ -328,8 +328,8 @@ class Interpreter():
         
         return Literal(converted, target_type)
 
-    def printintg(self, val1):
-        if val1 in [True, False]:
+    def printing(self, val1):
+        if val1 is True or val1 is False:
             print(f"WIN" if val1 else "FAIL", end='')
         else:
             print(f"NOOB" if val1 is None else val1, end='')

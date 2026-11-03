@@ -13,6 +13,7 @@ class Program(Node):
 @dataclass
 class Print(Node):
     args: list
+    newline: bool = True
     
 @dataclass
 class Literal(Node):

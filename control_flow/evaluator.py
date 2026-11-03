@@ -186,7 +186,7 @@ class ControlFlowEvaluator:
             else:
                 raise RuntimeError(f"Unknown loop operation: {node.operation}")
 
-            target_type = T.NUMBAR if isinstance(new_num, float) else T.NUMBR
+            target_type = T.NUMBAR_TYPE if isinstance(new_num, float) else T.NUMBR_TYPE
             interpreter.variables[node.variable] = Literal(new_num, target_type)
 
     @staticmethod

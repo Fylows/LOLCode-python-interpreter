@@ -70,7 +70,7 @@ def lexer(input_string: str) -> list[Token]:
             end = input_string.find('"', i + 1)
             if end == -1:
                 raise SyntaxError(f"Line {line}: unterminated string")
-            tokens.append(Token(T.YARN, input_string[i + 1:end], line))
+            tokens.append(Token(T.YARN_LIT, input_string[i + 1:end], line))
             i = end + 1
 
         # https://www.geeksforgeeks.org/python/re-match-in-python/
@@ -78,13 +78,13 @@ def lexer(input_string: str) -> list[Token]:
         # float
         elif re.match(numbar, input_string[i:]):
             m = re.match(numbar, input_string[i:])
-            tokens.append(Token(T.NUMBAR, m[0], line))
+            tokens.append(Token(T.NUMBAR_LIT, m[0], line))
             i += len(m[0])
 
         # int
         elif re.match(numbr, input_string[i:]):
             m = re.match(numbr, input_string[i:])
-            tokens.append(Token(T.NUMBR, m[0], line))
+            tokens.append(Token(T.NUMBR_LIT, m[0], line))
             i += len(m[0])
 
         # Check for keywords

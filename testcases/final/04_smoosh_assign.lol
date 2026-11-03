@@ -1,15 +1,15 @@
 HAI
     WAZZUP
         BTW variable dec
-        I HAS A x
-        I HAS A y
+        I HAS A x ITZ "Hello"
+        I HAS A y ITZ "Hi"
     BUHBYE
     
-    VISIBLE "Hello! Please enter two strings:"
-    VISIBLE "String 1: "
-    GIMMEH x
-    VISIBLE "String 2: "
-    GIMMEH y
+    BTW VISIBLE "Hello! Please enter two strings:"
+    VISIBLE "String 1: " AN x
+    BTW GIMMEH x
+    VISIBLE "String 2: " AN y
+    BTW GIMMEH y
 
     VISIBLE SMOOSH x AN y
 

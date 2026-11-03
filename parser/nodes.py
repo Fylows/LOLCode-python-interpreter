@@ -58,3 +58,10 @@ class Reassign(Node):
     name: str
     value: any = None
     type: any = None
+    
+@dataclass
+class Operation(Node):
+    operand: any
+    args: list
+    type: any = None
+    

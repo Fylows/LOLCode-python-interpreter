@@ -95,6 +95,8 @@ class Parser:
                 return self.parse_function_call()
             case T.BREAK:
                 return self.parse_return() # return the BREAK token
+            case T.INPUT:
+                return self.parse_input()
             case _: # default case, no match
                 raise SyntaxError(f"Line {t.line}: unexpected token {t.type.name}")
         
@@ -249,6 +251,10 @@ class Parser:
                 f"Line {type.line}: expected NUMBAR, NUMBR, YARN or TROOF, got {type.value}"
             )
         return type.type
+
+    def parse_input(self):
+        self.expect(T.INPUT)
+        return Input(self.expect(T.IDENT).value)
 
     # --- HELPER FUNCTIONS --- """ #
     def end_statement(self):

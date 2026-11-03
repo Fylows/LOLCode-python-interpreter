@@ -115,8 +115,8 @@ class Interpreter():
 
             else:
                 raise RuntimeError(f"Cannot print argument of type {type(arg).__name__}")
-            if n.newline:
-                print()
+        if n.newline:
+            print()
 
     # assigns a variable
     # variables are stored as Literal objects
@@ -280,6 +280,14 @@ class Interpreter():
 
 
         return self.evaluate_operation(operands, n)
+
+    def exec_Input(self, n):
+        user_input = input()
+        if n.var not in self.variables:
+            raise RuntimeError(f"Variable {n.var} is not defined")
+        self.variables[n.var] = Literal(user_input, T.YARN_TYPE)
+
+# === HELPER FUNCTIONS === #
 
     # evaluates an expression and returns the corresponding value
     def evaluate_expression(self, expression):

@@ -2,12 +2,14 @@
 HAI
     WAZZUP
         I HAS A var
-        I HAS A var2 ITZ WIN
+        I HAS A var2
     BUHBYE
 
-    VISIBLE "HEY INPUT WOW: "!
+    VISIBLE SUM OF "10" AN 2    BTW shoud work
+    VISIBLE SUM OF "1.2" AN 2   BTW shoud work
+    VISIBLE SUM OF "str" AN 2   BTW breaks
+
     GIMMEH var
-    var IS NOW A NUMBAR
-    VISIBLE SUM OF var AN 2 AN " WOW"
-    VISIBLE var2
+    VISIBLE SUM OF MAEK var A NUMBAR AN 10  BTW shoud work
+    VISIBLE MAEK "Str" A NUMBAR
 KTHXBYE

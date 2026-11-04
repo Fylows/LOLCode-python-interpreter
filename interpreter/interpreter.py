@@ -214,12 +214,15 @@ class Interpreter():
 
         type = self.get_number_type(ops, n)
 
-        if type == T.NUMBAR_TYPE:
-            l = float(ops[0].value)
-            r = float(ops[1].value)
-        else:
-            l = int(ops[0].value)
-            r = int(ops[1].value)
+        try:
+            if type == T.NUMBAR_TYPE:
+                l = float(ops[0].value)
+                r = float(ops[1].value)
+            else:
+                l = int(ops[0].value)
+                r = int(ops[1].value)
+        except ValueError:
+            raise ValueError(f"Invalid operation between YARN and {type}")
 
         if n.operand == T.ADD:
             value = Literal(l + r, type)

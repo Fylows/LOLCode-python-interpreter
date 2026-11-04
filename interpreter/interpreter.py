@@ -175,6 +175,7 @@ class Interpreter():
         target_type = n.type if n.value is None else value.type
         self.variables[n.name] = self.cast_literal(value, target_type)
 
+    # Evaluate a boolean operation
     def evaluate_boolean(self, ops, n):
         if n.operand == T.AND:
             value = Literal(ops[0].value and  ops[1].value, T.TROOF_TYPE)
@@ -187,12 +188,10 @@ class Interpreter():
         self.IT = value
         return value
 
-
-    def get_number_type(self, ops, n):
+    # Returns type of numerical value of arithmetic operations: NUMBR or NUMBAR
+    def get_numeric_type(self, ops, n):
 
         type = T.NUMBR_TYPE
-
-
         if isinstance(ops[0].value, str):
             if "." in ops[0].value:
                 type = T.NUMBAR_TYPE
@@ -208,11 +207,10 @@ class Interpreter():
 
         return type
 
-
-
+    # Evaluate arithmetic operations
     def evaluate_arithmetic(self, ops, n):
 
-        type = self.get_number_type(ops, n)
+        type = self.get_numeric_type(ops, n)
 
         try:
             if type == T.NUMBAR_TYPE:
@@ -241,6 +239,7 @@ class Interpreter():
         self.IT = value
         return value
 
+    # Evaluate comparison operations
     def evaluate_comparison(self, ops, n):
         if n.operand == T.EQUAL:
             value = Literal(ops[0].value == ops[1].value, T.TROOF_TYPE)
@@ -249,6 +248,7 @@ class Interpreter():
         self.IT = value
         return value
 
+    # Evaluate YARN concatenation operations
     def evaluate_concat(self, ops, n):
         if n.operand == T.CONCAT:
             value = Literal("", T.YARN_LIT)
@@ -256,7 +256,8 @@ class Interpreter():
                 value = Literal(str(value.value) + str(op.value), T.YARN_LIT)
         self.IT = value
         return value
-    
+
+    # Evaluate Variadic Boolean Operations
     def evaluate_many(self, ops, n):
         if n.operand == T.ANY:
             value = Literal(any(bool(op.value) for op in ops), T.TROOF_TYPE)
@@ -265,6 +266,7 @@ class Interpreter():
         self.IT = value
         return value
 
+    # General evaluate operation function, triggers evaluations based on operand
     def evaluate_operation(self, operands, n):
 
         if n.operand in [T.AND, T.OR, T.NOT, T.ONE]:
@@ -282,13 +284,11 @@ class Interpreter():
         if n.operand in [T.ANY, T.ALL]:
             return self.evaluate_many(operands, n)
 
-
-
+    # Execute operations code
     def exec_Ops(self, n):
         args = n.args
 
         operands = []
-
 
         for arg in args:
             if isinstance(arg, Operation):
@@ -307,9 +307,9 @@ class Interpreter():
             else:
                 operands.append(arg)
 
-
         return self.evaluate_operation(operands, n)
 
+    # Execute input code (GIMMEH)
     def exec_Input(self, n):
         user_input = input()
         if n.var not in self.variables:

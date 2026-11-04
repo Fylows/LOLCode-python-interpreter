@@ -13,7 +13,7 @@ HAI
 	VISIBLE "Choice: "
 	GIMMEH choice
 	choice IS NOW A NUMBR
-
+	
 	choice
 	WTF?
 		OMG 1

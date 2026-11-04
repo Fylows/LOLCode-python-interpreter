@@ -68,11 +68,14 @@ class Interpreter():
 
                 elif isinstance(arg, Literal): # get value of literal
                     arguments.append(arg)
+                
+                elif isinstance(arg, Operation): # get value of operation if it is an operation
+                    arguments.append(self.evaluate_expression(arg))
 
         # check of number of arguments passed to function matches number of expected arguments
         if len(arguments) != n.argc:
             raise RuntimeError(f"Function {function_var} expected {n.argc} arguments but got {len(arguments)}")
-
+        
         self.var_stack.append(self.variables.copy())  # save current scope
         self.variables = {}  # create new scope for function
 
@@ -82,10 +85,14 @@ class Interpreter():
 
         # recursively executes the function body by executing each statement in its body
         for stmt in function.body:
-            if isinstance(stmt, MyReturn): # early return if return statement is encountered
-                self.exec_Return(stmt)
+            
+            try:
+                if isinstance(stmt, MyReturn): # early return if return statement is encountered
+                    self.exec_Return(stmt)
+                    break
+                self.run(stmt)
+            except GTFOInterrupt:
                 break
-            self.run(stmt)
         self.variables = self.var_stack.pop()  # restore previous scope
     
     # executes a print statement by printing the values of its arguments
@@ -98,11 +105,12 @@ class Interpreter():
             # if identifier, check if it exists in variables
             elif isinstance(arg, Identifier):
                 # if identifier is a function, or variable is not defined, raise error
-                if self.functions.get(arg.name):
+                if arg.name == "IT":
+                    self.printing(self.IT.value)
+                elif self.functions.get(arg.name):
                     raise RuntimeError(f"Line: Variable {arg} is a function")
                 elif arg.name not in self.variables:
                     raise RuntimeError(f"Variable {arg.name} is not defined")
-                
                 else:
                     self.printing(self.variables[arg.name].value)
             
@@ -123,6 +131,11 @@ class Interpreter():
                 raise RuntimeError(f"Cannot print argument of type {type(arg).__name__}")
         if n.newline:
             print()
+
+    def exec_Identifier(self, n):
+        if n.name not in self.variables:
+            raise RuntimeError(f"Variable {n.name} is not defined")
+        self.IT = self.variables[n.name]
 
     # assigns a variable
     # variables are stored as Literal objects
@@ -301,6 +314,9 @@ class Interpreter():
             return self.evaluate_many(operands, n)
 
     # Execute operations code
+    def exec_Operation(self, n):
+        self.exec_Ops(n)
+        
     def exec_Ops(self, n):
         args = n.args
 
@@ -374,7 +390,7 @@ class Interpreter():
             if target_type == T.NUMBAR_TYPE
             else str(value.value)
             if target_type == T.YARN_TYPE
-            else bool(value.value) == True
+            else bool(value.value)
             if target_type == T.TROOF_TYPE
             else value.value
         )

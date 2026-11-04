@@ -1,6 +1,7 @@
 HAI
 	WAZZUP
 		I HAS A choice
+		I HAS A year
 		I HAS A input
 	BUHBYE
 
@@ -17,10 +18,13 @@ HAI
 	BOTH SAEM choice AN 1
 	O RLY?
 		YA RLY
-			VISIBLE "Enter birth year: "
+			VISIBLE "Enter birth year: " !
 			GIMMEH input
 			input IS NOW A NUMBR
-			VISIBLE DIFF OF 2022 AN input
+			VISIBLE "What year is it? " !
+			GIMMEH year
+			year IS NOW A NUMBR
+			VISIBLE DIFF OF year AN input
 		MEBBE BOTH SAEM choice AN 2
 			VISIBLE "Enter bill cost: "
 			GIMMEH input

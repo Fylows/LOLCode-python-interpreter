@@ -82,7 +82,13 @@ class Parser:
         t: T = self.peek()
         match t.type:
             case T.IDENT:
-                return self.parse_reassign()
+                self.advance()
+                if self.peek().type in [T.REASSIGN, T.VAR_ASSIGN]:
+                    self.pos -= 1
+                    return self.parse_reassign()
+                else:
+                    self.pos -= 1
+                    return self.parse_expr()  
             case T.TYPECAST:
                 return self.parse_typecast()
             case T.VISIBLE:
@@ -105,8 +111,7 @@ class Parser:
             case T.INPUT:
                 return self.parse_input()
             case _: # default case, no match
-                raise SyntaxError(f"Line {t.line}: unexpected token {t.type.name}")
-        
+                return self.parse_expr()
     # parse_print parses a print statement and returns a Print node
     # print_statement := VISIBLE expression
     def parse_print(self):
@@ -210,9 +215,6 @@ class Parser:
     # if breaking, return is noob
     def parse_return(self):
         t: T = self.peek()
-        if t.type == T.BREAK:
-            self.advance()
-            return MyReturn(T.NOOB, T.NOOB)
         self.expect(T.RETURN)
         value = self.parse_expr()
         return MyReturn(value, value.type)
@@ -240,10 +242,6 @@ class Parser:
                 )
             return Reassign(var.value, None, self.parse_type())
 
-        if operator.type != T.VAR_ASSIGN:
-            raise SyntaxError(
-                f"Line {operator.line}: expected R or IS NOW A, got {operator.type.name}"
-            )
     
         value = self.parse_expr()
         

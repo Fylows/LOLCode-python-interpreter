@@ -14,6 +14,7 @@ class Program(Node):
 @dataclass
 class Print(Node):
     args: list
+    newline: bool = True
     
 @dataclass
 class Literal(Node):
@@ -138,3 +139,6 @@ class GTFO(Node):
     Represents a GTFO (break) statement inside a loop or switch-case block.
     """
     pass
+@dataclass
+class Input(Node):
+    var: str

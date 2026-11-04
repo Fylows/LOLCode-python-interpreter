@@ -15,6 +15,7 @@ class T(Enum):
     
     # printing
     VISIBLE = auto()
+    TERM_NEWLINE = auto()
     
     # literals
     IDENT = auto()

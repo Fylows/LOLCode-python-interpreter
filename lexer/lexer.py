@@ -73,6 +73,10 @@ def lexer(input_string: str) -> list[Token]:
             tokens.append(Token(T.YARN_LIT, input_string[i + 1:end], line))
             i = end + 1
 
+        elif char == "!":
+            tokens.append(Token(T.TERM_NEWLINE, input_string[i], line))
+            i += 1
+        
         # https://www.geeksforgeeks.org/python/re-match-in-python/
         # matching regex from string
         # float

@@ -93,7 +93,7 @@ class Interpreter():
         for arg in n.args:
             if isinstance(arg, Typecast):
                 self.exec_Typecast(arg)
-                self.printintg(self.IT.value)
+                self.printing(self.IT.value)
             
             # if identifier, check if it exists in variables
             elif isinstance(arg, Identifier):
@@ -104,23 +104,24 @@ class Interpreter():
                     raise RuntimeError(f"Variable {arg.name} is not defined")
                 
                 else:
-                    self.printintg(self.variables[arg.name].value)
+                    self.printing(self.variables[arg.name].value)
             
             # if function call, execute it and print the value of IT
             elif isinstance(arg, FunctionCall):
                 self.exec_FunctionCall(arg)
-                self.printintg(self.IT.value)
+                self.printing(self.IT.value)
 
             # printing literals
             elif isinstance(arg, Literal):
-                self.printintg(arg.value)
+                self.printing(arg.value)
 
             elif isinstance(arg, Operation):
                 self.exec_Ops(arg)
-                self.printintg(self.IT.value)
+                self.printing(self.IT.value)
 
             else:
                 raise RuntimeError(f"Cannot print argument of type {type(arg).__name__}")
+        if n.newline:
             print()
 
     # assigns a variable
@@ -180,6 +181,7 @@ class Interpreter():
         target_type = n.type if n.value is None else value.type
         self.variables[n.name] = self.cast_literal(value, target_type)
 
+    # Evaluate a boolean operation
     def evaluate_boolean(self, ops, n):
         if n.operand == T.AND:
             value = Literal(ops[0].value and  ops[1].value, T.TROOF_TYPE)
@@ -192,17 +194,49 @@ class Interpreter():
         self.IT = value
         return value
 
+    # Returns type of numerical value of arithmetic operations: NUMBR or NUMBAR
+    def get_numeric_type(self, ops, n):
+
+        type = T.NUMBR_TYPE
+        if ops[0].type in [T.YARN_LIT, T.YARN_TYPE]:
+            if "." in ops[0].value:
+                ops[0].value = float(ops[0].value)
+                ops[0].type = T.NUMBAR_TYPE
+                type = T.NUMBAR_TYPE
+            else:
+                ops[0].value = int(ops[0].value)
+                ops[0].type = T.NUMBR_TYPE
+        if ops[1].type in [T.YARN_LIT, T.YARN_TYPE]:
+            if "." in ops[1].value:
+                ops[1].value = float(ops[1].value)
+                ops[1].type = T.NUMBAR_TYPE
+                type = T.NUMBAR_TYPE
+            else:
+                ops[1].value = int(ops[1].value)
+                ops[1].type = T.NUMBR_TYPE
+    
+        has_remainder = (n.operand == T.DIV or n.operand == T.MOD) and ops[0].value % ops[1].value !=0       # if it is division or modulo, does it have remainder?
+        has_numbar = (ops[0].type == T.NUMBAR_TYPE or ops[1].type == T.NUMBAR_TYPE)
+
+        if has_numbar or has_remainder:
+            type = T.NUMBAR_TYPE
+
+        return type
+
+    # Evaluate arithmetic operations
     def evaluate_arithmetic(self, ops, n):
-        is_div_or_mod = n.operand == T.DIV or n.operand == T.MOD and ops[0].value%ops[1].value!=0
-        type = T.NUMBAR_TYPE if (ops[0].type == T.NUMBAR_TYPE or ops[1].type == T.NUMBAR_TYPE) or is_div_or_mod else T.NUMBR_TYPE
 
-        if type == T.NUMBAR_TYPE:
-            l = float(ops[0].value)
-            r = float(ops[1].value)
-        else:
-            l = int(ops[0].value)
-            r = int(ops[1].value)
+        type = self.get_numeric_type(ops, n)
 
+        try:
+            if type == T.NUMBAR_TYPE:
+                l = float(ops[0].value)
+                r = float(ops[1].value)
+            else:
+                l = int(ops[0].value)
+                r = int(ops[1].value)
+        except ValueError:
+            raise ValueError(f"Invalid operation between YARN and {type}")
 
         if n.operand == T.ADD:
             value = Literal(l + r, type)
@@ -221,6 +255,7 @@ class Interpreter():
         self.IT = value
         return value
 
+    # Evaluate comparison operations
     def evaluate_comparison(self, ops, n):
         if n.operand == T.EQUAL:
             value = Literal(ops[0].value == ops[1].value, T.TROOF_TYPE)
@@ -229,6 +264,7 @@ class Interpreter():
         self.IT = value
         return value
 
+    # Evaluate YARN concatenation operations
     def evaluate_concat(self, ops, n):
         if n.operand == T.CONCAT:
             value = Literal("", T.YARN_LIT)
@@ -236,7 +272,8 @@ class Interpreter():
                 value = Literal(str(value.value) + str(op.value), T.YARN_LIT)
         self.IT = value
         return value
-    
+
+    # Evaluate Variadic Boolean Operations
     def evaluate_many(self, ops, n):
         if n.operand == T.ANY:
             value = Literal(any(bool(op.value) for op in ops), T.TROOF_TYPE)
@@ -245,7 +282,7 @@ class Interpreter():
         self.IT = value
         return value
 
-
+    # General evaluate operation function, triggers evaluations based on operand
     def evaluate_operation(self, operands, n):
 
         if n.operand in [T.AND, T.OR, T.NOT, T.ONE]:
@@ -263,8 +300,7 @@ class Interpreter():
         if n.operand in [T.ANY, T.ALL]:
             return self.evaluate_many(operands, n)
 
-
-
+    # Execute operations code
     def exec_Ops(self, n):
         args = n.args
 
@@ -273,6 +309,10 @@ class Interpreter():
         for arg in args:
             if isinstance(arg, Operation):
                 operands.append(self.exec_Ops(arg))
+
+            elif isinstance(arg, Typecast):
+                self.exec_Typecast(arg)
+                operands.append(self.IT)
             elif isinstance(arg, Identifier):
                 if self.functions.get(arg.name):
                     raise RuntimeError(f"Line: Variable {arg} is a function")
@@ -283,8 +323,16 @@ class Interpreter():
             else:
                 operands.append(arg)
 
-
         return self.evaluate_operation(operands, n)
+
+    # Execute input code (GIMMEH)
+    def exec_Input(self, n):
+        user_input = input()
+        if n.var not in self.variables:
+            raise RuntimeError(f"Variable {n.var} is not defined")
+        self.variables[n.var] = Literal(user_input, T.YARN_TYPE)
+
+# === HELPER FUNCTIONS === #
 
     # evaluates an expression and returns the corresponding value
     def evaluate_expression(self, expression):
@@ -333,9 +381,9 @@ class Interpreter():
         
         return Literal(converted, target_type)
 
-    def printintg(self, val1):
-        if val1 in [True, False]:
-            print(f"WIN" if val1 else "FAIL", end=' ')
+    def printing(self, val1):
+        if val1 is True or val1 is False:
+            print(f"WIN" if val1 else "FAIL", end='')
         else:
             print(f"NOOB" if val1 is None else val1, end=' ')
 

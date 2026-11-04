@@ -102,20 +102,26 @@ class Parser:
                 return self.parse_loop()
             case T.BREAK:
                 return self.parse_gtfo()
+            case T.INPUT:
+                return self.parse_input()
             case _: # default case, no match
                 raise SyntaxError(f"Line {t.line}: unexpected token {t.type.name}")
         
     # parse_print parses a print statement and returns a Print node
     # print_statement := VISIBLE expression
     def parse_print(self):
+        newline = True
         self.expect(T.VISIBLE)
         # IDEALLY EXPRESSION PARSING HERE
         args = [self.parse_expr()]
-        while self.peek().type not in (T.NEWLINE, T.EOF):
+        while self.peek().type not in (T.NEWLINE, T.EOF, T.TERM_NEWLINE):
             if self.peek().type == T.AN:
                 self.advance()
             args.append(self.parse_expr())
-        return Print(args)
+        if self.peek().type == T.TERM_NEWLINE:
+            newline = False
+            self.advance()
+        return Print(args, newline)
 
     # parse_expr parses an expression and returns the corresponding node
     # expression := literal |IDENT | NUMBAR | NUMBR | YARN | FUNC_CALL
@@ -252,6 +258,10 @@ class Parser:
                 f"Line {type.line}: expected NUMBAR, NUMBR, YARN or TROOF, got {type.value}"
             )
         return type.type
+
+    def parse_input(self):
+        self.expect(T.INPUT)
+        return Input(self.expect(T.IDENT).value)
 
     # --- HELPER FUNCTIONS --- """ #
     def end_statement(self):

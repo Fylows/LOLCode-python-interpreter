@@ -41,15 +41,20 @@ class Parser:
             else:
                 raise SyntaxError(f"Line {self.peek().line}: expected version 1.0, 1.1, 1.2 or 1.3, got {self.peek().value}")
         self.skip_newlines()
-        if (self.peek().type == T.WAZZUP):
-            self.advance()
-            self.parse_decl()
-            self.advance()
+        
+        self.parse_wazzup()
         body += self.parse_block(T.KTHXBYE)
 
         self.add_fxn()
 
         return [Program(body), Program(self.vars) if self.vars else None, Program(self.fxns) if self.fxns else None]
+    
+    def parse_wazzup(self):
+        if (self.peek().type == T.WAZZUP):
+            self.advance()
+            self.parse_decl()
+            self.advance()
+            self.skip_newlines()
     # when parsing function add it to a var node with a function type
     def parse_function(self):
         self.advance()
@@ -279,6 +284,7 @@ class Parser:
                     f"Line {self.peek().line}: Reached end of file, expected {end_token.name}"
                 )
             self.add_fxn()
+            self.parse_wazzup()
             body.append(self.parse_statement())
             self.end_statement()
         self.expect(end_token)

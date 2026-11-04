@@ -1,5 +1,7 @@
 
 HAI
+    VISIBLE "HELO WELCOME"
+    
     WAZZUP
     I HAS A var
     BUHBYE

@@ -192,14 +192,24 @@ class Interpreter():
     def get_numeric_type(self, ops, n):
 
         type = T.NUMBR_TYPE
-        if isinstance(ops[0].value, str):
+        if ops[0].type in [T.YARN_LIT, T.YARN_TYPE]:
             if "." in ops[0].value:
+                ops[0].value = float(ops[0].value)
+                ops[0].type = T.NUMBAR_TYPE
                 type = T.NUMBAR_TYPE
-        elif isinstance(ops[1].value, str):
+            else:
+                ops[0].value = int(ops[0].value)
+                ops[0].type = T.NUMBR_TYPE
+        if ops[1].type in [T.YARN_LIT, T.YARN_TYPE]:
             if "." in ops[1].value:
+                ops[1].value = float(ops[1].value)
+                ops[1].type = T.NUMBAR_TYPE
                 type = T.NUMBAR_TYPE
-
-        has_remainder = (n.operand == T.DIV or n.operand == T.MOD) and ops[0].value % ops[1].value!=0       # if it is division or modulo, does it have remainder?
+            else:
+                ops[1].value = int(ops[1].value)
+                ops[1].type = T.NUMBR_TYPE
+    
+        has_remainder = (n.operand == T.DIV or n.operand == T.MOD) and ops[0].value % ops[1].value !=0       # if it is division or modulo, does it have remainder?
         has_numbar = (ops[0].type == T.NUMBAR_TYPE or ops[1].type == T.NUMBAR_TYPE)
 
         if has_numbar or has_remainder:

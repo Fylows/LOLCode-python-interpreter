@@ -77,7 +77,7 @@ class Interpreter():
             raise RuntimeError(f"Function {function_var} expected {n.argc} arguments but got {len(arguments)}")
         
         self.var_stack.append(self.variables.copy())  # save current scope
-        self.variables = {}  # create new scope for function
+        self.variables = self.variables.copy()  # create new scope for function
 
         # load args into variables dictionary
         for i, arg in enumerate(arguments):

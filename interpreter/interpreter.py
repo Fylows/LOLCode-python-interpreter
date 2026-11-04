@@ -187,9 +187,32 @@ class Interpreter():
         self.IT = value
         return value
 
+
+    def get_number_type(self, ops, n):
+
+        type = T.NUMBR_TYPE
+
+
+        if isinstance(ops[0].value, str):
+            if "." in ops[0].value:
+                type = T.NUMBAR_TYPE
+        elif isinstance(ops[1].value, str):
+            if "." in ops[1].value:
+                type = T.NUMBAR_TYPE
+
+        has_remainder = (n.operand == T.DIV or n.operand == T.MOD) and ops[0].value % ops[1].value!=0       # if it is division or modulo, does it have remainder?
+        has_numbar = (ops[0].type == T.NUMBAR_TYPE or ops[1].type == T.NUMBAR_TYPE)
+
+        if has_numbar or has_remainder:
+            type = T.NUMBAR_TYPE
+
+        return type
+
+
+
     def evaluate_arithmetic(self, ops, n):
-        is_div_or_mod = n.operand == T.DIV or n.operand == T.MOD and ops[0].value%ops[1].value!=0
-        type = T.NUMBAR_TYPE if (ops[0].type == T.NUMBAR_TYPE or ops[1].type == T.NUMBAR_TYPE) or is_div_or_mod else T.NUMBR_TYPE
+
+        type = self.get_number_type(ops, n)
 
         if type == T.NUMBAR_TYPE:
             l = float(ops[0].value)
@@ -197,7 +220,6 @@ class Interpreter():
         else:
             l = int(ops[0].value)
             r = int(ops[1].value)
-
 
         if n.operand == T.ADD:
             value = Literal(l + r, type)
@@ -240,7 +262,6 @@ class Interpreter():
         self.IT = value
         return value
 
-
     def evaluate_operation(self, operands, n):
 
         if n.operand in [T.AND, T.OR, T.NOT, T.ONE]:
@@ -265,9 +286,14 @@ class Interpreter():
 
         operands = []
 
+
         for arg in args:
             if isinstance(arg, Operation):
                 operands.append(self.exec_Ops(arg))
+
+            elif isinstance(arg, Typecast):
+                self.exec_Typecast(arg)
+                operands.append(self.IT)
             elif isinstance(arg, Identifier):
                 if self.functions.get(arg.name):
                     raise RuntimeError(f"Line: Variable {arg} is a function")

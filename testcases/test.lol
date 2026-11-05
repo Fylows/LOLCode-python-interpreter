@@ -8,10 +8,6 @@ HAI
     OBTW
         NICE
     TLDR
-    HOW IZ I addNum YR x AN YR y
-        FOUND YR SUM OF x AN y
-    IF U SAY SO
-    VISIBLE I IZ addNum YR 10 AN YR 20 MKAY
 KTHXBYE
 BTW HAI
 OBTW

@@ -32,7 +32,15 @@ class Parser:
     def skip_comments(self):
         self.skip_newlines()
         while self.peek().type in (T.BTW, T.OBTW, T.TLDR, T.ELLIPSIS):
-            self.advance()
+            comment = self.advance()
+            if comment.type == T.OBTW:
+                while self.peek().type not in (T.TLDR, T.EOF):
+                    self.advance()
+                if self.peek().type == T.EOF:
+                    raise SyntaxError(
+                        f"Line {comment.line}: Reached end of file, expected TLDR"
+                    )
+                self.advance()
             self.skip_newlines()
     # entry of parser, parse program parses the entire program and returns a Program node
     def parse_program(self):
@@ -81,6 +89,7 @@ class Parser:
                 raise SyntaxError(
                     f"Line {self.peek().line}: Reached end of file, expected WAZZUP"
                 )
+            self.skip_comments()
             self.vars.append(self.parse_var_decl())
             self.end_statement()
         self.skip_newlines()
@@ -127,7 +136,15 @@ class Parser:
         self.expect(T.VISIBLE)
         # IDEALLY EXPRESSION PARSING HERE
         args = [self.parse_expr()]
-        while self.peek().type not in (T.NEWLINE, T.EOF, T.TERM_NEWLINE):
+        while self.peek().type not in (
+            T.NEWLINE,
+            T.EOF,
+            T.TERM_NEWLINE,
+            T.BTW,
+            T.OBTW,
+            T.TLDR,
+            T.ELLIPSIS,
+        ):
             if self.peek().type == T.AN:
                 self.advance()
             args.append(self.parse_expr())
@@ -173,8 +190,6 @@ class Parser:
                 return Operation(operand=t.type, args=args)
             case T.IT:
                 return Identifier("IT", T.IT)
-            case (T.BTW | T.OBTW | T.TLDR | T.ELLIPSIS | T.NEWLINE):
-                return None
         raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")
 
     # parse_var_decl parses a variable declaration and returns a Var node
@@ -274,6 +289,9 @@ class Parser:
 
     # --- HELPER FUNCTIONS --- """ #
     def end_statement(self):
+        if self.peek().type in (T.BTW, T.OBTW, T.TLDR, T.ELLIPSIS):
+            self.skip_comments()
+            return
         t = self.peek()
         if t.type != T.NEWLINE and t.type != T.EOF:
             raise SyntaxError(
@@ -283,13 +301,14 @@ class Parser:
         self.skip_comments()
 
     def parse_block(self, end_token):
-        self.skip_newlines()
+        self.skip_comments()
         body = []
         while self.peek().type != end_token:
             if self.peek().type == T.EOF:
                 raise SyntaxError(
                     f"Line {self.peek().line}: Reached end of file, expected {end_token.name}"
                 )
+            self.skip_comments()
             self.add_fxn()
             # if the next token is KTHXBYE, we are at the end of the program, so break
             if (self.peek().type == T.KTHXBYE):
@@ -314,13 +333,14 @@ class Parser:
         Does not consume the stop token.
         """
         body = []
-        self.skip_newlines()
+        self.skip_comments()
         while self.peek().type not in stop_token_types:
             if self.peek().type == T.EOF:
                 expected = ", ".join(t.name for t in stop_token_types)
                 raise SyntaxError(
                     f"Line {self.peek().line}: Reached EOF, expected one of [{expected}]"
                 )
+            self.skip_comments()
             stmt = self.parse_statement()
             if stmt is not None:
                 body.append(stmt)

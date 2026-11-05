@@ -1,4 +1,5 @@
 from ast import Return
+import math
 
 from parser import *
 from parser.nodes import FunctionCall, Identifier, Literal, Function, MyReturn, Typecast, Operation
@@ -391,7 +392,7 @@ class Interpreter():
             if target_type == T.NUMBR_TYPE
             else float(1 if value.value == "WIN" else 0 if value.value == "FAIL" else value.value)
             if target_type == T.NUMBAR_TYPE
-            else str(value.value)
+            else str(self.truncate(value.value, 3) if isinstance(value.value, float) else value.value)
             if target_type == T.YARN_TYPE
             else bool(value.value)
             if target_type == T.TROOF_TYPE
@@ -532,3 +533,7 @@ class Interpreter():
         Executes a GTFO statement by raising GTFOInterrupt.
         """
         raise GTFOInterrupt()
+
+    def truncate(self, value, decimal_places=0):
+        factor = 10.0 ** decimal_places
+        return math.trunc(value * factor) / factor

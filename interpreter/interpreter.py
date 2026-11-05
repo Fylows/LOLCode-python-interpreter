@@ -94,6 +94,7 @@ class Interpreter():
                 self.run(stmt)
             except GTFOInterrupt:
                 break
+            self.IT = None
         self.variables = self.var_stack.pop()  # restore previous scope
     
     # executes a print statement by printing the values of its arguments
@@ -101,13 +102,13 @@ class Interpreter():
         for arg in n.args:
             if isinstance(arg, Typecast):
                 self.exec_Typecast(arg)
-                self.printing(self.IT.value)
+                self.printing(self.IT.value if self.IT else "NOOB")
             
             # if identifier, check if it exists in variables
             elif isinstance(arg, Identifier):
                 # if identifier is a function, or variable is not defined, raise error
                 if arg.name == "IT":
-                    self.printing(self.IT.value)
+                    self.printing(self.IT.value if self.IT else "NOOB")
                 elif self.functions.get(arg.name):
                     raise RuntimeError(f"Line: Variable {arg} is a function")
                 elif arg.name not in self.variables:
@@ -118,7 +119,7 @@ class Interpreter():
             # if function call, execute it and print the value of IT
             elif isinstance(arg, FunctionCall):
                 self.exec_FunctionCall(arg)
-                self.printing(self.IT.value)
+                self.printing(self.IT.value if self.IT else "NOOB")
 
             # printing literals
             elif isinstance(arg, Literal):

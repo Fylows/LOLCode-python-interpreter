@@ -1,15 +1,25 @@
 
 HAI
     WAZZUP
-    I HAS A var
+        I HAS A var
+        I HAS A var3 ITZ 10
     BUHBYE
-    VISIBLE SUM OF PRODUKT OF 2 AN 3 AN 4
-    VISIBLE PRODUKT OF SUM OF 2 AN 3 AN 4
-    VISIBLE DIFF OF SUM OF 10 AN 5 AN 3
+    
+    GIMMEH var
+    
+    MAEK var A NUMBAR
+    HOW IZ I addNum YR x AN YR y
+        FOUND YR SUM OF var3 AN SUM OF x AN y
+    IF U SAY SO
 
-    VISIBLE SUM OF MAEK "10" A NUMBR AN PRODUKT OF 2 AN 3
-    VISIBLE PRODUKT OF MAEK "2.5" A NUMBAR AN SUM OF 2 AN 3
+    var
+    O RLY?
+        YA RLY
+            VISIBLE "ggez"
+        NO WAI
+            VISIBLE "ff15"
+    OIC
 
-    VISIBLE QUOSHUNT OF SUM OF 10 AN 5 AN 3
-    VISIBLE SUM OF QUOSHUNT OF 10 AN 2 AN 5
+    VISIBLE I IZ addNum YR 1 AN YR 2 MKAY
 KTHXBYE
+

@@ -2,9 +2,15 @@ from ast import Return
 
 from parser import *
 from parser.nodes import FunctionCall, Identifier, Literal, Function, MyReturn, Typecast, Operation
+from parser.nodes import IfThen, MebbeClause, SwitchCase, CaseClause, Loop, GTFO
 from lexer.tokens import KEYWORDS, T  
 # initialize vars in dictionary
 # when IDENT is encountered, check if IDENT in dictionary, if not, throw error
+
+
+class GTFOInterrupt(Exception):
+    """Exception raised when GTFO (break) is encountered inside a loop or switch-case."""
+    pass
 
 
 class Interpreter():
@@ -62,13 +68,16 @@ class Interpreter():
 
                 elif isinstance(arg, Literal): # get value of literal
                     arguments.append(arg)
+                
+                elif isinstance(arg, Operation): # get value of operation if it is an operation
+                    arguments.append(self.evaluate_expression(arg))
 
         # check of number of arguments passed to function matches number of expected arguments
         if len(arguments) != n.argc:
             raise RuntimeError(f"Function {function_var} expected {n.argc} arguments but got {len(arguments)}")
-
+        
         self.var_stack.append(self.variables.copy())  # save current scope
-        self.variables = {}  # create new scope for function
+        self.variables = self.variables.copy()  # create new scope for function
 
         # load args into variables dictionary
         for i, arg in enumerate(arguments):
@@ -76,10 +85,14 @@ class Interpreter():
 
         # recursively executes the function body by executing each statement in its body
         for stmt in function.body:
-            if isinstance(stmt, MyReturn): # early return if return statement is encountered
-                self.exec_Return(stmt)
+            
+            try:
+                if isinstance(stmt, MyReturn): # early return if return statement is encountered
+                    self.exec_Return(stmt)
+                    break
+                self.run(stmt)
+            except GTFOInterrupt:
                 break
-            self.run(stmt)
         self.variables = self.var_stack.pop()  # restore previous scope
     
     # executes a print statement by printing the values of its arguments
@@ -92,11 +105,12 @@ class Interpreter():
             # if identifier, check if it exists in variables
             elif isinstance(arg, Identifier):
                 # if identifier is a function, or variable is not defined, raise error
-                if self.functions.get(arg.name):
+                if arg.name == "IT":
+                    self.printing(self.IT.value)
+                elif self.functions.get(arg.name):
                     raise RuntimeError(f"Line: Variable {arg} is a function")
                 elif arg.name not in self.variables:
                     raise RuntimeError(f"Variable {arg.name} is not defined")
-                
                 else:
                     self.printing(self.variables[arg.name].value)
             
@@ -117,6 +131,11 @@ class Interpreter():
                 raise RuntimeError(f"Cannot print argument of type {type(arg).__name__}")
         if n.newline:
             print()
+
+    def exec_Identifier(self, n):
+        if n.name not in self.variables:
+            raise RuntimeError(f"Variable {n.name} is not defined")
+        self.IT = self.variables[n.name]
 
     # assigns a variable
     # variables are stored as Literal objects
@@ -295,6 +314,9 @@ class Interpreter():
             return self.evaluate_many(operands, n)
 
     # Execute operations code
+    def exec_Operation(self, n):
+        self.exec_Ops(n)
+        
     def exec_Ops(self, n):
         args = n.args
 
@@ -368,7 +390,7 @@ class Interpreter():
             if target_type == T.NUMBAR_TYPE
             else str(value.value)
             if target_type == T.YARN_TYPE
-            else bool(value.value) == True
+            else bool(value.value)
             if target_type == T.TROOF_TYPE
             else value.value
         )
@@ -379,4 +401,131 @@ class Interpreter():
         if val1 is True or val1 is False:
             print(f"WIN" if val1 else "FAIL", end='')
         else:
-            print(f"NOOB" if val1 is None else val1, end='')
+            print(f"NOOB" if val1 is None else val1, end=' ')
+
+    # ==================== CONTROL FLOW EXECUTION ====================
+
+    def exec_IfThen(self, node):
+        """
+        Executes an IF-THEN statement.
+        Uses the implicit IT variable to determine which branch to execute.
+        """
+        # If IT is truthy (can be cast to WIN), execute YA RLY block
+        if isinstance(self.IT, Literal) and self.IT.type != T.NOOB and self.cast_literal(self.IT, T.TROOF_TYPE).value:
+            for stmt in node.then_block:
+                self.run(stmt)
+            return
+
+        # Check MEBBE clauses if present; mebbe else if
+        if node.mebbe_clauses:
+            for mebbe in node.mebbe_clauses:
+                cond_val = self.evaluate_expression(mebbe.condition)
+                cond_lit = cond_val if isinstance(cond_val, Literal) else Literal(cond_val, T.TROOF_TYPE)
+                self.IT = cond_lit
+                if cond_lit.type != T.NOOB and self.cast_literal(cond_lit, T.TROOF_TYPE).value:
+                    for stmt in mebbe.body:
+                        self.run(stmt)
+                    return
+
+        # Otherwise execute NO WAI (else) block if present
+        if node.else_block:
+            for stmt in node.else_block:
+                self.run(stmt)
+
+    def exec_SwitchCase(self, node):
+        """
+        Executes a SWITCH-CASE statement.
+        Compares implicit variable IT to each OMG case.
+        Supports fall-through execution until GTFO or OIC.
+        Executes OMGWTF if no case matches or if fell through to it.
+        """
+        it_val = self.IT.value if hasattr(self.IT, "value") else self.IT
+
+        matched = False
+        fell_through_to_default = False
+
+        try:
+            for case in node.cases:
+                case_literal = self.evaluate_expression(case.value)
+                case_val = (
+                    case_literal.value
+                    if hasattr(case_literal, "value")
+                    else case_literal
+                )
+
+                # Check for match or fallthrough
+                if matched or (str(it_val) == str(case_val) or it_val == case_val):
+                    matched = True
+                    for stmt in case.body:
+                        self.run(stmt)
+
+            # If matched without GTFO, it falls through into default block
+            fell_through_to_default = matched
+
+            # If no case matched, or execution fell through, execute OMGWTF if present
+            if (not matched or fell_through_to_default) and node.default_block is not None:
+                if not matched or fell_through_to_default:
+                    for stmt in node.default_block:
+                        self.run(stmt)
+
+        except GTFOInterrupt:
+            # GTFO breaks out of the switch statement
+            pass
+
+    def exec_Loop(self, node):
+        """
+        Executes a LOOP statement:
+        1. Check condition (TIL / WILE).
+        2. Execute loop body.
+        3. Catch GTFOInterrupt to exit cleanly.
+        4. Apply operation (UPPIN / NERFIN) to loop variable.
+        5. Repeat.
+        """
+        if node.variable not in self.variables:
+            raise RuntimeError(f"Loop variable '{node.variable}' is not defined")
+
+        while True:
+            # 1. Condition check before loop iteration
+            if node.condition_type and node.condition:
+                cond_val = self.evaluate_expression(node.condition)
+                cond_lit = cond_val if isinstance(cond_val, Literal) else Literal(cond_val, T.TROOF_TYPE)
+                cond_truthy = cond_lit.type != T.NOOB and bool(self.cast_literal(cond_lit, T.TROOF_TYPE).value)
+
+                # TIL repeats while expression is FAIL (stops when WIN)
+                if node.condition_type == T.UNTIL and cond_truthy:
+                    break
+
+                # WILE repeats while expression is WIN (stops when FAIL)
+                if node.condition_type == T.WHILE and not cond_truthy:
+                    break
+
+            # 2. Execute loop body
+            try:
+                for stmt in node.body:
+                    self.run(stmt)
+            except GTFOInterrupt:
+                break
+
+            # 3. Apply operation (UPPIN / NERFIN) to counter variable
+            var_literal = self.variables[node.variable]
+            current_num = var_literal.value
+
+            # Convert to numerical if needed
+            if isinstance(current_num, str):
+                current_num = float(current_num) if "." in current_num else int(current_num)
+
+            if node.operation == T.INC:
+                new_num = current_num + 1
+            elif node.operation == T.DEC:
+                new_num = current_num - 1
+            else:
+                raise RuntimeError(f"Unknown loop operation: {node.operation}")
+
+            target_type = T.NUMBAR_TYPE if isinstance(new_num, float) else T.NUMBR_TYPE
+            self.variables[node.variable] = Literal(new_num, target_type)
+
+    def exec_GTFO(self, node):
+        """
+        Executes a GTFO statement by raising GTFOInterrupt.
+        """
+        raise GTFOInterrupt()

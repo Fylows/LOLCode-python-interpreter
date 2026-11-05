@@ -29,12 +29,12 @@ HAI
 			VISIBLE "Enter bill cost: "
 			GIMMEH input
 			input IS NOW A NUMBR
-			VISIBLE SMOOSH "Tip: " AN PRODUKT OF input AN 0.1 MKAY
+			VISIBLE SMOOSH "Tip: " AN PRODUKT OF input AN 0.1
 		MEBBE BOTH SAEM choice AN 3
 			VISIBLE "Enter width: "
 			GIMMEH input
 			input IS NOW A NUMBR
-			VISIBLE SMOOSH "Square Area: " AN PRODUKT OF input AN input MKAY
+			VISIBLE SMOOSH "Square Area: " AN PRODUKT OF input AN input
 		MEBBE BOTH SAEM choice AN 0
 			VISIBLE "Goodbye"
 		NO WAI

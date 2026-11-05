@@ -177,11 +177,12 @@ class Parser:
                 return Operation(operand=t.type, args=[left,right])
             # CASE: Variadic Operations
             case (T.CONCAT | T.ANY | T.ALL):
+                is_concatenation = t.type == T.CONCAT
                 args = [self.parse_expr()]
                 while self.peek().type == T.AN:
                     self.expect(T.AN)                      
                     args.append(self.parse_expr())
-                if (self.peek() in (T.ANY, T.ALL)):
+                if not is_concatenation:   
                     self.expect(T.MKAY)                      
                 return Operation(operand=t.type, args=args)
             case T.IT:

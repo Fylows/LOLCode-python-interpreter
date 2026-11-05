@@ -11,7 +11,7 @@ HAI
     IF U SAY SO
 
     HOW IZ I printName YR person
-        VISIBLE SMOOSH "Hello, " AN person MKAY
+        VISIBLE SMOOSH "Hello, " AN person
         GTFO
     IF U SAY SO
 

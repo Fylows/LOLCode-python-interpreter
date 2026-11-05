@@ -10,14 +10,14 @@ HAI
     x IS NOW A NUMBR
     y IS NOW A NUMBR
 
-    VISIBLE SMOOSH x AN "+" AN y AN "=" AN SUM OF x AN y MKAY
-    VISIBLE SMOOSH x AN "-" AN y AN "=" AN DIFF OF x AN y MKAY
-    VISIBLE SMOOSH x AN "*" AN y AN "=" AN PRODUKT OF x AN y MKAY
-    VISIBLE SMOOSH x AN "/" AN y AN "=" AN QUOSHUNT OF x AN y MKAY
-    VISIBLE SMOOSH x AN "%" AN y AN "=" AN MOD OF x AN y MKAY
+    VISIBLE SMOOSH x AN "+" AN y AN "=" AN SUM OF x AN y
+    VISIBLE SMOOSH x AN "-" AN y AN "=" AN DIFF OF x AN y
+    VISIBLE SMOOSH x AN "*" AN y AN "=" AN PRODUKT OF x AN y
+    VISIBLE SMOOSH x AN "/" AN y AN "=" AN QUOSHUNT OF x AN y
+    VISIBLE SMOOSH x AN "%" AN y AN "=" AN MOD OF x AN y
 
-    VISIBLE SMOOSH "max(" AN x AN "," AN y AN ")" AN "=" AN BIGGR OF x AN y MKAY
-    VISIBLE SMOOSH "min(" AN x AN "," AN y AN ")" AN "=" AN SMALLR OF x AN y MKAY
+    VISIBLE SMOOSH "max(" AN x AN "," AN y AN ")" AN "=" AN BIGGR OF x AN y
+    VISIBLE SMOOSH "min(" AN x AN "," AN y AN ")" AN "=" AN SMALLR OF x AN y
     
     BTW x^2 + y^2
     VISIBLE SUM OF PRODUKT OF x AN x AN PRODUKT OF y AN y

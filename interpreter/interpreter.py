@@ -94,7 +94,7 @@ class Interpreter():
                 self.run(stmt)
             except GTFOInterrupt:
                 break
-            self.IT = None
+            self.IT = Literal(None, T.NOOB)
         self.variables = self.var_stack.pop()  # restore previous scope
     
     # executes a print statement by printing the values of its arguments
@@ -186,7 +186,8 @@ class Interpreter():
     # and possibly also its type
     def exec_Reassign(self, n):
         if n.name == "IT":
-            self.IT = n.value
+            self.IT = self.cast_literal(self.IT, n.type)
+            return
 
         elif n.name not in self.variables:
             raise RuntimeError(f"Variable {n.name} is not defined")
@@ -385,8 +386,8 @@ class Interpreter():
 
     # makes a new literal based on the new type
     def cast_literal(self, value, target_type):
-        if value.type is T.NOOB:
-            return Literal(None, target_type)
+        # if value.type is T.NOOB:
+        #     return Literal(None, target_type)
 
         converted = (
             int(1 if value.value == "WIN" else 0 if value.value == "FAIL" else value.value)

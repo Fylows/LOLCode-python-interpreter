@@ -4,9 +4,9 @@ HAI
         I HAS A y ITZ 5
     BUHBYE
     
-    VISIBLE "Value 1: " AN x
+    VISIBLE "Value 1: " + x
     BTW GIMMEH x
-    VISIBLE "Value 2: " AN y
+    VISIBLE "Value 2: " + y
     BTW GIMMEH y
 
     BTW x==y

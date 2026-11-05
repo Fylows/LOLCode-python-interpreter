@@ -28,12 +28,17 @@ class Parser:
     def skip_newlines(self):
         while self.peek().type == T.NEWLINE:
             self.advance()
-    
+
+    def skip_comments(self):
+        self.skip_newlines()
+        while self.peek().type in (T.BTW, T.OBTW, T.TLDR, T.ELLIPSIS):
+            self.advance()
+            self.skip_newlines()
     # entry of parser, parse program parses the entire program and returns a Program node
     def parse_program(self):
         body = []
+        self.skip_comments()
         self.add_fxn()
-
         self.expect(T.HAI)
         if (self.peek().type in [T.NUMBAR_LIT, T.NUMBR_LIT]):
             if self.peek().value in ["1.0", "1.1", "1.2", "1.3"]:
@@ -168,6 +173,8 @@ class Parser:
                 return Operation(operand=t.type, args=args)
             case T.IT:
                 return Identifier("IT", T.IT)
+            case (T.BTW | T.OBTW | T.TLDR | T.ELLIPSIS | T.NEWLINE):
+                return None
         raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")
 
     # parse_var_decl parses a variable declaration and returns a Var node
@@ -273,6 +280,7 @@ class Parser:
                 f"Line {t.line}: Expected end of line, got {t.type.name}"
             )
         self.skip_newlines()
+        self.skip_comments()
 
     def parse_block(self, end_token):
         self.skip_newlines()
@@ -283,6 +291,9 @@ class Parser:
                     f"Line {self.peek().line}: Reached end of file, expected {end_token.name}"
                 )
             self.add_fxn()
+            # if the next token is KTHXBYE, we are at the end of the program, so break
+            if (self.peek().type == T.KTHXBYE):
+                break
             body.append(self.parse_statement())
             self.end_statement()
         self.expect(end_token)

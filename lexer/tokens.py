@@ -110,7 +110,7 @@ class T(Enum):
     BTW = auto()
     OBTW = auto()
     TLDR = auto()
-    
+    ELLIPSIS = auto()
 LITERALS = {T.NUMBAR_LIT, T.NUMBR_LIT, T.YARN_LIT, T.TROOF_LIT}
 TYPES = {T.NUMBAR_TYPE, T.NUMBR_TYPE, T.YARN_TYPE, T.TROOF_TYPE, T.NOOB}
 

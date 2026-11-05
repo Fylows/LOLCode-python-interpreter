@@ -31,6 +31,7 @@ def lexer(input_string: str) -> list[Token]:
             i += 1
         
         elif input_string.startswith("...", i):
+            tokens.append(Token(T.ELLIPSIS, "...", line))
             end = input_string.find('\n', i)
             if end == -1:
                 end = str_len
@@ -40,10 +41,12 @@ def lexer(input_string: str) -> list[Token]:
             line += 1
 
         elif keyword_at(input_string, i, "BTW"):
+            tokens.append(Token(T.BTW, "BTW", line))
             while i < str_len and input_string[i] != '\n':
                 i += 1
             
         elif keyword_at(input_string, i, "OBTW"):
+            tokens.append(Token(T.OBTW, "OBTW", line))
             j = i-1
             while j >= 0 and input_string[j] in " \t\r":
                 j -= 1
@@ -56,6 +59,7 @@ def lexer(input_string: str) -> list[Token]:
                 raise SyntaxError(f"Line {start_line}: unterminated multi-line comment")
             line += input_string.count('\n', i, end)
             i = end + 4
+            tokens.append(Token(T.TLDR, "TLDR", end + 1))
         
         # Check for newline/semicolon
         elif char == '\n' or char == ',':

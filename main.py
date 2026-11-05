@@ -18,7 +18,6 @@ def main():
     tokens = lexer(src)
     parser = Parser(tokens)
     ast = parser.parse_program()
-
     
     interpreter = Interpreter()
     interpreter.run(ast[2]) # run functions first so they are defined before the main program runs

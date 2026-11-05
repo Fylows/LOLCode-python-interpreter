@@ -3,7 +3,6 @@ HAI
     WAZZUP
         I HAS A var
         I HAS A var3 ITZ 10
-        I HAS A IT
     BUHBYE
     
     GIMMEH var

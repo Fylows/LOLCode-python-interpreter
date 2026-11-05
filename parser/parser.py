@@ -166,7 +166,8 @@ class Parser:
                     args.append(self.parse_expr())
                 self.expect(T.MKAY)                      
                 return Operation(operand=t.type, args=args)
-            
+            case T.IT:
+                return Identifier("IT", T.IT)
         raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")
 
     # parse_var_decl parses a variable declaration and returns a Var node

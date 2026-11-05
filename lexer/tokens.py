@@ -104,6 +104,7 @@ class T(Enum):
 
     # func and loop connector
     YR = auto() 
+    IT = auto()
 
     # comments
     BTW = auto()
@@ -117,6 +118,7 @@ TYPES = {T.NUMBAR_TYPE, T.NUMBR_TYPE, T.YARN_TYPE, T.TROOF_TYPE, T.NOOB}
 KEYWORDS = [
     ("HAI", T.HAI),
     ("KTHXBYE", T.KTHXBYE),
+    ("IT", T.IT),
 
     ("WAZZUP", T.WAZZUP),
     ("BUHBYE", T.BUHBYE),

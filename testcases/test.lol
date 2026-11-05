@@ -9,7 +9,7 @@ HAI
         NICE
     TLDR
     WAZZUP 
-        I HAS A var ITZ 10
+        I HAS A var ITZ "SUM OF"
     BUHBYE
     HOW IZ I addNum YR x AN YR y
         FOUND YR FAIL
@@ -23,7 +23,7 @@ HAI
         NO WAI
             VISIBLE "GGHARD"
     OIC
-
+    VISIBLE var+ " 10"+ " 2" + " 3" + " 4" + " = " + SUM OF 10 AN SUM OF 2 AN SUM OF 3 AN 4
 KTHXBYE
 BTW HAI
 OBTW

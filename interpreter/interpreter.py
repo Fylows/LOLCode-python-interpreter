@@ -404,7 +404,7 @@ class Interpreter():
         if val1 is True or val1 is False:
             print(f"WIN" if val1 else "FAIL", end='')
         else:
-            print(f"NOOB" if val1 is None else val1, end=' ')
+            print(f"NOOB" if val1 is None else val1, end='')
 
     # ==================== CONTROL FLOW EXECUTION ====================
 

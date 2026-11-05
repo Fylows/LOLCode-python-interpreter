@@ -16,6 +16,7 @@ class T(Enum):
     # printing
     VISIBLE = auto()
     TERM_NEWLINE = auto()
+    VISIBLE_CONCAT = auto()
     
     # literals
     IDENT = auto()
@@ -120,6 +121,7 @@ KEYWORDS = [
     ("KTHXBYE", T.KTHXBYE),
     ("IT", T.IT),
 
+    ("+", T.VISIBLE_CONCAT),
     ("WAZZUP", T.WAZZUP),
     ("BUHBYE", T.BUHBYE),
 

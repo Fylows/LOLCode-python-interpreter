@@ -80,7 +80,10 @@ def lexer(input_string: str) -> list[Token]:
         elif char == "!":
             tokens.append(Token(T.TERM_NEWLINE, input_string[i], line))
             i += 1
-        
+
+        elif char == "+":
+            tokens.append(Token(T.VISIBLE_CONCAT, input_string[i], line))
+            i += 1
         # https://www.geeksforgeeks.org/python/re-match-in-python/
         # matching regex from string
         # float
@@ -115,7 +118,7 @@ def lexer(input_string: str) -> list[Token]:
                     i += len(m[0])
                 # nothing matched: error
                 else:
-                    raise SyntaxError(f"Line {line}: unexpected character {char!r}")
+                    raise SyntaxError(f"Line {line}: unexpected character {char}")
     # Indicate end of file
     tokens.append(Token(T.EOF, None, line))
     return tokens

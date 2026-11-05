@@ -136,8 +136,12 @@ class Parser:
         self.expect(T.VISIBLE)
         args = [self.parse_expr()]
         while self.peek().type not in (T.NEWLINE, T.EOF,T.TERM_NEWLINE,T.BTW,T.OBTW,T.TLDR,T.ELLIPSIS):
-            if self.peek().type == T.AN:
-                self.advance()
+            if self.peek().type != T.VISIBLE_CONCAT:
+                t = self.peek()
+                raise SyntaxError(
+                    f"Line {t.line}: Expected '+' between VISIBLE arguments"
+                )
+            self.advance()
             args.append(self.parse_expr())
         if self.peek().type == T.TERM_NEWLINE:
             newline = False

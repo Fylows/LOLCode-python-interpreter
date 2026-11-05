@@ -134,17 +134,8 @@ class Parser:
     def parse_print(self):
         newline = True
         self.expect(T.VISIBLE)
-        # IDEALLY EXPRESSION PARSING HERE
         args = [self.parse_expr()]
-        while self.peek().type not in (
-            T.NEWLINE,
-            T.EOF,
-            T.TERM_NEWLINE,
-            T.BTW,
-            T.OBTW,
-            T.TLDR,
-            T.ELLIPSIS,
-        ):
+        while self.peek().type not in (T.NEWLINE, T.EOF,T.TERM_NEWLINE,T.BTW,T.OBTW,T.TLDR,T.ELLIPSIS):
             if self.peek().type == T.AN:
                 self.advance()
             args.append(self.parse_expr())

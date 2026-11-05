@@ -98,7 +98,7 @@ class Parser:
     def parse_statement(self):
         t: T = self.peek()
         match t.type:
-            case T.IDENT:
+            case T.IDENT | T.IT:
                 self.advance()
                 if self.peek().type in [T.REASSIGN, T.VAR_ASSIGN]:
                     self.pos -= 1
@@ -248,7 +248,10 @@ class Parser:
     # reassignment is in the form of
     # reassign := IDENT R expression
     def parse_reassign(self):
-        var = self.expect(T.IDENT)
+        if self.peek().type in (T.IDENT, T.IT):
+            var = self.advance()    
+        else:
+            raise SyntaxError(f"Line {var.line}: expected IDENT/IT, got {var.type.name}")
         operator = self.advance()
         # if in the form of
         # reassign := IDENT IS NOW A expression A type

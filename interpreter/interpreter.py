@@ -183,7 +183,10 @@ class Interpreter():
     # Reassigning a variable is changing value of a variable
     # and possibly also its type
     def exec_Reassign(self, n):
-        if n.name not in self.variables:
+        if n.name == "IT":
+            self.IT = n.value
+
+        elif n.name not in self.variables:
             raise RuntimeError(f"Variable {n.name} is not defined")
 
         value = (

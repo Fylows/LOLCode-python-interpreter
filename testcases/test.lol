@@ -24,6 +24,7 @@ HAI
             VISIBLE "GGHARD"
     OIC
     VISIBLE var+ " 10"+ " 2" + " 3" + " 4" + " = " + SUM OF 10 AN SUM OF 2 AN SUM OF 3 AN 4
+    VISIBLE SMOOSH "10" AN "2"
 KTHXBYE
 BTW HAI
 OBTW

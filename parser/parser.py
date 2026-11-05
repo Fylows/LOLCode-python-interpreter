@@ -181,7 +181,8 @@ class Parser:
                 while self.peek().type == T.AN:
                     self.expect(T.AN)                      
                     args.append(self.parse_expr())
-                self.expect(T.MKAY)                      
+                if (self.peek() in (T.ANY, T.ALL)):
+                    self.expect(T.MKAY)                      
                 return Operation(operand=t.type, args=args)
             case T.IT:
                 return Identifier("IT", T.IT)

@@ -35,13 +35,13 @@ class Parser:
         self.add_fxn()
 
         self.expect(T.HAI)
-        if (self.peek().type == T.NUMBAR_TYPE):
+        if (self.peek().type in [T.NUMBAR_LIT, T.NUMBR_LIT]):
             if self.peek().value in ["1.0", "1.1", "1.2", "1.3"]:
                 self.advance()
             else:
                 raise SyntaxError(f"Line {self.peek().line}: expected version 1.0, 1.1, 1.2 or 1.3, got {self.peek().value}")
-        self.skip_newlines()
         
+        self.end_statement()
         if (self.peek().type == T.WAZZUP):
             self.advance()
             self.parse_decl()

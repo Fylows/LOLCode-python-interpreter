@@ -1,5 +1,5 @@
 
-HAI
+HAI 1.2
     WAZZUP
         I HAS A var
         I HAS A var3 ITZ 10
@@ -29,4 +29,3 @@ HAI
     OIC
 
 KTHXBYE
-

@@ -385,23 +385,42 @@ class Interpreter():
         )
 
     # makes a new literal based on the new type
-    def cast_literal(self, value, target_type):
-        # if value.type is T.NOOB:
-        #     return Literal(None, target_type)
-
-        converted = (
-            int(1 if value.value == "WIN" else 0 if value.value == "FAIL" else value.value)
-            if target_type == T.NUMBR_TYPE
-            else float(1 if value.value == "WIN" else 0 if value.value == "FAIL" else value.value)
-            if target_type == T.NUMBAR_TYPE
-            else str(self.truncate(value.value, 3) if isinstance(value.value, float) else value.value)
-            if target_type == T.YARN_TYPE
-            else bool(value.value)
-            if target_type == T.TROOF_TYPE
-            else value.value
-        )
+    def cast_literal(self, lit, target_type):
+        val = lit.value
+        match target_type:
+            case T.NUMBR_TYPE:
+                converted = float(self.to_number(val))
+            case T.NUMBAR_TYPE:
+                converted = int(self.to_number(val))
+            case T.YARN_TYPE:
+                converted = self.to_yarn(val)
+            case T.TROOF_TYPE:
+                converted = bool(val)
+            case T.NOOB:
+                converted = None
+            case _:
+                raise ValueError(f"Cannot cast to {target_type}")
         
         return Literal(converted, target_type)
+
+    def to_num(self, val):
+        if val is None:
+            0
+        if isinstance(val, str):
+            try:
+                return float(val) if "." in v else int(v)
+            except ValueError:
+                raise ValueError(f"Cannot cast {v!r} to a number")
+        return val
+
+    def to_yarn(self, val):
+        if val is None:                      
+            return ""
+        if isinstance(val, bool):
+            return "WIN" if val else "FAIL"
+        if isinstance(val, float):
+            return str(self.truncate(val, 3))
+        return str(val)
 
     def printing(self, val1):
         if val1 is True or val1 is False:

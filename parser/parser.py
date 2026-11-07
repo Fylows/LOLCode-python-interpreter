@@ -136,7 +136,6 @@ class Parser:
 
     
         value = self.parse_expr()
-        
         if isinstance(value, FunctionCall):
             return Reassign(var.value, value, T.FUNCTION)
         return Reassign(var.value, value, value.type)

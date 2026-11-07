@@ -214,6 +214,8 @@ BINARY_OPS = frozenset({
 
 VARIADIC_OPS = frozenset({T.CONCAT, T.ANY, T.ALL})
 
+TO_SKIP = [T.BTW, T.OBTW, T.TLDR, T.ELLIPSIS]
+
 """
 TOKEN is a 
 type, which is an enum that represents what kind it is

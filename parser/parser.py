@@ -343,7 +343,6 @@ class Parser:
     # expression := literal |IDENT | NUMBAR | NUMBR | YARN | FUNC_CALL
     def parse_expr(self) -> any:
         t: T = self.advance()
-
         match t.type:
             case tp if tp in LITERALS:
                 return Literal(LITERAL_PARSERS[tp](t.value), t.type)
@@ -362,6 +361,8 @@ class Parser:
                 return self.parse_variadic(op)
             case T.IT:
                 return Identifier("IT", T.IT)
+            case T.NOOB:
+                return Literal(None, T.NOOB)
             case _:
                 raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")
 
@@ -406,7 +407,7 @@ class Parser:
         if self.peek().type != T.VAR_TYPE:
             return Var(name, None, T.NOOB)
         self.expect(T.VAR_TYPE)
-        
+
         value = self.parse_expr()
         if isinstance(value, FunctionCall):
             return Var(name, value, T.FUNC_CALL)

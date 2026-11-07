@@ -96,7 +96,9 @@ class Interpreter():
                 break
             self.IT = Literal(None, T.NOOB)
         self.variables = self.var_stack.pop()  # restore previous scope
-    
+
+    def exec_Literal(self, n):
+        self.IT = n
     # executes a print statement by printing the values of its arguments
     def exec_Print(self, n):
         for arg in n.args:
@@ -389,9 +391,9 @@ class Interpreter():
         val = lit.value
         match target_type:
             case T.NUMBR_TYPE:
-                converted = float(self.to_number(val))
+                converted = int(self.to_num(val))
             case T.NUMBAR_TYPE:
-                converted = int(self.to_number(val))
+                converted = float(self.to_num(val))
             case T.YARN_TYPE:
                 converted = self.to_yarn(val)
             case T.TROOF_TYPE:
@@ -404,14 +406,18 @@ class Interpreter():
         return Literal(converted, target_type)
 
     def to_num(self, val):
-        if val is None:
-            0
+        if val is None: # NOOB casts to 0
+            return 0
+        if isinstance(val, bool): # TROOF: WIN -> 1, FAIL -> 0
+            return int(val)
+        if isinstance(val, (int, float)):
+            return val
         if isinstance(val, str):
             try:
-                return float(val) if "." in v else int(v)
+                return float(val) if "." in val else int(val)
             except ValueError:
-                raise ValueError(f"Cannot cast {v!r} to a number")
-        return val
+                raise ValueError(f"Cannot cast {val!r} to a number")
+        raise TypeError(f"Cannot cast {type(val).__name__} to a number")
 
     def to_yarn(self, val):
         if val is None:                      

@@ -1,7 +1,7 @@
 HAI
     WAZZUP
-        I HAS A VAR ITZ WIN
+        I HAS A VAR ITZ "HI"
     BUHBYE
-    VISIBLE MAEK VAR A NOOB
-
+    VAR
+    VISIBLE IT
 KTHXBYE

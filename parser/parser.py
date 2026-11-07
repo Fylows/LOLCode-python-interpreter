@@ -43,11 +43,23 @@ class Parser:
                 self.advance()
             self.skip_newlines()
 
-
+    def end_statement(self):
+            if self.peek().type in (T.BTW, T.OBTW, T.TLDR, T.ELLIPSIS):
+                self.skip_comments()
+                return
+            t = self.peek()
+            if t.type != T.NEWLINE and t.type != T.EOF:
+                raise SyntaxError(
+                    f"Line {t.line}: Expected end of line, got {t.type.name}"
+                )
+            self.skip_newlines()
+            self.skip_comments()
+    
     ### ===== BNF PARSING RULES ===== ###
 
     # entry of parser, parse program parses the entire program and returns a Program node
-    def parse_program(self):
+    # program := <functions> HAI <version> <eol> <wazzup> <block> KTHXBYE <function>
+    def parse_program(self) -> Program:
         body = []
         self.skip_comments()
         self.parse_function()
@@ -70,10 +82,10 @@ class Parser:
 
         return [Program(body), Program(self.vars) if self.vars else None, Program(self.fxns) if self.fxns else None]
 
-    
 
     # when parsing function add it to a var node with a function type
-    def parse_function(self):
+    # function := 
+    def parse_function(self) -> None:
         self.skip_newlines()
         if self.peek().type == T.FUNC_START:    
             self.advance()
@@ -299,17 +311,6 @@ class Parser:
         self.expect(T.INPUT)
         return Input(self.expect(T.IDENT).value)
 
-    def end_statement(self):
-        if self.peek().type in (T.BTW, T.OBTW, T.TLDR, T.ELLIPSIS):
-            self.skip_comments()
-            return
-        t = self.peek()
-        if t.type != T.NEWLINE and t.type != T.EOF:
-            raise SyntaxError(
-                f"Line {t.line}: Expected end of line, got {t.type.name}"
-            )
-        self.skip_newlines()
-        self.skip_comments()
 
     def parse_block(self, end_token):
         self.skip_comments()

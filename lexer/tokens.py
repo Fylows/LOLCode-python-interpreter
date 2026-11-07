@@ -198,6 +198,22 @@ KEYWORDS = [
 
 
 
+LITERAL_PARSERS = {
+    T.NUMBR_LIT:  int,
+    T.NUMBAR_LIT: float,
+    T.YARN_LIT:   str,
+    T.TROOF_LIT:  lambda v: v == "WIN",
+}
+
+# https://www.w3schools.com/python/python_frozenset.asp
+BINARY_OPS = frozenset({
+    T.ADD, T.SUB, T.DIV, T.MUL, T.MOD, T.MAX, T.MIN,   # arithmetic
+    T.AND, T.OR, T.ONE,                                # boolean
+    T.EQUAL, T.NOT_EQUAL,                              # equality
+})
+
+VARIADIC_OPS = frozenset({T.CONCAT, T.ANY, T.ALL})
+
 """
 TOKEN is a 
 type, which is an enum that represents what kind it is

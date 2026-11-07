@@ -42,11 +42,15 @@ class Parser:
                     )
                 self.advance()
             self.skip_newlines()
+
+
+    ### ===== BNF PARSING RULES ===== ###
+
     # entry of parser, parse program parses the entire program and returns a Program node
     def parse_program(self):
         body = []
         self.skip_comments()
-        self.add_fxn()
+        self.parse_function()
         self.expect(T.HAI)
         if (self.peek().type in [T.NUMBAR_LIT, T.NUMBR_LIT]):
             if self.peek().value in ["1.0", "1.1", "1.2", "1.3"]:
@@ -62,24 +66,32 @@ class Parser:
         
         body += self.parse_block(T.KTHXBYE)
 
-        self.add_fxn()
+        self.parse_function()
 
         return [Program(body), Program(self.vars) if self.vars else None, Program(self.fxns) if self.fxns else None]
-            
+
+    
+
     # when parsing function add it to a var node with a function type
     def parse_function(self):
-        self.advance()
-        name = self.expect(T.IDENT).value
-        args = []
-        if (self.advance().type == T.YR):
-            args.append(self.expect(T.IDENT).value)
-            while self.peek().type is not T.NEWLINE:
-                self.expect(T.AN)
-                self.expect(T.YR)
-                args.append(self.expect(T.IDENT).value)
         self.skip_newlines()
-        body = self.parse_block(T.FUNC_END)
-        return Var(name, Function(body, args if args else None), T.FUNCTION)
+        if self.peek().type == T.FUNC_START:    
+            self.advance()
+            name = self.expect(T.IDENT).value
+            args = []
+            if (self.peek().type == T.YR):
+                self.advance()
+                args.append(self.expect(T.IDENT).value)
+                while self.peek().type != T.NEWLINE:
+                    self.expect(T.AN)
+                    self.expect(T.YR)
+                    args.append(self.expect(T.IDENT).value)
+            self.skip_newlines()
+            body = self.parse_block(T.FUNC_END)
+            self.fxns.append(Var(name, Function(body, args if args else None), T.FUNCTION))
+            self.end_statement()
+        self.skip_newlines()
+
 
     def parse_decl(self):
         self.skip_newlines()
@@ -287,7 +299,6 @@ class Parser:
         self.expect(T.INPUT)
         return Input(self.expect(T.IDENT).value)
 
-    # --- HELPER FUNCTIONS --- """ #
     def end_statement(self):
         if self.peek().type in (T.BTW, T.OBTW, T.TLDR, T.ELLIPSIS):
             self.skip_comments()
@@ -309,7 +320,7 @@ class Parser:
                     f"Line {self.peek().line}: Reached end of file, expected {end_token.name}"
                 )
             self.skip_comments()
-            self.add_fxn()
+            self.parse_function()
             # if the next token is KTHXBYE, we are at the end of the program, so break
             if (self.peek().type == T.KTHXBYE):
                 break
@@ -317,21 +328,8 @@ class Parser:
             self.end_statement()
         self.expect(end_token)
         return body
-    
-    def add_fxn(self):
-        self.skip_newlines()
-        if (self.peek().type == T.FUNC_START):
-            self.fxns.append(self.parse_function())
-            self.end_statement()
-        self.skip_newlines()
-
-    # ==================== CONTROL FLOW PARSING ====================
 
     def parse_statement_block_until(self, stop_token_types: tuple[T, ...]) -> list:
-        """
-        Parses a sequence of statements until one of the stop_token_types is peeked.
-        Does not consume the stop token.
-        """
         body = []
         self.skip_comments()
         while self.peek().type not in stop_token_types:
@@ -349,17 +347,6 @@ class Parser:
         return body
 
     def parse_if_then(self) -> IfThen:
-        """
-        Parses an IF-THEN statement:
-            O RLY?
-                YA RLY
-                    <then_block>
-                [MEBBE <expr>
-                    <mebbe_block>...]
-                [NO WAI
-                    <else_block>]
-            OIC
-        """
         self.expect(T.IF)  # O RLY?
         self.end_statement()
         self.skip_newlines()
@@ -397,17 +384,6 @@ class Parser:
         )
 
     def parse_switch_case(self) -> SwitchCase:
-        """
-        Parses a SWITCH-CASE statement:
-            WTF?
-                OMG <literal>
-                    <code block>
-                [OMG <literal>
-                    <code block>...]
-                [OMGWTF
-                    <code block>]
-            OIC
-        """
         self.expect(T.SWITCH)  # WTF?
         self.end_statement()
         self.skip_newlines()
@@ -432,12 +408,6 @@ class Parser:
         return SwitchCase(cases=cases, default_block=default_block)
 
     def parse_loop(self) -> Loop:
-        """
-        Parses a LOOP statement:
-            IM IN YR <label> <operation> YR <variable> [TIL|WILE <expression>]
-                <code block>
-            IM OUTTA YR <label>
-        """
         self.expect(T.LOOP_START)  # IM IN YR
         start_label_token = self.expect(T.IDENT)
         start_label = start_label_token.value
@@ -485,8 +455,5 @@ class Parser:
         )
 
     def parse_gtfo(self) -> GTFO:
-        """
-        Parses a GTFO (break) statement.
-        """
         self.expect(T.BREAK)
         return GTFO()

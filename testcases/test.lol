@@ -1,9 +1,28 @@
+BTW HI
+
+HOW IZ I printName YR person
+        VISIBLE SMOOSH "Hello, " AN person
+        GTFO
+IF U SAY SO
+
+BTW HI
+
 HAI
-    HOW IZ I sample
-        VISIBLE 10
+    BTW HI
+
+    HOW IZ I printName2 YR person
+            VISIBLE SMOOSH "Hello, " AN person
+            GTFO
     IF U SAY SO
 
-    I IZ sample MKAY
-    IT IS NOW A TROOF
-    VISIBLE IT
+    BTW HI
 KTHXBYE
+
+BTW HI
+
+HOW IZ I printName3 YR person
+        VISIBLE SMOOSH "Hello, " AN person
+        GTFO
+IF U SAY SO
+
+BTW HI

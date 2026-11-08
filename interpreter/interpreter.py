@@ -3,6 +3,8 @@ import math
 
 from parser import *
 from parser.nodes import Node, FunctionCall, Identifier, Literal, Function, MyReturn, Typecast, Operation
+from typing import Any
+from numbers import Number
 from parser.nodes import IfThen, MebbeClause, SwitchCase, CaseClause, Loop, GTFO
 from lexer.tokens import KEYWORDS, T  
 # initialize vars in dictionary
@@ -28,14 +30,14 @@ class Interpreter():
         # store return values in IT
         self.IT = T.NOOB
 
-    def run(self, node:Node):
+    def run(self, node:Node) -> Node:
         if not node:
             return
         method = getattr(self, f"exec_{type(node).__name__}")
         return method(node)
 
     # recursively executes the program node by executing each statement in its body
-    def exec_Program(self, n:Node):
+    def exec_Program(self, n:Node) -> None:
         for stmt in n.body: 
              # if return statement is encountered, execute it and break out of the loop
             if isinstance(stmt, MyReturn):
@@ -44,7 +46,7 @@ class Interpreter():
             self.run(stmt)
 
     # function is like program, but it has its own scope
-    def exec_FunctionCall(self, n:Node):
+    def exec_FunctionCall(self, n:Node) -> None:
         # get function's name and arg names
         function_var = n.name
         if function_var not in self.functions:
@@ -98,7 +100,7 @@ class Interpreter():
         self.variables = self.var_stack.pop()  # restore previous scope
     
     # executes a print statement by printing the values of its arguments
-    def exec_Print(self, n:Node):
+    def exec_Print(self, n:Node) -> None:
         for arg in n.args:
             if isinstance(arg, Typecast):
                 self.exec_Typecast(arg)
@@ -134,14 +136,14 @@ class Interpreter():
         if n.newline:
             print()
 
-    def exec_Identifier(self, n:Node):
+    def exec_Identifier(self, n:Node) -> None:
         if n.name not in self.variables:
             raise RuntimeError(f"Variable {n.name} is not defined")
         self.IT = self.variables[n.name]
 
     # assigns a variable
     # variables are stored as Literal objects
-    def exec_Var(self, n:Node):
+    def exec_Var(self, n:Node) -> None:
         if n.name in self.variables or n.name in self.functions:
             raise RuntimeError(f"Variable {n.name} is already defined")
 
@@ -171,20 +173,20 @@ class Interpreter():
         self.variables[n.name] = Literal(n.value, n.type)
 
     # for function return values, assigning to IT
-    def exec_Return(self, n:Node):
+    def exec_Return(self, n:Node) -> None:
         if n.type == T.NOOB:
             self.IT = Literal(None, T.NOOB)
         else:
             self.IT = self.evaluate_expression(n.value)
 
     # typecasting is just changing value and type of a literal
-    def exec_Typecast(self, n:Node):
+    def exec_Typecast(self, n:Node) -> None:
         value = self.evaluate_expression(n.value)
         self.IT = self.cast_literal(value, n.type)
 
     # Reassigning a variable is changing value of a variable
     # and possibly also its type
-    def exec_Reassign(self, n:Node):
+    def exec_Reassign(self, n:Node) -> None:
         if n.name == "IT":
             self.IT = self.cast_literal(self.IT, n.type)
             return
@@ -201,7 +203,7 @@ class Interpreter():
         self.variables[n.name] = self.cast_literal(value, target_type)
 
     # Evaluate a boolean operation
-    def evaluate_boolean(self, ops:T, n:Node):
+    def evaluate_boolean(self, ops:T, n:Node) -> bool:
         if n.operand == T.AND:
             value = Literal(ops[0].value and  ops[1].value, T.TROOF_TYPE)
         if n.operand == T.OR:
@@ -214,7 +216,7 @@ class Interpreter():
         return value
 
     # Returns type of numerical value of arithmetic operations: NUMBR or NUMBAR
-    def get_numeric_type(self, ops:T, n:Node):
+    def get_numeric_type(self, ops:T, n:Node) -> T:
 
         type = T.NUMBR_TYPE
         if ops[0].type in [T.YARN_LIT, T.YARN_TYPE]:
@@ -243,7 +245,7 @@ class Interpreter():
         return type
 
     # Evaluate arithmetic operations
-    def evaluate_arithmetic(self, ops:T, n:Node):
+    def evaluate_arithmetic(self, ops:T, n:Node) -> Number:
 
         type = self.get_numeric_type(ops, n)
 
@@ -275,7 +277,7 @@ class Interpreter():
         return value
 
     # Evaluate comparison operations
-    def evaluate_comparison(self, ops:T, n:Node):
+    def evaluate_comparison(self, ops:T, n:Node) -> bool:
         if n.operand == T.EQUAL:
             value = Literal(ops[0].value == ops[1].value, T.TROOF_TYPE)
         if n.operand == T.NOT_EQUAL:
@@ -284,7 +286,7 @@ class Interpreter():
         return value
 
     # Evaluate YARN concatenation operations
-    def evaluate_concat(self, ops:T, n:Node):
+    def evaluate_concat(self, ops:T, n:Node) -> str:
         if n.operand == T.CONCAT:
             value = Literal("", T.YARN_LIT)
             for op in ops:
@@ -293,7 +295,7 @@ class Interpreter():
         return value
 
     # Evaluate Variadic Boolean Operations
-    def evaluate_many(self, ops:T, n:Node):
+    def evaluate_many(self, ops:T, n:Node) -> bool:
         if n.operand == T.ANY:
             value = Literal(any(bool(op.value) for op in ops), T.TROOF_TYPE)
         if n.operand == T.ALL:
@@ -302,7 +304,7 @@ class Interpreter():
         return value
 
     # General evaluate operation function, triggers evaluations based on operand
-    def evaluate_operation(self, operands:T, n:Node):
+    def evaluate_operation(self, operands:T, n:Node) -> Any:
 
         if n.operand in [T.AND, T.OR, T.NOT, T.ONE]:
             return self.evaluate_boolean(operands, n)
@@ -320,10 +322,10 @@ class Interpreter():
             return self.evaluate_many(operands, n)
 
     # Execute operations code
-    def exec_Operation(self, n:Node):
+    def exec_Operation(self, n:Node) -> None:
         self.exec_Ops(n)
         
-    def exec_Ops(self, n:Node):
+    def exec_Ops(self, n:Node) -> Any:
         args = n.args
 
         operands = []
@@ -348,7 +350,7 @@ class Interpreter():
         return self.evaluate_operation(operands, n)
 
     # Execute input code (GIMMEH)
-    def exec_Input(self, n:Node):
+    def exec_Input(self, n:Node) -> None:
         user_input = input()
         if n.var not in self.variables:
             raise RuntimeError(f"Variable {n.var} is not defined")
@@ -357,7 +359,7 @@ class Interpreter():
 # === HELPER FUNCTIONS === #
 
     # evaluates an expression and returns the corresponding value
-    def evaluate_expression(self, expression:T):
+    def evaluate_expression(self, expression:T) -> Any:
         if isinstance(expression, Identifier):
             if expression.name not in self.variables:
                 raise RuntimeError(f"Variable {expression.name} is not defined")
@@ -385,7 +387,7 @@ class Interpreter():
         )
 
     # makes a new literal based on the new type
-    def cast_literal(self, value, target_type:T):
+    def cast_literal(self, value: Any, target_type:T) -> Literal:
         # if value.type is T.NOOB:
         #     return Literal(None, target_type)
 
@@ -403,7 +405,7 @@ class Interpreter():
         
         return Literal(converted, target_type)
 
-    def printing(self, val1):
+    def printing(self, val1: bool) -> None:
         if val1 is True or val1 is False:
             print(f"WIN" if val1 else "FAIL", end='')
         else:
@@ -411,7 +413,7 @@ class Interpreter():
 
     # ==================== CONTROL FLOW EXECUTION ====================
 
-    def exec_IfThen(self, node:Node):
+    def exec_IfThen(self, node:Node) -> None:
         """
         Executes an IF-THEN statement.
         Uses the implicit IT variable to determine which branch to execute.
@@ -438,7 +440,7 @@ class Interpreter():
             for stmt in node.else_block:
                 self.run(stmt)
 
-    def exec_SwitchCase(self, node:Node):
+    def exec_SwitchCase(self, node:Node) -> None:
         """
         Executes a SWITCH-CASE statement.
         Compares implicit variable IT to each OMG case.
@@ -478,7 +480,7 @@ class Interpreter():
             # GTFO breaks out of the switch statement
             pass
 
-    def exec_Loop(self, node:Node):
+    def exec_Loop(self, node:Node) -> None:
         """
         Executes a LOOP statement:
         1. Check condition (TIL / WILE).
@@ -530,12 +532,12 @@ class Interpreter():
             target_type = T.NUMBAR_TYPE if isinstance(new_num, float) else T.NUMBR_TYPE
             self.variables[node.variable] = Literal(new_num, target_type)
 
-    def exec_GTFO(self, node:Node):
+    def exec_GTFO(self, node:Node) -> None:
         """
         Executes a GTFO statement by raising GTFOInterrupt.
         """
         raise GTFOInterrupt()
 
-    def truncate(self, value, decimal_places:int=0):
+    def truncate(self, value:Number, decimal_places:int=0) -> Number:
         factor = 10.0 ** decimal_places
         return math.trunc(value * factor) / factor

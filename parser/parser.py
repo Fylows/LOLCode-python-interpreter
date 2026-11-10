@@ -61,9 +61,10 @@ class Parser:
     # program := <functions> HAI <version> <eol> <wazzup> <block> KTHXBYE <function>
     def parse_program(self) -> Program:
         body = []
-        self.skip_comments()
-        self.parse_function()
-        self.end_statement()
+        while (self.peek().type != T.HAI):
+            self.skip_comments()
+            self.parse_function()
+            self.end_statement()
         self.expect(T.HAI)
         if (self.peek().type in [T.NUMBAR_LIT, T.NUMBR_LIT]):
             if self.peek().value in ["1.0", "1.1", "1.2", "1.3"]:
@@ -78,8 +79,10 @@ class Parser:
             self.advance()
         
         body += self.parse_block(T.KTHXBYE)
-        self.parse_function()
-        self.end_statement()
+        while (self.peek().type != T.EOF):
+            self.skip_comments()
+            self.parse_function()
+            self.end_statement()
 
         return [Program(body), Program(self.vars) if self.vars else None, Program(self.fxns) if self.fxns else None]
 

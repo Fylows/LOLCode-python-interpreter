@@ -64,6 +64,8 @@ class Parser:
         while (self.peek().type != T.HAI):
             self.skip_comments()
             self.parse_function()
+            if (self.peek().type == T.HAI):
+                break
             self.end_statement()
         self.expect(T.HAI)
         if (self.peek().type in [T.NUMBAR_LIT, T.NUMBR_LIT]):

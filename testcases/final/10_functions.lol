@@ -6,6 +6,10 @@ HAI
         I HAS A x
     BUHBYE
 
+    HOW IZ I printNum YR x
+        FOUND YR x
+    IF U SAY SO
+
     HOW IZ I addNum YR x AN YR y
         FOUND YR SUM OF x AN y
     IF U SAY SO
@@ -13,10 +17,6 @@ HAI
     HOW IZ I printName YR person
         VISIBLE SMOOSH "Hello, " AN person
         GTFO
-    IF U SAY SO
-
-    HOW IZ I printNum YR x
-        FOUND YR x
     IF U SAY SO
 
     GIMMEH num1

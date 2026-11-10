@@ -1,7 +1,18 @@
+HOW IZ I printNum1 YR x
+    FOUND YR x
+IF U SAY SO
 HAI
     WAZZUP
-        I HAS A VAR ITZ "HI"
+        I HAS A x
+        I HAS A y
     BUHBYE
-    VAR
-    VISIBLE IT
+    
+    HOW IZ I printNum2 YR x
+        FOUND YR x
+    IF U SAY SO
+    
 KTHXBYE
+
+HOW IZ I printNum3 YR x
+    FOUND YR x
+IF U SAY SO

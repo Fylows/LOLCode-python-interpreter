@@ -404,7 +404,6 @@ class Interpreter():
                 converted = None
             case _:
                 raise ValueError(f"Cannot cast {val} to {target_type}")
-        
         return Literal(converted, target_type)
 
     def to_num(self, val):

@@ -63,6 +63,7 @@ class Parser:
         body = []
         self.skip_comments()
         self.parse_function()
+        self.end_statement()
         self.expect(T.HAI)
         if (self.peek().type in [T.NUMBAR_LIT, T.NUMBR_LIT]):
             if self.peek().value in ["1.0", "1.1", "1.2", "1.3"]:
@@ -78,6 +79,7 @@ class Parser:
         
         body += self.parse_block(T.KTHXBYE)
         self.parse_function()
+        self.end_statement()
 
         return [Program(body), Program(self.vars) if self.vars else None, Program(self.fxns) if self.fxns else None]
 
@@ -215,8 +217,6 @@ class Parser:
             self.skip_newlines()
             body = self.parse_block(T.FUNC_END)
             self.fxns.append(Var(name, Function(body, args if args else None), T.FUNCTION))
-            self.end_statement()
-        self.skip_newlines()
 
     def parse_if_then(self) -> IfThen:
         self.expect(T.IF)  # O RLY?
@@ -434,10 +434,6 @@ class Parser:
                     f"Line {self.peek().line}: Reached end of file, expected {end_token.name}"
                 )
             self.skip_comments()
-            self.parse_function()
-            # if the next token is KTHXBYE, we are at the end of the program, so break
-            if (self.peek().type == T.KTHXBYE):
-                break
             body.append(self.parse_statement())
             self.end_statement()
         self.expect(end_token)
@@ -479,7 +475,7 @@ class Parser:
                 return T.NUMBAR_TYPE
             case T.YARN_LIT:
                 return T.YARN_TYPE
-            case T.WIN | T.FAIL | T.TROOF_TYPE:
+            case T.WIN | T.FAIL | T.TROOF_TYPE | T.TROOF_LIT:
                 return T.TROOF_TYPE
-            case None:
+            case T.NOOB | None:
                 return T.NOOB

@@ -138,8 +138,7 @@ class Parser:
         value = self.parse_expr()
         if isinstance(value, FunctionCall):
             return Reassign(var.value, value, T.FUNCTION)
-        return Reassign(var.value, value, value.type)
-
+        return Reassign(var.value, value, self.convert_type(value.type))
 
         # typecast := MAEK expression A type
     
@@ -345,7 +344,7 @@ class Parser:
         t: T = self.advance()
         match t.type:
             case tp if tp in LITERALS:
-                return Literal(LITERAL_PARSERS[tp](t.value), t.type)
+                return Literal(LITERAL_PARSERS[tp](t.value), self.convert_type(t.type))
             case T.IDENT:
                 return Identifier(t.value, t.type)
             case T.FUNC_CALL:
@@ -380,7 +379,7 @@ class Parser:
             self.expect(T.AN)                      
             args.append(self.parse_expr())
         if not is_concatenation: 
-            self.expect(T.MKAY)       
+            self.expect(T.MKAY)      
         return Operation(op, args)   
 
     ### MISC PARSING ###
@@ -471,3 +470,16 @@ class Parser:
                 f"Line {type.line}: expected NUMBAR, NUMBR, YARN or TROOF, got {type.value}"
             )
         return type.type
+
+    def convert_type(self, lit_type) -> T:
+        match lit_type:
+            case T.NUMBR_LIT:
+                return T.NUMBR_TYPE
+            case T.NUMBAR_LIT:
+                return T.NUMBAR_TYPE
+            case T.YARN_LIT:
+                return T.YARN_TYPE
+            case T.WIN | T.FAIL | T.TROOF_TYPE:
+                return T.TROOF_TYPE
+            case None:
+                return T.NOOB

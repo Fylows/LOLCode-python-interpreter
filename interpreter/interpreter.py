@@ -290,9 +290,9 @@ class Interpreter():
     # Evaluate YARN concatenation operations
     def evaluate_concat(self, ops:T, n:Node) -> str:
         if n.operand == T.CONCAT:
-            value = Literal("", T.YARN_LIT)
+            value = Literal("", T.YARN_TYPE)
             for op in ops:
-                value = Literal(str(value.value) + str(op.value), T.YARN_LIT)
+                value = Literal(str(value.value) + str(op.value), T.YARN_TYPE)
         self.IT = value
         return value
 
@@ -403,7 +403,7 @@ class Interpreter():
             case T.NOOB:
                 converted = None
             case _:
-                raise ValueError(f"Cannot cast to {target_type}")
+                raise ValueError(f"Cannot cast {val} to {target_type}")
         
         return Literal(converted, target_type)
 

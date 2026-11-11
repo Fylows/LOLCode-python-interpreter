@@ -1,4 +1,4 @@
-from lexer.tokens import T, LITERALS, TYPES
+from lexer.tokens import BINARY_OPS, LITERAL_PARSERS, T, LITERALS, TO_SKIP, TYPES, VARIADIC_OPS
 from parser.nodes import *
 
 class Parser:
@@ -31,7 +31,7 @@ class Parser:
 
     def skip_comments(self):
         self.skip_newlines()
-        while self.peek().type in (T.BTW, T.OBTW, T.TLDR, T.ELLIPSIS):
+        while self.peek().type in TO_SKIP:
             comment = self.advance()
             if comment.type == T.OBTW:
                 while self.peek().type not in (T.TLDR, T.EOF):
@@ -42,11 +42,31 @@ class Parser:
                     )
                 self.advance()
             self.skip_newlines()
+
+    def end_statement(self):
+            if self.peek().type in TO_SKIP:
+                self.skip_comments()
+                return
+            t = self.peek()
+            if t.type != T.NEWLINE and t.type != T.EOF:
+                raise SyntaxError(
+                    f"Line {t.line}: Expected end of line, got {t.type.name}"
+                )
+            self.skip_newlines()
+            self.skip_comments()
+    
+    ### ===== BNF PARSING RULES ===== ###
+
     # entry of parser, parse program parses the entire program and returns a Program node
-    def parse_program(self):
+    # program := <functions> HAI <version> <eol> <wazzup> <block> KTHXBYE <function>
+    def parse_program(self) -> Program:
         body = []
-        self.skip_comments()
-        self.add_fxn()
+        while (self.peek().type != T.HAI):
+            self.skip_comments()
+            self.parse_function()
+            if (self.peek().type == T.HAI):
+                break
+            self.end_statement()
         self.expect(T.HAI)
         if (self.peek().type in [T.NUMBAR_LIT, T.NUMBR_LIT]):
             if self.peek().value in ["1.0", "1.1", "1.2", "1.3"]:
@@ -61,38 +81,13 @@ class Parser:
             self.advance()
         
         body += self.parse_block(T.KTHXBYE)
-
-        self.add_fxn()
+        while (self.peek().type != T.EOF):
+            self.skip_comments()
+            self.parse_function()
+            self.end_statement()
 
         return [Program(body), Program(self.vars) if self.vars else None, Program(self.fxns) if self.fxns else None]
-            
-    # when parsing function add it to a var node with a function type
-    def parse_function(self):
-        self.advance()
-        name = self.expect(T.IDENT).value
-        args = []
-        if (self.advance().type == T.YR):
-            args.append(self.expect(T.IDENT).value)
-            while self.peek().type is not T.NEWLINE:
-                self.expect(T.AN)
-                self.expect(T.YR)
-                args.append(self.expect(T.IDENT).value)
-        self.skip_newlines()
-        body = self.parse_block(T.FUNC_END)
-        return Var(name, Function(body, args if args else None), T.FUNCTION)
 
-    def parse_decl(self):
-        self.skip_newlines()
-        while self.peek().type != T.BUHBYE:
-            self.skip_newlines()
-            if self.peek().type == T.EOF:
-                raise SyntaxError(
-                    f"Line {self.peek().line}: Reached end of file, expected WAZZUP"
-                )
-            self.skip_comments()
-            self.vars.append(self.parse_var_decl())
-            self.end_statement()
-        self.skip_newlines()
     # parse_statement parses a single statement and returns the corresponding node
     # statement := print_statement | function | var decl | function_call
     def parse_statement(self):
@@ -116,7 +111,6 @@ class Parser:
                 return self.parse_return()
             case T.FUNC_CALL:
                 return self.parse_function_call()
-            # --- CONTROL FLOW ---
             case T.IF:
                 return self.parse_if_then()
             case T.SWITCH:
@@ -129,9 +123,44 @@ class Parser:
                 return self.parse_input()
             case _: # default case, no match
                 return self.parse_expr()
+    
+    # reassign := IDENT R expression | IDENT IS NOW A <type>
+    def parse_reassign(self) -> Reassign:
+        if self.peek().type in (T.IDENT, T.IT):
+            var = self.advance()    
+        else:
+            raise SyntaxError(f"Line {var.line}: expected IDENT/IT, got {var.type.name}")
+        operator = self.advance()
+
+        # if in the form of
+        # reassign := IDENT IS NOW A <type>
+        if operator.type == T.REASSIGN:
+            if self.peek().type not in TYPES:
+                raise SyntaxError(
+                    f"Line {self.peek().line}: expected NUMBAR, NUMBR, YARN or TROOF, got {self.peek().value}"
+                )
+            return Reassign(var.value, None, self.parse_type())
+
+    
+        value = self.parse_expr()
+        if isinstance(value, FunctionCall):
+            return Reassign(var.value, value, T.FUNCTION)
+        return Reassign(var.value, value, self.convert_type(value.type))
+
+        # typecast := MAEK expression A type
+    
+    # MAEK <expr> A <type>
+    def parse_typecast(self) -> Typecast:
+        self.expect(T.TYPECAST)
+        value = self.parse_expr()
+        self.advance() if self.peek().type == T.A else None  # consume A
+        type = self.parse_type()
+        source = value
+        return Typecast(source, type)
+
     # parse_print parses a print statement and returns a Print node
     # print_statement := VISIBLE expression
-    def parse_print(self):
+    def parse_print(self) -> Print:
         newline = True
         self.expect(T.VISIBLE)
         args = [self.parse_expr()]
@@ -148,75 +177,16 @@ class Parser:
             self.advance()
         return Print(args, newline)
 
-    # parse_expr parses an expression and returns the corresponding node
-    # expression := literal |IDENT | NUMBAR | NUMBR | YARN | FUNC_CALL
-    def parse_expr(self):
-        t: T = self.advance()
-
-        match t.type:
-            case t.type if t.type in LITERALS:
-                val = int(t.value) if t.type == T.NUMBR_LIT else float(t.value) if t.type == T.NUMBAR_LIT else str(t.value) if t.type == T.YARN_LIT else t.value == "WIN" if t.type == T.TROOF_LIT else None
-                return Literal(val, t.type)
-            case T.IDENT:
-                return Identifier(t.value, t.type)
-            case T.FUNC_CALL:
-                return self.parse_function_call()
-            case T.TYPECAST:
-                self.pos -= 1
-                return self.parse_typecast()
-            # CASE: Single Operand Operations
-            case T.NOT:
-                return Operation(operand=t.type, args=[self.parse_expr()])
-            # CASE: Non-Variadic Operations
-            case ( T.ADD | T.SUB | T.DIV | T.MUL | T.MOD | T.MAX | T.MIN | # Arithmetic
-                  T.AND | T.OR | T.ONE | # Boolean
-                  T.EQUAL | T.NOT_EQUAL): # Equality 
-                left = self.parse_expr()
-                self.expect(T.AN)
-                right = self.parse_expr()
-                return Operation(operand=t.type, args=[left,right])
-            # CASE: Variadic Operations
-            case (T.CONCAT | T.ANY | T.ALL):
-                is_concatenation = t.type == T.CONCAT
-                args = [self.parse_expr()]
-                while self.peek().type == T.AN:
-                    self.expect(T.AN)                      
-                    args.append(self.parse_expr())
-                if not is_concatenation:   
-                    self.expect(T.MKAY)                      
-                return Operation(operand=t.type, args=args)
-            case T.IT:
-                return Identifier("IT", T.IT)
-        raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")
-
-    # parse_var_decl parses a variable declaration and returns a Var node
-    # var_decl := I HAS A IDENT ITZ expression
-    def parse_var_decl(self):
-        self.expect(T.VAR_DECLARE) 
-        name = self.expect(T.IDENT).value
-        if self.peek().type != T.VAR_TYPE:
-            return Var(name, None, T.NOOB)
-        self.expect(T.VAR_TYPE)
-        
+    # Return node is a <val, type>
+    # if breaking, return is noob
+    def parse_return(self) -> MyReturn:
+        t: T = self.peek()
+        self.expect(T.RETURN)
         value = self.parse_expr()
-        if isinstance(value, FunctionCall):
-            return Var(name, value, T.FUNC_CALL)
-        
-        elif isinstance(value, Typecast):
-            return Var(name, value, value.type)
-        
-        elif isinstance(value, Identifier):
-            return Var(name, value.name, value.type)
-        
-        elif isinstance(value, Literal):
-            return Var(name, value.value, value.type)
-
-        elif isinstance(value, Operation):
-            return Var(name, value, value.operand)
-            
+        return MyReturn(value, value.type)
 
     # returns a function call node and the function's name 
-    def parse_function_call(self):
+    def parse_function_call(self) -> FunctionCall:
         # since function calls can be nested
         if self.peek().type == T.FUNC_CALL:
             self.advance()
@@ -234,132 +204,26 @@ class Parser:
         # make a FunctionCall node with the function name, arg count and arg vector, if any 
         return FunctionCall(name, args if args else None, len(args) if args else 0)
 
-    # Return node is a <val, type>
-    # if breaking, return is noob
-    def parse_return(self):
-        t: T = self.peek()
-        self.expect(T.RETURN)
-        value = self.parse_expr()
-        return MyReturn(value, value.type)
-
-    # typecast := MAEK expression A type
-    def parse_typecast(self):
-        self.expect(T.TYPECAST)
-        value = self.parse_expr()
-        self.advance() if self.peek().type == T.A else None  # consume A
-        type = self.parse_type()
-        source = value
-        return Typecast(source, type)
-
-    # reassignment is in the form of
-    # reassign := IDENT R expression
-    def parse_reassign(self):
-        if self.peek().type in (T.IDENT, T.IT):
-            var = self.advance()    
-        else:
-            raise SyntaxError(f"Line {var.line}: expected IDENT/IT, got {var.type.name}")
-        operator = self.advance()
-        # if in the form of
-        # reassign := IDENT IS NOW A expression A type
-        if operator.type == T.REASSIGN:
-            if self.peek().type not in TYPES:
-                raise SyntaxError(
-                    f"Line {self.peek().line}: expected NUMBAR, NUMBR, YARN or TROOF, got {self.peek().value}"
-                )
-            return Reassign(var.value, None, self.parse_type())
-
-    
-        value = self.parse_expr()
-        
-        if isinstance(value, FunctionCall):
-            return Reassign(var.value, value, T.FUNCTION)
-        return Reassign(var.value, value, value.type)
-
-    def parse_type(self):
-        type = self.advance()
-        if type.type not in TYPES:
-            raise SyntaxError(
-                f"Line {type.line}: expected NUMBAR, NUMBR, YARN or TROOF, got {type.value}"
-            )
-        return type.type
-
-    def parse_input(self):
-        self.expect(T.INPUT)
-        return Input(self.expect(T.IDENT).value)
-
-    # --- HELPER FUNCTIONS --- """ #
-    def end_statement(self):
-        if self.peek().type in (T.BTW, T.OBTW, T.TLDR, T.ELLIPSIS):
-            self.skip_comments()
-            return
-        t = self.peek()
-        if t.type != T.NEWLINE and t.type != T.EOF:
-            raise SyntaxError(
-                f"Line {t.line}: Expected end of line, got {t.type.name}"
-            )
+    # when parsing function add it to a var node with a function type
+    # function := 
+    def parse_function(self) -> None:
         self.skip_newlines()
-        self.skip_comments()
-
-    def parse_block(self, end_token):
-        self.skip_comments()
-        body = []
-        while self.peek().type != end_token:
-            if self.peek().type == T.EOF:
-                raise SyntaxError(
-                    f"Line {self.peek().line}: Reached end of file, expected {end_token.name}"
-                )
-            self.skip_comments()
-            self.add_fxn()
-            # if the next token is KTHXBYE, we are at the end of the program, so break
-            if (self.peek().type == T.KTHXBYE):
-                break
-            body.append(self.parse_statement())
-            self.end_statement()
-        self.expect(end_token)
-        return body
-    
-    def add_fxn(self):
-        self.skip_newlines()
-        if (self.peek().type == T.FUNC_START):
-            self.fxns.append(self.parse_function())
-            self.end_statement()
-        self.skip_newlines()
-
-    # ==================== CONTROL FLOW PARSING ====================
-
-    def parse_statement_block_until(self, stop_token_types: tuple[T, ...]) -> list:
-        """
-        Parses a sequence of statements until one of the stop_token_types is peeked.
-        Does not consume the stop token.
-        """
-        body = []
-        self.skip_comments()
-        while self.peek().type not in stop_token_types:
-            if self.peek().type == T.EOF:
-                expected = ", ".join(t.name for t in stop_token_types)
-                raise SyntaxError(
-                    f"Line {self.peek().line}: Reached EOF, expected one of [{expected}]"
-                )
-            self.skip_comments()
-            stmt = self.parse_statement()
-            if stmt is not None:
-                body.append(stmt)
-            self.end_statement()
+        if self.peek().type == T.FUNC_START:    
+            self.advance()
+            name = self.expect(T.IDENT).value
+            args = []
+            if (self.peek().type == T.YR):
+                self.advance()
+                args.append(self.expect(T.IDENT).value)
+                while self.peek().type != T.NEWLINE:
+                    self.expect(T.AN)
+                    self.expect(T.YR)
+                    args.append(self.expect(T.IDENT).value)
             self.skip_newlines()
-        return body
+            body = self.parse_block(T.FUNC_END)
+            self.fxns.append(Var(name, Function(body, args if args else None), T.FUNCTION))
 
     def parse_if_then(self) -> IfThen:
-        """
-        Parses an IF-THEN statement:
-            O RLY?
-                YA RLY
-                    <then_block>
-                [MEBBE <expr>
-                    <mebbe_block>...]
-                [NO WAI
-                    <else_block>]
-            OIC
-        """
         self.expect(T.IF)  # O RLY?
         self.end_statement()
         self.skip_newlines()
@@ -397,17 +261,6 @@ class Parser:
         )
 
     def parse_switch_case(self) -> SwitchCase:
-        """
-        Parses a SWITCH-CASE statement:
-            WTF?
-                OMG <literal>
-                    <code block>
-                [OMG <literal>
-                    <code block>...]
-                [OMGWTF
-                    <code block>]
-            OIC
-        """
         self.expect(T.SWITCH)  # WTF?
         self.end_statement()
         self.skip_newlines()
@@ -432,12 +285,6 @@ class Parser:
         return SwitchCase(cases=cases, default_block=default_block)
 
     def parse_loop(self) -> Loop:
-        """
-        Parses a LOOP statement:
-            IM IN YR <label> <operation> YR <variable> [TIL|WILE <expression>]
-                <code block>
-            IM OUTTA YR <label>
-        """
         self.expect(T.LOOP_START)  # IM IN YR
         start_label_token = self.expect(T.IDENT)
         start_label = start_label_token.value
@@ -484,9 +331,156 @@ class Parser:
             body=body,
         )
 
+    # Returns a single GTFO
     def parse_gtfo(self) -> GTFO:
-        """
-        Parses a GTFO (break) statement.
-        """
         self.expect(T.BREAK)
         return GTFO()
+
+    # GIMMEH varident
+    def parse_input(self) -> Input:
+        self.expect(T.INPUT)
+        return Input(self.expect(T.IDENT).value)
+
+
+### === EXPRESSION PARSING === ###
+    # parse_expr parses an expression and returns the corresponding node
+    # expression := literal |IDENT | NUMBAR | NUMBR | YARN | FUNC_CALL
+    def parse_expr(self) -> any:
+        t: T = self.advance()
+        match t.type:
+            case tp if tp in LITERALS:
+                return Literal(LITERAL_PARSERS[tp](t.value), self.convert_type(t.type))
+            case T.IDENT:
+                return Identifier(t.value, t.type)
+            case T.FUNC_CALL:
+                return self.parse_function_call()
+            case T.TYPECAST:
+                self.pos -= 1
+                return self.parse_typecast()
+            case T.NOT:
+                return Operation(operand=t.type, args=[self.parse_expr()])
+            case op if op in BINARY_OPS:
+                return self.parse_binary(op)
+            case op if op in VARIADIC_OPS:
+                return self.parse_variadic(op)
+            case T.IT:
+                return Identifier("IT", T.IT)
+            case T.NOOB:
+                return Literal(None, T.NOOB)
+            case _:
+                raise SyntaxError(f"Line {t.line}: unexpected {t.type.name} in expression")
+
+
+    def parse_binary(self, op:T) -> Operation:
+        left = self.parse_expr()
+        self.expect(T.AN)
+        right = self.parse_expr()
+        return Operation(operand=op, args=[left,right])
+
+    def parse_variadic(self, op:T) -> Operation:
+        is_concatenation = op == T.CONCAT
+        args = [self.parse_expr()]
+        while self.peek().type == T.AN:
+            self.expect(T.AN)                      
+            args.append(self.parse_expr())
+        if not is_concatenation: 
+            self.expect(T.MKAY)      
+        return Operation(op, args)   
+
+    ### MISC PARSING ###
+
+    # for parsing variable declarations
+    def parse_decl(self) -> None:
+        self.skip_newlines()
+        while self.peek().type != T.BUHBYE:
+            self.skip_newlines()
+            if self.peek().type == T.EOF:
+                raise SyntaxError(
+                    f"Line {self.peek().line}: Reached end of file, expected WAZZUP"
+                )
+            self.skip_comments()
+            self.vars.append(self.parse_var_decl())
+            self.end_statement()
+        self.skip_newlines()
+
+    # parse_var_decl parses a variable declaration and returns a Var node
+    # var_decl := I HAS A IDENT ITZ expression
+    def parse_var_decl(self) -> Var:
+        self.expect(T.VAR_DECLARE) 
+        name = self.expect(T.IDENT).value
+        if self.peek().type != T.VAR_TYPE:
+            return Var(name, None, T.NOOB)
+        self.expect(T.VAR_TYPE)
+
+        value = self.parse_expr()
+        if isinstance(value, FunctionCall):
+            return Var(name, value, T.FUNC_CALL)
+        
+        elif isinstance(value, Typecast):
+            return Var(name, value, value.type)
+        
+        elif isinstance(value, Identifier):
+            return Var(name, value.name, value.type)
+        
+        elif isinstance(value, Literal):
+            return Var(name, value.value, value.type)
+
+        elif isinstance(value, Operation):
+            return Var(name, value, value.operand)
+
+    # for parsing different blocks in a form of
+    # start_token BLOCK end_token
+    def parse_block(self, end_token) -> list:
+        self.skip_comments()
+        body = []
+        while self.peek().type != end_token:
+            if self.peek().type == T.EOF:
+                raise SyntaxError(
+                    f"Line {self.peek().line}: Reached end of file, expected {end_token.name}"
+                )
+            self.skip_comments()
+            body.append(self.parse_statement())
+            self.end_statement()
+        self.expect(end_token)
+        return body
+
+    # for parsing if/then/loop blocks in a form of
+    # start_token BLOCK end_token
+    def parse_statement_block_until(self, stop_token_types: tuple[T, ...]) -> list:
+        body = []
+        self.skip_comments()
+        while self.peek().type not in stop_token_types:
+            if self.peek().type == T.EOF:
+                expected = ", ".join(t.name for t in stop_token_types)
+                raise SyntaxError(
+                    f"Line {self.peek().line}: Reached EOF, expected one of [{expected}]"
+                )
+            self.skip_comments()
+            stmt = self.parse_statement()
+            if stmt is not None:
+                body.append(stmt)
+            self.end_statement()
+            self.skip_newlines()
+        return body
+
+    # for token type checking
+    def parse_type(self) -> T:
+        type = self.advance()
+        if type.type not in TYPES:
+            raise SyntaxError(
+                f"Line {type.line}: expected NUMBAR, NUMBR, YARN or TROOF, got {type.value}"
+            )
+        return type.type
+
+    def convert_type(self, lit_type) -> T:
+        match lit_type:
+            case T.NUMBR_LIT:
+                return T.NUMBR_TYPE
+            case T.NUMBAR_LIT:
+                return T.NUMBAR_TYPE
+            case T.YARN_LIT:
+                return T.YARN_TYPE
+            case T.WIN | T.FAIL | T.TROOF_TYPE | T.TROOF_LIT:
+                return T.TROOF_TYPE
+            case T.NOOB | None:
+                return T.NOOB

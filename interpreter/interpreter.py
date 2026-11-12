@@ -33,17 +33,18 @@ class Interpreter():
     def run(self, node:Node) -> Node:
         if not node:
             return
+        if isinstance(node, MyReturn):
+            raise SyntaxError("Unexpected FOUND YR in main body")
         method = getattr(self, f"exec_{type(node).__name__}")
         return method(node)
 
     # recursively executes the program node by executing each statement in its body
     def exec_Program(self, n:Node) -> None:
         for stmt in n.body: 
-             # if return statement is encountered, execute it and break out of the loop
-            if isinstance(stmt, MyReturn):
-                self.exec_Return(stmt)
+            try:
+                self.run(stmt)
+            except GTFOInterrupt:
                 break
-            self.run(stmt)
 
     # function is like program, but it has its own scope
     def exec_FunctionCall(self, n:Node) -> None:

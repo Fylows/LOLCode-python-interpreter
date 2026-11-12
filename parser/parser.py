@@ -180,7 +180,6 @@ class Parser:
     # Return node is a <val, type>
     # if breaking, return is noob
     def parse_return(self) -> MyReturn:
-        t: T = self.peek()
         self.expect(T.RETURN)
         value = self.parse_expr()
         return MyReturn(value, value.type)

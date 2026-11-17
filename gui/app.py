@@ -270,6 +270,11 @@ class LOLCodeIDE:
         self.line_numbers.redraw()
         self.highlight_current_line()
 
+        # clear console terminal when a new file is open
+        self.console_output.config(state="normal")
+        self.console_output.delete("1.0", tk.END)
+        self.console_output.config(state="disabled")
+
   def quit_app(self):
     self.root.quit()
     self.root.destroy()

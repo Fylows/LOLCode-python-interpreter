@@ -14,6 +14,7 @@ class LOLCodeIDE:
     self.root = root
     self.root.title("GROUP THREE LOLCODE INTERPRETER")
     self.root.geometry("1200x750")
+    self.root.state("zoomed")
     self.root.configure(bg="#2C2C2C")
 
     self.bridge = InterpreterBridge()
@@ -164,9 +165,8 @@ class LOLCodeIDE:
     # Code Editor
     self.editor_frame = tk.Frame(self.right_container, bg="#1F1F1F", bd=0)
     self.editor_frame.pack(side="top", fill="x", padx=0, pady=0)
-    #self.editor_frame.config(height=500)
-    #self.editor_frame.pack_propagate(False)
-    self.editor_frame.pack(side="top", fill="both", expand=True, padx=0, pady=0)
+    self.editor_frame.config(height=650)
+    self.editor_frame.pack_propagate(False)
 
     self.line_numbers = LineNumberCanvas(
         self.editor_frame, 

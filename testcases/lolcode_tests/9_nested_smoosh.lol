@@ -1,0 +1,5 @@
+HAI
+  WAZZUP
+  BUHBYE
+  VISIBLE SMOOSH "Hello " AN SMOOSH "big " AN "world"
+KTHXBYE

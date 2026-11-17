@@ -55,7 +55,11 @@ class Interpreter():
 
         # store function block to execute
         function = self.functions[function_var]
-    
+
+        # check of number of arguments passed to function matches number of expected arguments
+        if function.argc != n.argc:
+            raise RuntimeError(f"Function {function_var} expected {function.argc} arguments but got {n.argc}")
+
         # get function's expected argument names and the arguments passed to the function
         function_var_names = self.functions[function_var].args if self.functions[function_var].args else []
         arguments = []
@@ -77,9 +81,7 @@ class Interpreter():
                 elif isinstance(arg, Operation): # get value of operation if it is an operation
                     arguments.append(self.evaluate_expression(arg))
 
-        # check of number of arguments passed to function matches number of expected arguments
-        if len(arguments) != n.argc:
-            raise RuntimeError(f"Function {function_var} expected {n.argc} arguments but got {len(arguments)}")
+        
         
         self.var_stack.append(self.variables.copy())  # save current scope
         self.variables = self.variables.copy()  # create new scope for function

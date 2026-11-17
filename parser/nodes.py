@@ -30,6 +30,7 @@ class Var(Node):
 @dataclass
 class Function(Node):
     body: list
+    argc: int
     args: list = None
 
 @dataclass

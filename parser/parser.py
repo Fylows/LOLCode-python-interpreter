@@ -192,16 +192,17 @@ class Parser:
         # get function name and args it requires
         name = self.expect(T.IDENT).value
         args = []
-        if (self.advance().type == T.YR):
+        if (self.peek().type == T.YR):
+            self.advance()
             args.append(self.parse_expr())
-            while self.peek().type is not T.MKAY:
-                self.expect(T.AN)
+            while self.peek().type == T.AN:
+                self.advance()
                 self.expect(T.YR)
                 # append var if IDENT, else parse expression (raw value)
                 args.append(self.parse_expr())
-            self.expect(T.MKAY)
+        self.expect(T.MKAY)
         # make a FunctionCall node with the function name, arg count and arg vector, if any 
-        return FunctionCall(name, args if args else None, len(args) if args else 0)
+        return FunctionCall(name, args, len(args))
 
     # when parsing function add it to a var node with a function type
     # function := 
@@ -220,7 +221,7 @@ class Parser:
                     args.append(self.expect(T.IDENT).value)
             self.skip_newlines()
             body = self.parse_block(T.FUNC_END)
-            self.fxns.append(Var(name, Function(body, args if args else None), T.FUNCTION))
+            self.fxns.append(Var(name, Function(body, len(args), args), T.FUNCTION))
 
     def parse_if_then(self) -> IfThen:
         self.expect(T.IF)  # O RLY?

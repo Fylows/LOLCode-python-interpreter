@@ -31,6 +31,20 @@ class LOLCodeIDE:
     create_top_bar(self.root, on_run_callback=self.on_execute_clicked)
     self.build_main_layout()
 
+  def highlight_syntax(self, event=None):
+    for tag in ["keyword", "boolean", "function", "string", "number", "comment", "identifier", "conditional"]:
+      self.code_editor.tag_remove(tag, "1.0", tk.END)
+
+    content = self.code_editor.get("1.0", "end-1c")
+    highlight_tokens = self.bridge.get_highlight_tokens(content)
+
+    for tag_category, start_pos, end_pos in highlight_tokens:
+      start = f"1.0 + {start_pos} chars"
+      end = f"1.0 + {end_pos} chars"
+      self.code_editor.tag_add(tag_category, start, end)
+
+    self.code_editor.edit_modified(False)
+
   def build_main_layout(self):
     self.body_frame = tk.Frame(self.root, bg="#2C2C2C", bd=0)
     self.body_frame.pack(fill="both", expand=True, padx=4, pady=4)
@@ -143,13 +157,26 @@ class LOLCodeIDE:
         bg="#1F1F1F",
         fg="#C2C2C2",
         insertbackground="#C2C2C2",
-        font=("Consolas", 11),
+        font=("Courier New", 11),
         bd=0,
         highlightthickness=0,
         padx=10,
         pady=10,
     )
     self.code_editor.pack(fill="both", expand=True)
+
+    self.code_editor.tag_configure("keyword", foreground="#569CD6")      # Blue
+    self.code_editor.tag_configure("conditional", foreground="#C586C0")  # Magenta 
+    self.code_editor.tag_configure("boolean", foreground="#B5CEA8")      # Light Green
+    self.code_editor.tag_configure("function", foreground="#DCDCAA")     # Yellow 
+    self.code_editor.tag_configure("string", foreground="#CE9178")       # Orange
+    self.code_editor.tag_configure("number", foreground="#B5CEA8")       # Light Green
+    self.code_editor.tag_configure("comment", foreground="#838383")      # Gray
+    self.code_editor.tag_configure("identifier", foreground="#4EC9B0")   # Cyan
+
+    # Bindings
+    self.code_editor.bind("<<Modified>>", self.highlight_syntax)
+    self.code_editor.bind("<KeyRelease>", self.highlight_syntax)
 
     # HORIZONTAL DIVIDER 
     self.h_divider = tk.Frame(
@@ -166,8 +193,7 @@ class LOLCodeIDE:
     self.console_output = tk.Text(
         self.console_frame,
         bg="#2C2C2C",
-        fg="#4ec9b0",
-        font=("Consolas", 10),
+        font=("Consolas", 11),
         bd=0,
         highlightthickness=0,
         padx=10,
@@ -201,6 +227,7 @@ class LOLCodeIDE:
         content = f.read()
         self.code_editor.delete("1.0", tk.END)
         self.code_editor.insert("1.0", content)
+        self.highlight_syntax()
 
   def quit_app(self):
     self.root.quit()
@@ -224,6 +251,12 @@ class LOLCodeIDE:
     self.console_output.config(state="normal")
     self.console_output.delete("1.0", tk.END)
     self.console_output.insert("1.0", output)
+
+    if output.startswith("Runtime Error:"):
+      self.console_output.config(fg="#F14C4B") 
+    else:
+      self.console_output.config(fg="#C2C2C2")
+
     self.console_output.config(state="disabled")
 
 

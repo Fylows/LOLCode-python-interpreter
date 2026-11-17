@@ -41,7 +41,7 @@ class LOLCodeIDE:
 
     # Toolbar 
     self.toolbar_frame = tk.Frame(self.left_frame, bg="#2C2C2C", bd=0)
-    self.toolbar_frame.pack(fill="x", padx=8, pady=8)
+    self.toolbar_frame.pack(fill="x", padx=8, pady=(0, 8))
 
     self.open_link = tk.Label(
         self.toolbar_frame,
@@ -53,6 +53,8 @@ class LOLCodeIDE:
     )
     self.open_link.pack(side="left", padx=(0, 15))
     self.open_link.bind("<Button-1>", lambda e: self.open_file_dialog())
+    self.open_link.bind("<Enter>", lambda e: self.open_link.config(fg="#ffffff"))
+    self.open_link.bind("<Leave>", lambda e: self.open_link.config(fg="#C2C2C2"))
 
     self.exit_link = tk.Label(
         self.toolbar_frame,
@@ -64,8 +66,10 @@ class LOLCodeIDE:
     )
     self.exit_link.pack(side="left")
     self.exit_link.bind("<Button-1>", lambda e: self.quit_app())
+    self.exit_link.bind("<Enter>", lambda e: self.exit_link.config(fg="#ffffff"))
+    self.exit_link.bind("<Leave>", lambda e: self.exit_link.config(fg="#C2C2C2"))
 
-    # Lexemes Table Header Label
+  # Lexemes Table Header Label
     self.lex_label = tk.Label(
         self.left_frame,
         text="Lexemes",
@@ -75,17 +79,19 @@ class LOLCodeIDE:
         anchor="center",
         padx=5,
     )
-    self.lex_label.pack(fill="x", pady=(2, 0))
+    self.lex_label.pack(fill="x", pady=(2, 0))  
+    self.lexeme_border_frame = tk.Frame(self.left_frame, bg="#4E4D4D", bd=0)
+    self.lexeme_border_frame.pack(fill="both", expand=True, padx=0, pady=0)
 
-  # Lexemes Treeview Table
+    # Lexemes Treeview Table
     self.lexeme_tree = ttk.Treeview(
-        self.left_frame, columns=("lexeme", "classification"), show="headings", height=11
+        self.lexeme_border_frame, columns=("lexeme", "classification"), show="headings", height=11
     )
     self.lexeme_tree.heading("lexeme", text="Lexeme", anchor="center")
     self.lexeme_tree.heading("classification", text="Classification", anchor="center")
     self.lexeme_tree.column("lexeme", width=130, anchor="w", stretch=True)
     self.lexeme_tree.column("classification", width=170, anchor="w", stretch=False)
-    self.lexeme_tree.pack(fill="both", expand=True, padx=0, pady=0)
+    self.lexeme_tree.pack(fill="both", expand=True, padx=1, pady=1) 
 
     # Symbol Table Header Label
     self.sym_label = tk.Label(
@@ -98,16 +104,18 @@ class LOLCodeIDE:
         padx=5,
     )
     self.sym_label.pack(fill="x", pady=(5, 0))
+    self.symbol_border_frame = tk.Frame(self.left_frame, bg="#4E4D4D", bd=0)
+    self.symbol_border_frame.pack(fill="both", expand=True, padx=0, pady=0)
 
     # Symbol Table Treeview Table
     self.symbol_tree = ttk.Treeview(
-        self.left_frame, columns=("identifier", "value"), show="headings", height=11
+        self.symbol_border_frame, columns=("identifier", "value"), show="headings", height=11
     )
     self.symbol_tree.heading("identifier", text="Identifier", anchor="center")
     self.symbol_tree.heading("value", text="Value", anchor="center")
     self.symbol_tree.column("identifier", width=130, anchor="w", stretch=True)
     self.symbol_tree.column("value", width=170, anchor="w", stretch=False)
-    self.symbol_tree.pack(fill="both", expand=True, padx=0, pady=0)
+    self.symbol_tree.pack(fill="both", expand=True, padx=1, pady=1) 
 
     # VERTICAL DIVIDER
     self.v_divider = tk.Frame(

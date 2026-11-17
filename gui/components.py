@@ -12,8 +12,12 @@ def setup_dark_styles():
       foreground="#C2C2C2",
       fieldbackground="#1F1F1F",
       rowheight=24,
-      borderwidth=0,
-      focuscolor="#1F1F1F",
+      borderwidth=0,       
+      relief="flat",  
+      bordercolor="#1F1F1F", 
+      lightcolor="#1F1F1F",   
+      darkcolor="#1F1F1F",    
+      focuscolor="#2C2C2C",
   )
   style.map(
       "Treeview",
@@ -33,8 +37,8 @@ def setup_dark_styles():
       "Treeview.Heading",
       background=[("active", "#2C2C2C"), ("pressed", "#2C2C2C")],
       foreground=[("active", "#C2C2C2"), ("pressed", "#C2C2C2")],
+      focuscolor=[("focus", "#2C2C2C"), ("!focus", "#2C2C2C")],
   )
-
 
 def create_top_bar(parent, on_run_callback):
   top_bar = tk.Frame(parent, bg="#2C2C2C", height=42)

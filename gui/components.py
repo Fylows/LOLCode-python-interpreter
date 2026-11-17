@@ -6,6 +6,23 @@ def setup_dark_styles():
   style = ttk.Style()
   style.theme_use("clam")
 
+  style.layout(
+      "Treeview.Item",
+      [
+          (
+              "Treeitem.padding",
+              {
+                  "sticky": "nswe",
+                  "children": [
+                      ("Treeitem.indicator", {"side": "left", "sticky": ""}),
+                      ("Treeitem.image", {"side": "left", "sticky": ""}),
+                      ("Treeitem.text", {"side": "left", "sticky": ""}),
+                  ],
+              },
+          )
+      ],
+  )
+
   style.configure(
       "Treeview",
       background="#1F1F1F",
@@ -17,12 +34,14 @@ def setup_dark_styles():
       bordercolor="#1F1F1F", 
       lightcolor="#1F1F1F",   
       darkcolor="#1F1F1F",    
-      focuscolor="#2C2C2C",
+      focuscolor="#1F1F1F",
   )
   style.map(
       "Treeview",
       background=[("selected", "#2C2C2C")],
       foreground=[("selected", "#C2C2C2")],
+      relief=[("selected", "flat"), ("active", "flat"), ("focus", "flat")],
+      borderwidth=[("selected", 0), ("active", 0), ("focus", 0)],
   )
 
   style.configure(
@@ -39,6 +58,62 @@ def setup_dark_styles():
       foreground=[("active", "#C2C2C2"), ("pressed", "#C2C2C2")],
       focuscolor=[("focus", "#2C2C2C"), ("!focus", "#2C2C2C")],
   )
+
+def enable_soft_highlight(tree, bg="#3A3A3A", fg="#FFFFFF"):
+  tree.configure(selectmode="none")
+  tree.tag_configure("hl", background=bg, foreground=fg)
+
+  def apply_highlight(item):
+    for old_item in tree.tag_has("hl"):
+      tree.item(old_item, tags=())
+    if item:
+      tree.item(item, tags=("hl",))
+      tree.see(item)
+
+  def on_click(event):
+    if tree.identify_region(event.x, event.y) not in ("cell", "tree"):
+      return
+    tree.focus_set()
+    row = tree.identify_row(event.y)
+    if row:
+      apply_highlight(row)
+    return "break"
+
+  def on_key_down(event):
+    children = tree.get_children()
+    if not children:
+      return
+    
+    current_highlighted = tree.tag_has("hl")
+    current_item = current_highlighted[0] if current_highlighted else None
+
+    if event.keysym == "Down":
+      if not current_item:
+        next_item = children[0]
+      else:
+        try:
+          idx = children.index(current_item)
+          next_item = children[min(idx + 1, len(children) - 1)]
+        except ValueError:
+          next_item = children[0]
+      apply_highlight(next_item)
+      return "break"
+
+    elif event.keysym == "Up":
+      if not current_item:
+        next_item = children[-1]
+      else:
+        try:
+          idx = children.index(current_item)
+          next_item = children[max(idx - 1, 0)]
+        except ValueError:
+          next_item = children[-1]
+      apply_highlight(next_item)
+      return "break"
+
+  tree.bind("<Button-1>", on_click)
+  tree.bind("<KeyPress-Up>", on_key_down)
+  tree.bind("<KeyPress-Down>", on_key_down)
 
 def create_top_bar(parent, on_run_callback):
   top_bar = tk.Frame(parent, bg="#2C2C2C", height=42)

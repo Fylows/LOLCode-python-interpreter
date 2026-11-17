@@ -6,6 +6,7 @@ os.environ["TK_SILENCE_DEPRECATION"] = "1"
 
 from .bridge import InterpreterBridge
 from .components import create_top_bar, setup_dark_styles
+from .components import create_top_bar, setup_dark_styles, enable_soft_highlight
 
 class LOLCodeIDE:
 
@@ -116,6 +117,9 @@ class LOLCodeIDE:
     self.symbol_tree.column("identifier", width=130, anchor="w", stretch=True)
     self.symbol_tree.column("value", width=170, anchor="w", stretch=False)
     self.symbol_tree.pack(fill="both", expand=True, padx=1, pady=1) 
+
+    enable_soft_highlight(self.lexeme_tree)
+    enable_soft_highlight(self.symbol_tree)
 
     # VERTICAL DIVIDER
     self.v_divider = tk.Frame(

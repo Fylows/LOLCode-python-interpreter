@@ -1,7 +1,0 @@
-HOW IZ I fxn2 YR a
-    FOUND YR a
-IF U SAY SO
-
-HAI
-    VISIBLE I IZ fxn2 YR 1 MKAY
-KTHXBYE

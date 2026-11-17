@@ -77,14 +77,14 @@ class LOLCodeIDE:
     )
     self.lex_label.pack(fill="x", pady=(2, 0))
 
-    # Lexemes Treeview Table
+  # Lexemes Treeview Table
     self.lexeme_tree = ttk.Treeview(
         self.left_frame, columns=("lexeme", "classification"), show="headings", height=11
     )
     self.lexeme_tree.heading("lexeme", text="Lexeme", anchor="center")
     self.lexeme_tree.heading("classification", text="Classification", anchor="center")
-    self.lexeme_tree.column("lexeme", width=130, anchor="w")
-    self.lexeme_tree.column("classification", width=170, anchor="w")
+    self.lexeme_tree.column("lexeme", width=130, anchor="w", stretch=True)
+    self.lexeme_tree.column("classification", width=170, anchor="w", stretch=False)
     self.lexeme_tree.pack(fill="both", expand=True, padx=0, pady=0)
 
     # Symbol Table Header Label
@@ -105,8 +105,8 @@ class LOLCodeIDE:
     )
     self.symbol_tree.heading("identifier", text="Identifier", anchor="center")
     self.symbol_tree.heading("value", text="Value", anchor="center")
-    self.symbol_tree.column("identifier", width=130, anchor="w")
-    self.symbol_tree.column("value", width=170, anchor="w")
+    self.symbol_tree.column("identifier", width=130, anchor="w", stretch=True)
+    self.symbol_tree.column("value", width=170, anchor="w", stretch=False)
     self.symbol_tree.pack(fill="both", expand=True, padx=0, pady=0)
 
     # VERTICAL DIVIDER
@@ -123,7 +123,7 @@ class LOLCodeIDE:
     # Code Editor 
     self.editor_frame = tk.Frame(self.right_container, bg="#1F1F1F", bd=0)
     self.editor_frame.pack(side="top", fill="x", padx=0, pady=0)
-    self.editor_frame.config(height=320)
+    self.editor_frame.config(height=500)
     self.editor_frame.pack_propagate(False)
 
     self.code_editor = tk.Text(

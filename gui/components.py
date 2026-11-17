@@ -6,15 +6,6 @@ def setup_dark_styles():
   style = ttk.Style()
   style.theme_use("clam")
 
-  style.configure("TPanedwindow", background="#2C2C2C", borderwidth=0)
-  style.configure(
-      "TPanedwindow.Sash",
-      relief="flat",
-      sashwidth=3,
-      background="#2C2C2C",
-      borderwidth=0,
-  )
-
   style.configure(
       "Treeview",
       background="#1F1F1F",
@@ -22,6 +13,7 @@ def setup_dark_styles():
       fieldbackground="#1F1F1F",
       rowheight=24,
       borderwidth=0,
+      focuscolor="#1F1F1F",
   )
   style.map(
       "Treeview",
@@ -43,6 +35,7 @@ def setup_dark_styles():
       foreground=[("active", "#C2C2C2"), ("pressed", "#C2C2C2")],
   )
 
+
 def create_top_bar(parent, on_run_callback):
   top_bar = tk.Frame(parent, bg="#2C2C2C", height=42)
   top_bar.pack(side="top", fill="x")
@@ -58,7 +51,7 @@ def create_top_bar(parent, on_run_callback):
           max(1, raw_img.width() // 22), max(1, raw_img.height() // 22)
       )
   except Exception as e:
-    print("Could not load logo image", e)
+    print("Could not load logo image:", e)
 
   if logo_img:
     title_label = tk.Label(

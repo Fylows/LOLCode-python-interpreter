@@ -31,15 +31,16 @@ class LOLCodeIDE:
     self.build_main_layout()
 
   def build_main_layout(self):
-    self.main_pane = ttk.PanedWindow(self.root, orient="horizontal", style="TPanedwindow")
-    self.main_pane.pack(fill="both", expand=True, padx=4, pady=4)
+    self.body_frame = tk.Frame(self.root, bg="#2C2C2C", bd=0)
+    self.body_frame.pack(fill="both", expand=True, padx=4, pady=4)
 
     # LEFT PANEL
-    self.left_frame = tk.Frame(self.main_pane, bg="#2C2C2C", bd=0)
-    self.main_pane.add(self.left_frame, weight=1)
+    self.left_frame = tk.Frame(self.body_frame, bg="#2C2C2C", width=320, bd=0)
+    self.left_frame.pack(side="left", fill="y")
+    self.left_frame.pack_propagate(False)
 
     # Toolbar 
-    self.toolbar_frame = tk.Frame(self.left_frame, bg="#2C2C2C")
+    self.toolbar_frame = tk.Frame(self.left_frame, bg="#2C2C2C", bd=0)
     self.toolbar_frame.pack(fill="x", padx=8, pady=8)
 
     self.open_link = tk.Label(
@@ -108,13 +109,22 @@ class LOLCodeIDE:
     self.symbol_tree.column("value", width=170, anchor="w")
     self.symbol_tree.pack(fill="both", expand=True, padx=0, pady=0)
 
-    # RIGHT PANEL 
-    self.right_pane = ttk.PanedWindow(self.main_pane, orient="vertical", style="TPanedwindow")
-    self.main_pane.add(self.right_pane, weight=3)
+    # VERTICAL DIVIDER
+    self.v_divider = tk.Frame(
+        self.body_frame, bg="#2C2C2C", width=6, cursor="sb_h_double_arrow"
+    )
+    self.v_divider.pack(side="left", fill="y", padx=2)
+    self.v_divider.bind("<B1-Motion>", self.resize_sidebar)
 
-    # Code Editor
-    self.editor_frame = tk.Frame(self.right_pane, bg="#1F1F1F", bd=0)
-    self.right_pane.add(self.editor_frame, weight=2)
+    # RIGHT PANEL 
+    self.right_container = tk.Frame(self.body_frame, bg="#2C2C2C", bd=0)
+    self.right_container.pack(side="left", fill="both", expand=True)
+
+    # Code Editor 
+    self.editor_frame = tk.Frame(self.right_container, bg="#1F1F1F", bd=0)
+    self.editor_frame.pack(side="top", fill="x", padx=0, pady=0)
+    self.editor_frame.config(height=320)
+    self.editor_frame.pack_propagate(False)
 
     self.code_editor = tk.Text(
         self.editor_frame,
@@ -123,6 +133,7 @@ class LOLCodeIDE:
         insertbackground="#C2C2C2",
         font=("Consolas", 11),
         bd=0,
+        highlightthickness=0,
         padx=10,
         pady=10,
     )
@@ -131,9 +142,17 @@ class LOLCodeIDE:
         "1.0", "HAI\nI HAS A var ITZ 12\nVISIBLE \"noot noot \" var\nKTHXBYE"
     )
 
-    # Console Output Frame
-    self.console_frame = tk.Frame(self.right_pane, bg="#2C2C2C", bd=0)
-    self.right_pane.add(self.console_frame, weight=1)
+    # HORIZONTAL DIVIDER 
+    self.h_divider = tk.Frame(
+        self.right_container, bg="#2C2C2C", height=6, cursor="sb_v_double_arrow"
+    )
+    self.h_divider.pack(side="top", fill="x", pady=2)
+    self.h_divider.bind("<Button-1>", self.start_drag_editor)
+    self.h_divider.bind("<B1-Motion>", self.resize_editor)
+
+    # Console Output 
+    self.console_frame = tk.Frame(self.right_container, bg="#2C2C2C", bd=0)
+    self.console_frame.pack(side="top", fill="both", expand=True)
 
     self.console_output = tk.Text(
         self.console_frame,
@@ -141,12 +160,29 @@ class LOLCodeIDE:
         fg="#4ec9b0",
         font=("Consolas", 10),
         bd=0,
+        highlightthickness=0,
         padx=10,
         pady=10,
     )
     self.console_output.pack(fill="both", expand=True)
     self.console_output.insert("1.0", "noot noot 12\n")
     self.console_output.config(state="disabled")
+
+  # drag and resize helper
+  def resize_sidebar(self, event):
+    new_width = event.x_root - self.left_frame.winfo_rootx()
+    if 150 < new_width < 600:
+      self.left_frame.config(width=new_width)
+
+  def start_drag_editor(self, event):
+    self._drag_start_y = event.y_root
+    self._start_height = self.editor_frame.winfo_height()
+
+  def resize_editor(self, event):
+    delta = event.y_root - self._drag_start_y
+    new_height = self._start_height + delta
+    if 80 < new_height < 650:
+      self.editor_frame.config(height=new_height)
 
   def open_file_dialog(self):
     file_path = filedialog.askopenfilename(

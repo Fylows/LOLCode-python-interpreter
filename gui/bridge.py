@@ -65,7 +65,7 @@ class InterpreterBridge:
       
       for token in tokens:
         lexeme_val = getattr(token, "value", str(token))
-        raw_type = getattr(token, "type", None)
+        raw_type = getattr(token, "type", None) 
         type_name = getattr(raw_type, "name", str(raw_type)) if raw_type else ""
 
         tag_category = "identifier"
@@ -112,6 +112,9 @@ class InterpreterBridge:
     tokens_list = []
     symbol_table_list = []
     console_output = ""
+
+    if not source_code or not source_code.strip():
+      return tokens_list, symbol_table_list
 
     try:
       # Run Lexer

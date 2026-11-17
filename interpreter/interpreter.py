@@ -29,6 +29,11 @@ class Interpreter():
 
         # store return values in IT
         self.IT = T.NOOB
+        # for gui callback to avoid crashing 
+        self.input_callback = None 
+
+    def set_input_callback(self, callback):   
+        self.input_callback = callback
 
     def run(self, node:Node) -> Node:
         if not node:
@@ -355,9 +360,16 @@ class Interpreter():
 
     # Execute input code (GIMMEH)
     def exec_Input(self, n:Node) -> None:
-        user_input = input()
         if n.var not in self.variables:
             raise RuntimeError(f"Variable {n.var} is not defined")
+
+        if self.input_callback:
+        # GUI mode: show a dialog
+            user_input = self.input_callback(f"Enter value for {n.var}:")
+        else:
+        # CLI mode: read from the terminal
+            user_input = input()
+
         self.variables[n.var] = Literal(user_input, T.YARN_TYPE)
 
 # === HELPER FUNCTIONS === #

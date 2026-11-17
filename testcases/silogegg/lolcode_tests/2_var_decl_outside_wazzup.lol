@@ -1,0 +1,8 @@
+HAI
+  WAZZUP
+    I HAS A x ITZ 1
+  BUHBYE
+  VISIBLE x
+  I HAS A y ITZ 2
+  VISIBLE y
+KTHXBYE

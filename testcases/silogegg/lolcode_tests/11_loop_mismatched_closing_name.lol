@@ -1,0 +1,11 @@
+HAI
+  WAZZUP
+    I HAS A i ITZ 0
+  BUHBYE
+
+  IM IN YR counter UPPIN YR i TIL BOTH SAEM i AN 3
+    VISIBLE i
+  IM OUTTA YR looper
+
+  VISIBLE "done"
+KTHXBYE

@@ -65,7 +65,8 @@ class Interpreter():
                     arguments.append(self.evaluate_expression(arg))
 
                 elif isinstance(arg, FunctionCall): # get value of function call if it is a function call
-                    raise RuntimeError(f"Function calls are not allowed as arguments to functions. Function {function_var} called with function call as argument.")
+                    self.exec_FunctionCall(arg)
+                    arguments.append(self.IT)
 
                 elif isinstance(arg, Typecast): # get value of typecast if it is a typecast
                     arguments.append(self.evaluate_expression(arg))

@@ -1,0 +1,10 @@
+HAI
+  WAZZUP
+  BUHBYE
+
+  HOW IZ I addNumbers YR a AN YR b
+    FOUND YR SUM OF a AN b
+  IF U SAY SO
+
+  VISIBLE I IZ addNumbers MKAY
+KTHXBYE

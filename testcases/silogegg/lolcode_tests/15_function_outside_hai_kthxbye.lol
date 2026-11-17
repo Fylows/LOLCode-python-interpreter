@@ -1,0 +1,9 @@
+HOW IZ I greet
+  VISIBLE "hello"
+IF U SAY SO
+
+HAI
+  WAZZUP
+  BUHBYE
+  I IZ greet MKAY
+KTHXBYE

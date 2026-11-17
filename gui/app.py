@@ -31,6 +31,19 @@ class LOLCodeIDE:
     create_top_bar(self.root, on_run_callback=self.on_execute_clicked)
     self.build_main_layout()
     self.line_numbers.redraw()
+    self.highlight_current_line()
+
+  def highlight_current_line(self, event=None):
+    self.code_editor.tag_remove("current_line", "1.0", tk.END)
+    cursor_pos = self.code_editor.index("insert")
+    line_num = cursor_pos.split(".")[0]
+    
+    start = f"{line_num}.0"
+    end = f"{line_num}.end+1c"
+    
+    self.code_editor.tag_add("current_line", start, end)
+    
+    self.code_editor.tag_lower("current_line")
 
   def highlight_syntax(self, event=None):
     for tag in ["keyword", "boolean", "function", "string", "number", "comment", "identifier", "conditional"]:
@@ -45,6 +58,7 @@ class LOLCodeIDE:
       self.code_editor.tag_add(tag_category, start, end)
 
     self.code_editor.edit_modified(False)
+    self.highlight_current_line()
 
   def build_main_layout(self):
     self.body_frame = tk.Frame(self.root, bg="#2C2C2C", bd=0)
@@ -150,8 +164,9 @@ class LOLCodeIDE:
     # Code Editor
     self.editor_frame = tk.Frame(self.right_container, bg="#1F1F1F", bd=0)
     self.editor_frame.pack(side="top", fill="x", padx=0, pady=0)
-    self.editor_frame.config(height=500)
-    self.editor_frame.pack_propagate(False)
+    #self.editor_frame.config(height=500)
+    #self.editor_frame.pack_propagate(False)
+    self.editor_frame.pack(side="top", fill="both", expand=True, padx=0, pady=0)
 
     self.line_numbers = LineNumberCanvas(
         self.editor_frame, 
@@ -177,14 +192,19 @@ class LOLCodeIDE:
     self.code_editor.pack(side="left", fill="both", expand=True)
     self.line_numbers.attach(self.code_editor)
 
-    self.code_editor.bind("<<Modified>>", lambda e: (self.root.after_idle(self.line_numbers.redraw), self.highlight_syntax()))
-    self.code_editor.bind("<KeyRelease>", lambda e: self.root.after_idle(self.line_numbers.redraw))
-    self.code_editor.bind("<Return>", lambda e: self.root.after_idle(self.line_numbers.redraw))
-    self.code_editor.bind("<BackSpace>", lambda e: self.root.after_idle(self.line_numbers.redraw))
-    self.code_editor.bind("<Delete>", lambda e: self.root.after_idle(self.line_numbers.redraw))
+    # Bindings
+    self.code_editor.bind("<<Modified>>", lambda e: (self.root.after_idle(self.line_numbers.redraw), self.highlight_syntax(), self.highlight_current_line()))
+    self.code_editor.bind("<KeyRelease>", lambda e: (self.root.after_idle(self.line_numbers.redraw), self.highlight_current_line()))
+    self.code_editor.bind("<Return>", lambda e: (self.root.after_idle(self.line_numbers.redraw), self.highlight_current_line()))
+    self.code_editor.bind("<BackSpace>", lambda e: (self.root.after_idle(self.line_numbers.redraw), self.highlight_current_line()))
+    self.code_editor.bind("<Delete>", lambda e: (self.root.after_idle(self.line_numbers.redraw), self.highlight_current_line()))
     self.code_editor.bind("<MouseWheel>", lambda e: self.root.after_idle(self.line_numbers.redraw))
-    self.code_editor.bind("<Button-1>", lambda e: self.root.after_idle(self.line_numbers.redraw))
+    self.code_editor.bind("<Button-1>", lambda e: self.root.after_idle(self.highlight_current_line))
+    for key in ["Up", "Down", "Left", "Right"]:
+      self.code_editor.bind(f"<{key}>", lambda e: self.root.after_idle(self.highlight_current_line))
 
+    # color config
+    self.code_editor.tag_configure("current_line", background="#322726") 
     self.code_editor.tag_configure("keyword", foreground="#569CD6")      # Blue
     self.code_editor.tag_configure("conditional", foreground="#C586C0")  # Magenta 
     self.code_editor.tag_configure("boolean", foreground="#B5CEA8")      # Light Green
@@ -194,7 +214,6 @@ class LOLCodeIDE:
     self.code_editor.tag_configure("comment", foreground="#838383")      # Gray
     self.code_editor.tag_configure("identifier", foreground="#4EC9B0")   # Cyan
 
-    # Bindings
     self.code_editor.bind("<<Modified>>", self.highlight_syntax)
     self.code_editor.bind("<KeyRelease>", self.highlight_syntax)
 
@@ -249,6 +268,7 @@ class LOLCodeIDE:
         self.code_editor.insert("1.0", content)
         self.highlight_syntax()
         self.line_numbers.redraw()
+        self.highlight_current_line()
 
   def quit_app(self):
     self.root.quit()

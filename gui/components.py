@@ -9,6 +9,10 @@ class LineNumberCanvas(tk.Canvas):
 
   def attach(self, text_widget):
     self.text_widget = text_widget
+    self.text_widget.configure(yscrollcommand=self.on_text_scroll)
+
+  def on_text_scroll(self, *args):
+    self.redraw()
 
   def redraw(self, *event):
     self.delete("all")

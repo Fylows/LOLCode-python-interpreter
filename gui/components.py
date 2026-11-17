@@ -2,6 +2,36 @@ import os
 import tkinter as tk
 from tkinter import ttk
 
+class LineNumberCanvas(tk.Canvas):
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    self.text_widget = None
+
+  def attach(self, text_widget):
+    self.text_widget = text_widget
+
+  def redraw(self, *event):
+    self.delete("all")
+    if not self.text_widget:
+      return
+
+    i = self.text_widget.index("@0,0")
+    while True:
+      dline = self.text_widget.dlineinfo(i)
+      if dline is None:
+        break
+      y = dline[1]
+      line_num = str(i).split(".")[0]
+      
+      self.create_text(
+          35, y + 2, 
+          anchor="ne", 
+          text=line_num, 
+          fill="#858585",  
+          font=("Consolas", 8)
+      )
+      i = self.text_widget.index(f"{i}+1line")
+
 def setup_dark_styles():
   style = ttk.Style()
   style.theme_use("clam")

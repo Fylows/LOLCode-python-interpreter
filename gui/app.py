@@ -5,7 +5,7 @@ from tkinter import filedialog, ttk
 os.environ["TK_SILENCE_DEPRECATION"] = "1"
 
 from .bridge import InterpreterBridge
-from .components import create_top_bar, setup_dark_styles
+from .components import LineNumberCanvas, create_top_bar, setup_dark_styles
 from .components import create_top_bar, setup_dark_styles, enable_soft_highlight
 
 class LOLCodeIDE:
@@ -30,6 +30,7 @@ class LOLCodeIDE:
 
     create_top_bar(self.root, on_run_callback=self.on_execute_clicked)
     self.build_main_layout()
+    self.line_numbers.redraw()
 
   def highlight_syntax(self, event=None):
     for tag in ["keyword", "boolean", "function", "string", "number", "comment", "identifier", "conditional"]:
@@ -146,24 +147,43 @@ class LOLCodeIDE:
     self.right_container = tk.Frame(self.body_frame, bg="#2C2C2C", bd=0)
     self.right_container.pack(side="left", fill="both", expand=True)
 
-    # Code Editor 
+    # Code Editor
     self.editor_frame = tk.Frame(self.right_container, bg="#1F1F1F", bd=0)
     self.editor_frame.pack(side="top", fill="x", padx=0, pady=0)
     self.editor_frame.config(height=500)
     self.editor_frame.pack_propagate(False)
 
+    self.line_numbers = LineNumberCanvas(
+        self.editor_frame, 
+        width=45, 
+        bg="#1F1F1F",  
+        highlightthickness=0, 
+        bd=0
+    )
+    self.line_numbers.pack(side="left", fill="y")
+
+    # Code Editor Text Widget
     self.code_editor = tk.Text(
         self.editor_frame,
         bg="#1F1F1F",
         fg="#C2C2C2",
         insertbackground="#C2C2C2",
-        font=("Courier New", 11),
+        font=("Monaco", 11),
         bd=0,
         highlightthickness=0,
         padx=10,
         pady=10,
     )
-    self.code_editor.pack(fill="both", expand=True)
+    self.code_editor.pack(side="left", fill="both", expand=True)
+    self.line_numbers.attach(self.code_editor)
+
+    self.code_editor.bind("<<Modified>>", lambda e: (self.root.after_idle(self.line_numbers.redraw), self.highlight_syntax()))
+    self.code_editor.bind("<KeyRelease>", lambda e: self.root.after_idle(self.line_numbers.redraw))
+    self.code_editor.bind("<Return>", lambda e: self.root.after_idle(self.line_numbers.redraw))
+    self.code_editor.bind("<BackSpace>", lambda e: self.root.after_idle(self.line_numbers.redraw))
+    self.code_editor.bind("<Delete>", lambda e: self.root.after_idle(self.line_numbers.redraw))
+    self.code_editor.bind("<MouseWheel>", lambda e: self.root.after_idle(self.line_numbers.redraw))
+    self.code_editor.bind("<Button-1>", lambda e: self.root.after_idle(self.line_numbers.redraw))
 
     self.code_editor.tag_configure("keyword", foreground="#569CD6")      # Blue
     self.code_editor.tag_configure("conditional", foreground="#C586C0")  # Magenta 
@@ -228,6 +248,7 @@ class LOLCodeIDE:
         self.code_editor.delete("1.0", tk.END)
         self.code_editor.insert("1.0", content)
         self.highlight_syntax()
+        self.line_numbers.redraw()
 
   def quit_app(self):
     self.root.quit()

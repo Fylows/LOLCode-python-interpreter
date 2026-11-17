@@ -138,9 +138,6 @@ class LOLCodeIDE:
         pady=10,
     )
     self.code_editor.pack(fill="both", expand=True)
-    self.code_editor.insert(
-        "1.0", "HAI\nI HAS A var ITZ 12\nVISIBLE \"noot noot \" var\nKTHXBYE"
-    )
 
     # HORIZONTAL DIVIDER 
     self.h_divider = tk.Frame(
@@ -165,7 +162,6 @@ class LOLCodeIDE:
         pady=10,
     )
     self.console_output.pack(fill="both", expand=True)
-    self.console_output.insert("1.0", "noot noot 12\n")
     self.console_output.config(state="disabled")
 
   # drag and resize helper

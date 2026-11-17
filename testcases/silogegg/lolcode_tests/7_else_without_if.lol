@@ -1,0 +1,10 @@
+HAI
+  WAZZUP
+    I HAS A x ITZ 2
+  BUHBYE
+
+  VISIBLE "start"
+  NO WAI
+    VISIBLE "orphan NO WAI"
+  OIC
+KTHXBYE

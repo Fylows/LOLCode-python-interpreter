@@ -1,12 +1,11 @@
 HOW IZ I fxn
-    VISIBLE "damn"
-    FOUND YR 123
-    VISIBLE "man"
+    FOUND YR 1
 IF U SAY SO
+
+HOW IZ I fxn2 YR a
+    FOUND YR a
+IF U SAY SO
+
 HAI
-    VISIBLE "hi"
-    I IZ fxn MKAY
-    VISIBLE IT
-    GTFO
-    VISIBLE "WOW"
+    VISIBLE I IZ fxn2 YR I IZ fxn MKAY MKAY
 KTHXBYE

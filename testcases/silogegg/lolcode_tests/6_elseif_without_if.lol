@@ -1,0 +1,10 @@
+HAI
+  WAZZUP
+    I HAS A x ITZ 2
+  BUHBYE
+
+  VISIBLE "start"
+  MEBBE BOTH SAEM x AN 2
+    VISIBLE "orphan MEBBE"
+  OIC
+KTHXBYE

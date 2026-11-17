@@ -1,0 +1,10 @@
+HAI
+  WAZZUP
+  BUHBYE
+
+  HOW IZ I addNumbers YR a AN YR b
+    VISIBLE SUM OF a AN b
+  IF U SAY SO
+
+  I IZ addNumbers YR 3 AN YR 4 MKAY
+KTHXBYE

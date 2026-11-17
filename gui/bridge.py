@@ -16,7 +16,7 @@ class InterpreterBridge:
 
   def __init__(self):
     pass
-
+    
   def get_friendly_classification(self, token_type):
     if not token_type:
       return "Token"
@@ -108,13 +108,13 @@ class InterpreterBridge:
 
     return highlight_data
 
-  def execute_code(self, source_code):
+  def execute_code(self, source_code, input_callback=None, output_callback=None):
     tokens_list = []
     symbol_table_list = []
     console_output = ""
 
     if not source_code or not source_code.strip():
-      return tokens_list, symbol_table_list
+      return tokens_list, symbol_table_list, console_output
 
     try:
       # Run Lexer
@@ -131,8 +131,23 @@ class InterpreterBridge:
 
       # Run Interpreter
       f = io.StringIO()
+
+      def input_with_flush(prompt_text="Enter input:"):
+        if output_callback:
+          output_callback(f.getvalue())
+        value = input_callback(prompt_text)
+        f.write(value + "\n")   
+        return value
+
       with redirect_stdout(f):
         interpreter = Interpreter()
+
+        if input_callback:
+          if hasattr(interpreter, "set_input_callback"):
+            interpreter.set_input_callback(input_with_flush)
+          else:
+            interpreter.input_callback = input_with_flush
+
         if len(ast) > 2 and ast[2]:
           interpreter.run(ast[2])  # Functions
         if len(ast) > 1 and ast[1]:
@@ -179,6 +194,8 @@ class InterpreterBridge:
         symbol_table_list.append((identifier, val))
 
     except Exception as e:
-      console_output = f"Runtime Error:\n{str(e)}"
+      import traceback
+      traceback.print_exc()          
+      console_output = f"Runtime Error:\n{type(e).__name__}: {e}"
 
     return tokens_list, symbol_table_list, console_output

@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import filedialog, ttk
+from tkinter import filedialog, simpledialog, ttk
 
 os.environ["TK_SILENCE_DEPRECATION"] = "1"
 
@@ -34,6 +34,22 @@ class LOLCodeIDE:
     self.line_numbers.redraw()
     self.highlight_current_line()
 
+  def request_user_input(self, prompt_text="Enter value:"):
+    self.root.update()
+    user_val = simpledialog.askstring("LOLCODE Input (GIMMEH)", prompt_text, parent=self.root)
+    return user_val if user_val is not None else ""
+
+  def show_partial_output(self, text):
+    #print("FLUSH:", repr(text))
+    self.console_output.config(state="normal")
+    self.console_output.delete("1.0", tk.END)
+    self.console_output.insert("1.0", text)
+    self.console_output.see(tk.END)
+    self.console_output.config(fg="#C2C2C2")
+    self.console_output.config(state="disabled")
+    self.root.update()  
+    
+
   def highlight_current_line(self, event=None):
     self.code_editor.tag_remove("current_line", "1.0", tk.END)
     cursor_pos = self.code_editor.index("insert")
@@ -43,7 +59,6 @@ class LOLCodeIDE:
     end = f"{line_num}.end+1c"
     
     self.code_editor.tag_add("current_line", start, end)
-    
     self.code_editor.tag_lower("current_line")
 
   def highlight_syntax(self, event=None):
@@ -100,7 +115,7 @@ class LOLCodeIDE:
     self.exit_link.bind("<Enter>", lambda e: self.exit_link.config(fg="#ffffff"))
     self.exit_link.bind("<Leave>", lambda e: self.exit_link.config(fg="#C2C2C2"))
 
-  # Lexemes Table Header Label
+    # Lexemes Table Header Label
     self.lex_label = tk.Label(
         self.left_frame,
         text="Lexemes",
@@ -214,9 +229,6 @@ class LOLCodeIDE:
     self.code_editor.tag_configure("comment", foreground="#838383")      # Gray
     self.code_editor.tag_configure("identifier", foreground="#4EC9B0")   # Cyan
 
-    self.code_editor.bind("<<Modified>>", self.highlight_syntax)
-    self.code_editor.bind("<KeyRelease>", self.highlight_syntax)
-
     # HORIZONTAL DIVIDER 
     self.h_divider = tk.Frame(
         self.right_container, bg="#2C2C2C", height=6, cursor="sb_v_double_arrow"
@@ -281,7 +293,11 @@ class LOLCodeIDE:
 
   def on_execute_clicked(self):
     code = self.code_editor.get("1.0", "end-1c")
-    tokens, symbols, output = self.bridge.execute_code(code)
+    tokens, symbols, output = self.bridge.execute_code(
+        code, 
+        input_callback=self.request_user_input,
+        output_callback=self.show_partial_output,
+    )
 
     for row in self.lexeme_tree.get_children():
       self.lexeme_tree.delete(row)
@@ -297,6 +313,7 @@ class LOLCodeIDE:
     self.console_output.config(state="normal")
     self.console_output.delete("1.0", tk.END)
     self.console_output.insert("1.0", output)
+    self.console_output.see(tk.END)  
 
     if output.startswith("Runtime Error:"):
       self.console_output.config(fg="#F14C4B") 

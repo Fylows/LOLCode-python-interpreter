@@ -1,5 +1,7 @@
-# LOLCODE Python Interpteter
+# LOLCODE Python Interpreter
 
+
+### Project Structure
 ```
 /lexer
     lexer.py # lexer function
@@ -16,9 +18,20 @@
     nodes.py # AST nodes for conditionals, loops, and switches
     flow_parser.py # parser for control flow constructs
     evaluator.py # evaluator for executing control flow logic
+
+/gui
+    app.py # main TKinter IDE application layout and event loops
+    bridge.py # connects the ui to the backend interpreter 
+    components.py # custom ui widget
 ```
 
-References:
+### How to Run the GUI:
+```bash
+python3 -m gui.app
+```
+
+### References:
+
 
 
 [Bernard Jezua LOLCODE Interpreter 2024](https://github.com/bernardjezua/LOLCODE-Interpreter/)

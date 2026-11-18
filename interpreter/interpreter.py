@@ -228,6 +228,12 @@ class Interpreter():
 
     # Returns type of numerical value of arithmetic operations: NUMBR or NUMBAR
     def get_numeric_type(self, ops:T, n:Node) -> T:
+        if isinstance(ops[0], FunctionCall):
+            self.exec_FunctionCall(ops[0])
+            ops[0] = self.IT
+        if isinstance(ops[1], FunctionCall):
+            self.exec_FunctionCall(ops[0])
+            ops[1] = self.IT
 
         type = T.NUMBR_TYPE
         if ops[0].type in [T.YARN_LIT, T.YARN_TYPE]:

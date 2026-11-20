@@ -72,7 +72,8 @@ class LOLCodeIDE:
       start = f"1.0 + {start_pos} chars"
       end = f"1.0 + {end_pos} chars"
       self.code_editor.tag_add(tag_category, start, end)
-
+      
+    self.code_editor.tag_raise("comment")
     self.code_editor.edit_modified(False)
     self.highlight_current_line()
 
@@ -219,15 +220,15 @@ class LOLCodeIDE:
       self.code_editor.bind(f"<{key}>", lambda e: self.root.after_idle(self.highlight_current_line))
 
     # color config
-    self.code_editor.tag_configure("current_line", background="#322726") 
-    self.code_editor.tag_configure("keyword", foreground="#569CD6")      # Blue
-    self.code_editor.tag_configure("conditional", foreground="#C586C0")  # Magenta 
-    self.code_editor.tag_configure("boolean", foreground="#B5CEA8")      # Light Green
-    self.code_editor.tag_configure("function", foreground="#DCDCAA")     # Yellow 
-    self.code_editor.tag_configure("string", foreground="#CE9178")       # Orange
-    self.code_editor.tag_configure("number", foreground="#B5CEA8")       # Light Green
-    self.code_editor.tag_configure("comment", foreground="#838383")      # Gray
-    self.code_editor.tag_configure("identifier", foreground="#4EC9B0")   # Cyan
+    self.code_editor.tag_configure("current_line", background="#353535") 
+    self.code_editor.tag_configure("keyword", foreground="#569CD6")                                   # Blue
+    self.code_editor.tag_configure("conditional", foreground="#C586C0")                               # Magenta 
+    self.code_editor.tag_configure("boolean", foreground="#B5CEA8")                                   # Light Green
+    self.code_editor.tag_configure("function", foreground="#DCDCAA")                                  # Yellow 
+    self.code_editor.tag_configure("string", foreground="#CE9178")                                    # Orange
+    self.code_editor.tag_configure("number", foreground="#B5CEA8")                                    # Light Green
+    self.code_editor.tag_configure("comment", foreground="#838383", font=("Monaco", 11, "italic"))    # Gray
+    self.code_editor.tag_configure("identifier", foreground="#4EC9B0")                                # Cyan
 
     # HORIZONTAL DIVIDER 
     self.h_divider = tk.Frame(

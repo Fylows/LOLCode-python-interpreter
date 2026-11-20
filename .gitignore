@@ -2,3 +2,5 @@
 /lexer/__pycache__/*
 /parser/__pycache__/*
 /testcases/__pycache/*
+__pycache__/
+*.py[cod]

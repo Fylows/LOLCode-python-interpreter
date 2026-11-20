@@ -1,6 +1,7 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, simpledialog, ttk
+import tkinter.font as tkfont
 
 os.environ["TK_SILENCE_DEPRECATION"] = "1"
 
@@ -193,13 +194,17 @@ class LOLCodeIDE:
     )
     self.line_numbers.pack(side="left", fill="y")
 
-    # Code Editor Text Widget
+
+    # code editor
+    editor_font = tkfont.Font(family="Monaco", size=11)
+    self.comment_font = tkfont.Font(family="Menlo", size=11, slant="italic")
+
     self.code_editor = tk.Text(
         self.editor_frame,
         bg="#1F1F1F",
         fg="#C2C2C2",
         insertbackground="#C2C2C2",
-        font=("Monaco", 11),
+        font=editor_font,
         bd=0,
         highlightthickness=0,
         padx=10,
@@ -230,15 +235,16 @@ class LOLCodeIDE:
     25% #484848
     30% #505050
     """
+    self.code_editor.tag_configure("comment", foreground="#838383", font=self.comment_font)
     self.code_editor.tag_configure("current_line", background="#3a3a3a") # 12% layered w pure white #FFFFFFF
-    self.code_editor.tag_configure("keyword", foreground="#569CD6")                                   # Blue
-    self.code_editor.tag_configure("conditional", foreground="#C586C0")                               # Magenta 
-    self.code_editor.tag_configure("boolean", foreground="#B5CEA8")                                   # Light Green
-    self.code_editor.tag_configure("function", foreground="#DCDCAA")                                  # Yellow 
-    self.code_editor.tag_configure("string", foreground="#CE9178")                                    # Orange
-    self.code_editor.tag_configure("number", foreground="#B5CEA8")                                    # Light Green
-    self.code_editor.tag_configure("comment", foreground="#838383", font=("Monaco", 11, "italic"))    # Gray
-    self.code_editor.tag_configure("identifier", foreground="#4EC9B0")                                # Cyan
+    self.code_editor.tag_configure("keyword", foreground="#569CD6")      # Blue
+    self.code_editor.tag_configure("conditional", foreground="#C586C0")  # Magenta 
+    self.code_editor.tag_configure("boolean", foreground="#B5CEA8")      # Light Green
+    self.code_editor.tag_configure("function", foreground="#DCDCAA")     # Yellow 
+    self.code_editor.tag_configure("string", foreground="#CE9178")       # Orange
+    self.code_editor.tag_configure("number", foreground="#B5CEA8")       # Light Green
+    self.code_editor.tag_configure("comment", foreground="#838383")      # Gray
+    self.code_editor.tag_configure("identifier", foreground="#4EC9B0")   # Cyan
 
     # HORIZONTAL DIVIDER 
     self.h_divider = tk.Frame(

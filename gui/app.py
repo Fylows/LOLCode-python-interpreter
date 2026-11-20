@@ -220,7 +220,17 @@ class LOLCodeIDE:
       self.code_editor.bind(f"<{key}>", lambda e: self.root.after_idle(self.highlight_current_line))
 
     # color config
-    self.code_editor.tag_configure("current_line", background="#353535") 
+    """
+    NOTE: 
+    overlay: #C2C2C2
+    bg: #1F1F1F
+    10% #2F2F2F
+    15% #373737
+    20% #404040
+    25% #484848
+    30% #505050
+    """
+    self.code_editor.tag_configure("current_line", background="#3a3a3a") # 12% layered w pure white #FFFFFFF
     self.code_editor.tag_configure("keyword", foreground="#569CD6")                                   # Blue
     self.code_editor.tag_configure("conditional", foreground="#C586C0")                               # Magenta 
     self.code_editor.tag_configure("boolean", foreground="#B5CEA8")                                   # Light Green

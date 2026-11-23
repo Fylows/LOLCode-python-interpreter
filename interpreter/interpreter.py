@@ -105,7 +105,7 @@ class Interpreter():
                 self.run(stmt)
             except GTFOInterrupt:
                 break
-            self.IT = Literal(None, T.NOOB)
+        self.IT = Literal(None, T.NOOB)
         self.variables = self.var_stack.pop()  # restore previous scope
 
     # executes a print statement by printing the values of its arguments

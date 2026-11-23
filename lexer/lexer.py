@@ -61,7 +61,8 @@ def read_yarn(s: str, i: int, line: int) -> tuple[str, int]:
                     raise SyntaxError(f"Line {line}: invalid hex code in :( escape")
                 j = close + 1
             else:
-                raise SyntaxError(f"Line {line}: invalid escape ':{nxt}'")
+                out.append(":")
+                j += 1
         else:
             out.append(c)
             j += 1

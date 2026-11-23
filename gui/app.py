@@ -17,6 +17,10 @@ class LOLCodeIDE:
     self.root.geometry("1200x750")
     self.root.state("zoomed")
     self.root.configure(bg="#2C2C2C")
+    root.bind("<Control-o>", lambda e: self.open_file_dialog)
+    root.bind("<Command-o>", self.open_file_dialog)
+
+    root.bind("<F5>", lambda e: self.on_execute_clicked())
 
     self.bridge = InterpreterBridge()
     setup_dark_styles()
@@ -286,7 +290,7 @@ class LOLCodeIDE:
     if 80 < new_height < 650:
       self.editor_frame.config(height=new_height)
 
-  def open_file_dialog(self):
+  def open_file_dialog(self, event=None):
     file_path = filedialog.askopenfilename(
         title="Open LOLCODE File", filetypes=[("LOLCODE Files", "*.lol"), ("All Files", "*.*")]
     )

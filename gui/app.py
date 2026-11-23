@@ -303,6 +303,12 @@ class LOLCodeIDE:
         self.line_numbers.redraw()
         self.highlight_current_line()
 
+      # clear lexeme and symbol tables when a new file is opened
+      for row in self.lexeme_tree.get_children():
+        self.lexeme_tree.delete(row)
+      for row in self.symbol_tree.get_children():
+        self.symbol_tree.delete(row)
+
         # clear console terminal when a new file is open
         self.console_output.config(state="normal")
         self.console_output.delete("1.0", tk.END)

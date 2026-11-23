@@ -96,17 +96,21 @@ class Interpreter():
             self.variables[function_var_names[i]] = arg
 
         # recursively executes the function body by executing each statement in its body
-        for stmt in function.body:
-            
-            try:
-                if isinstance(stmt, MyReturn): # early return if return statement is encountered
+        has_return = False
+        try:
+            for stmt in function.body:
+                if isinstance(stmt, MyReturn):
                     self.exec_Return(stmt)
+                    has_return = True
                     break
                 self.run(stmt)
-            except GTFOInterrupt:
-                break
-        self.IT = Literal(None, T.NOOB)
-        self.variables = self.var_stack.pop()  # restore previous scope
+        except GTFOInterrupt:
+            pass
+        finally:
+            if not has_return:
+                self.IT = Literal(None, T.NOOB)
+            # Restore previous scope
+            self.variables = self.var_stack.pop()
 
     # executes a print statement by printing the values of its arguments
     def exec_Print(self, n:Node) -> None:
@@ -146,10 +150,16 @@ class Interpreter():
             print()
 
     def exec_Identifier(self, n:Node) -> None:
+        if n.name == "IT":
+            self.IT = self.IT
+            return
+    
         if n.name not in self.variables:
             raise RuntimeError(f"Variable {n.name} is not defined")
         self.IT = self.variables[n.name]
 
+    def exec_Literal(self, n:Literal) -> None:
+        self.IT = n
     # assigns a variable
     # variables are stored as Literal objects
     def exec_Var(self, n:Node) -> None:

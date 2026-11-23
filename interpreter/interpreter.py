@@ -108,8 +108,6 @@ class Interpreter():
             self.IT = Literal(None, T.NOOB)
         self.variables = self.var_stack.pop()  # restore previous scope
 
-    def exec_Literal(self, n):
-        self.IT = n
     # executes a print statement by printing the values of its arguments
     def exec_Print(self, n:Node) -> None:
         for arg in n.args:

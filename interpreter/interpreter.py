@@ -28,7 +28,7 @@ class Interpreter():
         self.var_stack = []
 
         # store return values in IT
-        self.IT = T.NOOB
+        self.IT = None
         # for gui callback to avoid crashing 
         self.input_callback = None 
 
@@ -295,11 +295,15 @@ class Interpreter():
 
     # Evaluate comparison operations
     def evaluate_comparison(self, ops:T, n:Node) -> bool:
-        if n.operand == T.EQUAL:
-            value = Literal(ops[0].value == ops[1].value, T.TROOF_TYPE)
-        if n.operand == T.NOT_EQUAL:
-            value = Literal(ops[0].value != ops[1].value, T.TROOF_TYPE)
-        self.IT = value
+        try:
+            if n.operand == T.EQUAL:
+                value = Literal(ops[0].value == ops[1].value, T.TROOF_TYPE)
+            if n.operand == T.NOT_EQUAL:
+                value = Literal(ops[0].value != ops[1].value, T.TROOF_TYPE)
+            self.IT = value
+        except:
+            self.IT = Literal(False, T.TROOF_TYPE)
+            value = self.IT
         return value
 
     # Evaluate YARN concatenation operations
@@ -357,6 +361,8 @@ class Interpreter():
             elif isinstance(arg, Identifier):
                 if self.functions.get(arg.name):
                     raise RuntimeError(f"Line: Variable {arg} is a function")
+                elif arg.name == "IT":
+                    operands.append(self.IT)
                 elif arg.name not in self.variables:
                     raise RuntimeError(f"Variable {arg.name} is not defined")
                 else:

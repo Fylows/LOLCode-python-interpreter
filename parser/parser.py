@@ -66,6 +66,8 @@ class Parser:
             self.parse_function()
             if (self.peek().type == T.HAI):
                 break
+            elif (self.peek().type == T.EOF):
+                return [Program(body), Program(self.vars) if self.vars else None, Program(self.fxns) if self.fxns else None]
             self.end_statement()
         self.expect(T.HAI)
         if (self.peek().type in [T.NUMBAR_LIT, T.NUMBR_LIT]):

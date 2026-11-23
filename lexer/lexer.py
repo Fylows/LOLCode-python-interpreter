@@ -18,6 +18,55 @@ def keyword_at(string: str, index: int, keyword: str) -> bool:
     end = index + len(keyword)
     return string.startswith(keyword, index) and not (end < len(string) and (string[end].isalnum() or string[end] == "_"))
 
+# i points at the first double quote
+def read_yarn(s: str, i: int, line: int) -> tuple[str, int]:
+    # escape characters, excluding {var}
+    # https://github.com/justinmeza/lolcode-spec/blob/master/v1.2/lolcode-spec-v1.2.md#strings
+    ESCAPES = {")": "\n", 
+           ">": "\t", 
+           "o": "\a", 
+           '"': '"', 
+           ":": ":"}
+    out = []
+    j = i + 1 # walk through the string
+    n = len(s) #strlen
+    while j < n:
+        c = s[j] # current char
+        if c == '"':
+            # on quote end, join the string
+            return "".join(out), j + 1
+        if c == "\n":
+            raise SyntaxError(f"Line {line}: unterminated string")
+
+        # spot an escape char
+        if c == ":":
+            if j + 1 >= n:
+                raise SyntaxError(f"Line {line}: unterminated string")
+            
+            nxt = s[j + 1]
+            if nxt in ESCAPES:
+                out.append(ESCAPES[nxt])
+                j += 2
+            elif nxt == "(": # :(hex)
+
+                close = s.find(")", j + 2)
+                nl = s.find("\n", j + 2)
+
+                if close == -1 or (nl != -1 and nl < close):
+                    raise SyntaxError(f"Line {line}: unterminated :( escape")
+                
+                try:
+                    out.append(chr(int(s[j + 2:close], 16)))
+                except (ValueError, OverflowError):
+                    raise SyntaxError(f"Line {line}: invalid hex code in :( escape")
+                j = close + 1
+            else:
+                raise SyntaxError(f"Line {line}: invalid escape ':{nxt}'")
+        else:
+            out.append(c)
+            j += 1
+    raise SyntaxError(f"Line {line}: unterminated string")
+
 def lexer(input_string: str) -> list[Token]:
     tokens = []
     i, line = 0, 1
@@ -72,11 +121,8 @@ def lexer(input_string: str) -> list[Token]:
         
         # literals
         elif char == '"':
-            end = input_string.find('"', i + 1)
-            if end == -1:
-                raise SyntaxError(f"Line {line}: unterminated string")
-            tokens.append(Token(T.YARN_LIT, input_string[i + 1:end], line))
-            i = end + 1
+            value, i = read_yarn(input_string, i, line)
+            tokens.append(Token(T.YARN_LIT, value, line))
 
         elif char == "!":
             tokens.append(Token(T.TERM_NEWLINE, input_string[i], line))

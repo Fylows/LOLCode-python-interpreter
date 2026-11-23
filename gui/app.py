@@ -23,7 +23,7 @@ class LOLCodeIDE:
 
     try:
       current_dir = os.path.dirname(os.path.abspath(__file__))
-      logo_path = os.path.join(current_dir, "..", "public", "logo.png")
+      logo_path = os.path.join(current_dir, "public", "logo.png")
       if os.path.exists(logo_path):
         self.app_icon = tk.PhotoImage(file=logo_path)
         self.root.iconphoto(True, self.app_icon)

@@ -28,7 +28,7 @@ class Interpreter():
         self.var_stack = []
 
         # store return values in IT
-        self.IT = T.NOOB
+        self.IT = Literal(None, T.NOOB)
         # for gui callback to avoid crashing 
         self.input_callback = None 
 
@@ -96,20 +96,22 @@ class Interpreter():
             self.variables[function_var_names[i]] = arg
 
         # recursively executes the function body by executing each statement in its body
-        for stmt in function.body:
-            
-            try:
-                if isinstance(stmt, MyReturn): # early return if return statement is encountered
+        has_return = False
+        try:
+            for stmt in function.body:
+                if isinstance(stmt, MyReturn):
                     self.exec_Return(stmt)
+                    has_return = True
                     break
                 self.run(stmt)
-            except GTFOInterrupt:
-                break
-            self.IT = Literal(None, T.NOOB)
-        self.variables = self.var_stack.pop()  # restore previous scope
+        except GTFOInterrupt:
+            pass
+        finally:
+            if not has_return:
+                self.IT = Literal(None, T.NOOB)
+            # Restore previous scope
+            self.variables = self.var_stack.pop()
 
-    def exec_Literal(self, n):
-        self.IT = n
     # executes a print statement by printing the values of its arguments
     def exec_Print(self, n:Node) -> None:
         for arg in n.args:
@@ -148,10 +150,16 @@ class Interpreter():
             print()
 
     def exec_Identifier(self, n:Node) -> None:
+        if n.name == "IT":
+            self.IT = self.IT
+            return
+    
         if n.name not in self.variables:
             raise RuntimeError(f"Variable {n.name} is not defined")
         self.IT = self.variables[n.name]
 
+    def exec_Literal(self, n:Literal) -> None:
+        self.IT = n
     # assigns a variable
     # variables are stored as Literal objects
     def exec_Var(self, n:Node) -> None:
@@ -199,7 +207,9 @@ class Interpreter():
     # and possibly also its type
     def exec_Reassign(self, n:Node) -> None:
         if n.name == "IT":
-            self.IT = self.cast_literal(self.IT, n.type)
+            if not n.value:
+                n.value = Literal(None, T.NOOB)
+            self.IT = self.cast_literal(n.value, n.type)
             return
 
         elif n.name not in self.variables:
@@ -295,11 +305,15 @@ class Interpreter():
 
     # Evaluate comparison operations
     def evaluate_comparison(self, ops:T, n:Node) -> bool:
-        if n.operand == T.EQUAL:
-            value = Literal(ops[0].value == ops[1].value, T.TROOF_TYPE)
-        if n.operand == T.NOT_EQUAL:
-            value = Literal(ops[0].value != ops[1].value, T.TROOF_TYPE)
-        self.IT = value
+        try:
+            if n.operand == T.EQUAL:
+                value = Literal(ops[0].value == ops[1].value, T.TROOF_TYPE)
+            if n.operand == T.NOT_EQUAL:
+                value = Literal(ops[0].value != ops[1].value, T.TROOF_TYPE)
+            self.IT = value
+        except:
+            self.IT = Literal(False, T.TROOF_TYPE)
+            value = self.IT
         return value
 
     # Evaluate YARN concatenation operations
@@ -357,6 +371,8 @@ class Interpreter():
             elif isinstance(arg, Identifier):
                 if self.functions.get(arg.name):
                     raise RuntimeError(f"Line: Variable {arg} is a function")
+                elif arg.name == "IT":
+                    operands.append(self.IT)
                 elif arg.name not in self.variables:
                     raise RuntimeError(f"Variable {arg.name} is not defined")
                 else:

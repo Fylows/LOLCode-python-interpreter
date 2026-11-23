@@ -52,6 +52,8 @@ class InterpreterBridge:
       return "WIN"
     elif lower_str == "false":
       return "FAIL"
+    elif lower_str == "none":
+      return "NOOB"
     return val_str
   
   def get_highlight_tokens(self, source_code):
@@ -162,15 +164,10 @@ class InterpreterBridge:
       symbol_dict = {}
 
       # Add implicit 'IT' variable if it holds a value
-      if hasattr(interpreter, "IT") and interpreter.IT is not None:
-        it_raw = (
-            interpreter.IT.value
-            if hasattr(interpreter.IT, "value")
-            else interpreter.IT
-        )
+      if hasattr(interpreter, "IT"):
+        it_raw = interpreter.IT.value
         it_val = self.format_symbol_value(it_raw)
-        if it_val and it_val != "NOOB":
-          symbol_dict["IT"] = it_val
+        symbol_dict["IT"] = it_val
 
       # Add user-defined variables
       if hasattr(interpreter, "variables") and interpreter.variables:

@@ -17,13 +17,17 @@ class LOLCodeIDE:
     self.root.geometry("1200x750")
     self.root.state("zoomed")
     self.root.configure(bg="#2C2C2C")
+    root.bind("<Control-o>", lambda e: self.open_file_dialog)
+    root.bind("<Command-o>", self.open_file_dialog)
+
+    root.bind("<F5>", lambda e: self.on_execute_clicked())
 
     self.bridge = InterpreterBridge()
     setup_dark_styles()
 
     try:
       current_dir = os.path.dirname(os.path.abspath(__file__))
-      logo_path = os.path.join(current_dir, "..", "public", "logo.png")
+      logo_path = os.path.join(current_dir, "public", "logo.png")
       if os.path.exists(logo_path):
         self.app_icon = tk.PhotoImage(file=logo_path)
         self.root.iconphoto(True, self.app_icon)
@@ -286,7 +290,7 @@ class LOLCodeIDE:
     if 80 < new_height < 650:
       self.editor_frame.config(height=new_height)
 
-  def open_file_dialog(self):
+  def open_file_dialog(self, event=None):
     file_path = filedialog.askopenfilename(
         title="Open LOLCODE File", filetypes=[("LOLCODE Files", "*.lol"), ("All Files", "*.*")]
     )

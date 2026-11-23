@@ -3,4 +3,9 @@
 /parser/__pycache__/*
 /testcases/__pycache/*
 __pycache__/
+<<<<<<< HEAD
 *.py[cod]
+=======
+*.py[cod]
+.DS_Store
+>>>>>>> origin/main

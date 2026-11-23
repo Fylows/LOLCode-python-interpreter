@@ -1,0 +1,5 @@
+HAI
+
+VISIBLE SMOOSH "Hello" AN SMOOSH "Hello Po" AN "Hi" 
+
+KTHXBYE

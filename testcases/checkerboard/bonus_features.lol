@@ -1,5 +1,18 @@
 HAI
-
+    WAZZUP 
+        BTW asdasdasdasdadas
+        I HAS A x
+        I HAS A y 
+        I HAS A z ITZ 0
+        I HAS A a ITZ 0
+        I HAS A i ITZ 12
+        I HAS A j ITZ 3
+        I HAS A age 
+        I HAS A choice
+        I HAS A loop ITZ 0
+        I HAS A b
+    BUHBYE
+    
     HOW IZ I is_even YR i AN YR j
         FOUND YR BOTH SAEM MOD OF SUM OF i AN j AN 2 AN 0
     IF U SAY SO
@@ -116,20 +129,6 @@ HAI
         VISIBLE "hello po"
 
     IF U SAY SO
-
-    WAZZUP 
-        BTW asdasdasdasdadas
-        I HAS A x
-        I HAS A y 
-        I HAS A z ITZ 0
-        I HAS A a ITZ 0
-        I HAS A i ITZ 12
-        I HAS A j ITZ 3
-        I HAS A age 
-        I HAS A choice
-        I HAS A loop ITZ 0
-        I HAS A b
-    BUHBYE
     
     IM IN YR menu UPPIN YR loop TIL BOTH SAEM loop AN 5
         VISIBLE "---- MAIN MENU ----"

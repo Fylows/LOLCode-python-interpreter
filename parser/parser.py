@@ -3,7 +3,7 @@ from parser.nodes import *
 
 class Parser:
     def __init__(self, tokens: list[T]):
-        self.tokens = tokens
+        self.tokens =  [t for t in tokens if t.type != T.ELLIPSIS]
         self.pos = 0
         self.fxns = []
         self.vars = []
@@ -66,6 +66,8 @@ class Parser:
             self.parse_function()
             if (self.peek().type == T.HAI):
                 break
+            elif (self.peek().type == T.EOF):
+                return [Program(body), Program(self.vars) if self.vars else None, Program(self.fxns) if self.fxns else None]
             self.end_statement()
         self.expect(T.HAI)
         if (self.peek().type in [T.NUMBAR_LIT, T.NUMBR_LIT]):
@@ -164,7 +166,7 @@ class Parser:
         newline = True
         self.expect(T.VISIBLE)
         args = [self.parse_expr()]
-        while self.peek().type not in (T.NEWLINE, T.EOF,T.TERM_NEWLINE,T.BTW,T.OBTW,T.TLDR,T.ELLIPSIS):
+        while self.peek().type not in (T.NEWLINE, T.EOF,T.TERM_NEWLINE,T.BTW,T.OBTW,T.TLDR):
             if self.peek().type != T.VISIBLE_CONCAT:
                 t = self.peek()
                 raise SyntaxError(
@@ -379,10 +381,19 @@ class Parser:
 
     def parse_variadic(self, op:T) -> Operation:
         is_concatenation = op == T.CONCAT
+
         args = [self.parse_expr()]
+
+        if isinstance(args[0], Operation) and args[0].operand in VARIADIC_OPS:
+            raise SyntaxError(f"Nesting variadic operator {args[0].operand.name} inside {op.name}")
+        args.append(args[0])
+
         while self.peek().type == T.AN:
-            self.expect(T.AN)                      
-            args.append(self.parse_expr())
+            self.expect(T.AN)            
+            arg = self.parse_expr()
+            if isinstance(arg, Operation) and arg.operand in VARIADIC_OPS:
+                raise SyntaxError(f"Nesting variadic operator {arg.operand.name} inside {op.name}")
+            args.append(arg)
         if not is_concatenation: 
             self.expect(T.MKAY)      
         return Operation(op, args)   
@@ -474,11 +485,11 @@ class Parser:
 
     def convert_type(self, lit_type) -> T:
         match lit_type:
-            case T.NUMBR_LIT:
+            case T.NUMBR_LIT | T.NUMBR_TYPE:
                 return T.NUMBR_TYPE
-            case T.NUMBAR_LIT:
+            case T.NUMBAR_LIT | T.NUMBAR_TYPE:
                 return T.NUMBAR_TYPE
-            case T.YARN_LIT:
+            case T.YARN_LIT | T.YARN_TYPE:
                 return T.YARN_TYPE
             case T.WIN | T.FAIL | T.TROOF_TYPE | T.TROOF_LIT:
                 return T.TROOF_TYPE

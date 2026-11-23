@@ -379,10 +379,19 @@ class Parser:
 
     def parse_variadic(self, op:T) -> Operation:
         is_concatenation = op == T.CONCAT
+
         args = [self.parse_expr()]
+
+        if isinstance(args[0], Operation) and args[0].operand in VARIADIC_OPS:
+            raise SyntaxError(f"Nesting variadic operator {args[0].operand.name} inside {op.name}")
+        args.append(args[0])
+
         while self.peek().type == T.AN:
-            self.expect(T.AN)                      
-            args.append(self.parse_expr())
+            self.expect(T.AN)            
+            arg = self.parse_expr()
+            if isinstance(arg, Operation) and arg.operand in VARIADIC_OPS:
+                raise SyntaxError(f"Nesting variadic operator {arg.operand.name} inside {op.name}")
+            args.append(arg)
         if not is_concatenation: 
             self.expect(T.MKAY)      
         return Operation(op, args)   

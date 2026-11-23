@@ -28,7 +28,7 @@ class Interpreter():
         self.var_stack = []
 
         # store return values in IT
-        self.IT = None
+        self.IT = Literal(None, T.NOOB)
         # for gui callback to avoid crashing 
         self.input_callback = None 
 
@@ -199,7 +199,9 @@ class Interpreter():
     # and possibly also its type
     def exec_Reassign(self, n:Node) -> None:
         if n.name == "IT":
-            self.IT = self.cast_literal(self.IT, n.type)
+            if not n.value:
+                n.value = Literal(None, T.NOOB)
+            self.IT = self.cast_literal(n.value, n.type)
             return
 
         elif n.name not in self.variables:

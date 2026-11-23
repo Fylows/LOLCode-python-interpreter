@@ -485,11 +485,11 @@ class Parser:
 
     def convert_type(self, lit_type) -> T:
         match lit_type:
-            case T.NUMBR_LIT:
+            case T.NUMBR_LIT | T.NUMBR_TYPE:
                 return T.NUMBR_TYPE
-            case T.NUMBAR_LIT:
+            case T.NUMBAR_LIT | T.NUMBAR_TYPE:
                 return T.NUMBAR_TYPE
-            case T.YARN_LIT:
+            case T.YARN_LIT | T.YARN_TYPE:
                 return T.YARN_TYPE
             case T.WIN | T.FAIL | T.TROOF_TYPE | T.TROOF_LIT:
                 return T.TROOF_TYPE

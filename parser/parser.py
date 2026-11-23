@@ -3,7 +3,7 @@ from parser.nodes import *
 
 class Parser:
     def __init__(self, tokens: list[T]):
-        self.tokens = tokens
+        self.tokens =  [t for t in tokens if t.type != T.ELLIPSIS]
         self.pos = 0
         self.fxns = []
         self.vars = []
@@ -164,7 +164,7 @@ class Parser:
         newline = True
         self.expect(T.VISIBLE)
         args = [self.parse_expr()]
-        while self.peek().type not in (T.NEWLINE, T.EOF,T.TERM_NEWLINE,T.BTW,T.OBTW,T.TLDR,T.ELLIPSIS):
+        while self.peek().type not in (T.NEWLINE, T.EOF,T.TERM_NEWLINE,T.BTW,T.OBTW,T.TLDR):
             if self.peek().type != T.VISIBLE_CONCAT:
                 t = self.peek()
                 raise SyntaxError(

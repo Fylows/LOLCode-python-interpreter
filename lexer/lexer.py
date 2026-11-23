@@ -35,7 +35,8 @@ def lexer(input_string: str) -> list[Token]:
             end = input_string.find('\n', i)
             if end == -1:
                 end = str_len
-            if input_string[i+3:end].strip():
+            rest = input_string[i+3:end].strip()
+            if rest and not rest.startswith("BTW"):
                 raise SyntaxError(f"Line {line}: unexpected text after '...'")
             i = min(end + 1, str_len)
             line += 1

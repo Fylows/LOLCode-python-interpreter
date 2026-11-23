@@ -4,3 +4,4 @@
 /testcases/__pycache/*
 __pycache__/
 *.py[cod]
+.DS_Store

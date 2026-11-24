@@ -44,7 +44,8 @@ Before running the interpreter or GUI, make sure **Python 3** and **Tkinter** ar
 brew install python python-tk
 ```
 
-**Windows:**
+* **Windows:**
+
 Download and run the installer from [python.org](https://www.python.org) and ensure tcl/tk and IDLE is checked during installation.
 
 * **Ubuntu:**

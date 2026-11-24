@@ -15,6 +15,6 @@ HAI
           VISIBLE "Junior member"
       OIC
     NO WAI
-      VISIBLE "Non-member access denied"
+      VISIBLE "Non-member"
   OIC
 KTHXBYE

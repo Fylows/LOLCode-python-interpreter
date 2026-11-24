@@ -25,7 +25,35 @@
     components.py # custom ui widget
 ```
 
-### How to Run the GUI:
+### Prerequisites/Dependencies:
+Before running the interpreter or GUI, make sure **Python 3** and **Tkinter** are installed on your system:
+* **Check Python 3:**
+```bash
+  python3 --version
+```
+
+* **Check Tkinter**
+```bash
+  python3 -m -tkinter
+```
+(A small test window should open. If you get No module named '_tkinter', install Tkinter using the steps below.)
+
+### Installing Python and Tkinter:
+* **MacOS (via Homebrew):**
+```bash
+brew install python python-tk
+```
+
+**Windows:**
+Download and run the installer from [python.org](https://www.python.org) and ensure tcl/tk and IDLE is checked during installation.
+
+* **Ubuntu:**
+```bash
+sudo apt update
+sudo apt install python3 python3-tk
+```
+
+### How to Run the Project:
 ```bash
 python3 -m gui.app
 ```

@@ -26,7 +26,7 @@ def read_yarn(s: str, i: int, line: int) -> tuple[str, int]:
            ">": "\t", 
            "o": "\a", 
            '"': '"', 
-           ":": ":"}
+           ":": ":",}
     out = []
     j = i + 1 # walk through the string
     n = len(s) #strlen

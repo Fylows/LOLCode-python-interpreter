@@ -278,11 +278,17 @@ class Interpreter():
 
         try:
             if type == T.NUMBAR_TYPE:
-                l = float(ops[0].value)
-                r = float(ops[1].value)
+                try:
+                    l = float(ops[0].value)
+                    r = float(ops[1].value)
+                except TypeError:
+                 raise TypeError(f"Invalid operation between {"NOOB" if not n.type else n.type} and NUMBAR")
             else:
-                l = int(ops[0].value)
-                r = int(ops[1].value)
+                try:
+                    l = int(ops[0].value)
+                    r = int(ops[1].value)
+                except TypeError:
+                    raise TypeError(f"Invalid operation between {"NOOB" if not n.type else n.type} and NUMBR")
         except ValueError:
             raise ValueError(f"Invalid operation between YARN and {type}")
 

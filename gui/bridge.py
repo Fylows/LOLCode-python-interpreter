@@ -1,3 +1,4 @@
+from re import match
 import sys
 import os
 
@@ -106,6 +107,8 @@ class InterpreterBridge:
       for match in re.finditer(r'".*?"', source_code):
         highlight_data.append(("string", match.start(), match.end()))
       for match in re.finditer(r"BTW.*", source_code):
+        highlight_data.append(("comment", match.start(), match.end()))
+      for match in re.finditer(r"\bOBTW\b.*?(?:\bTLDR\b|\Z)", source_code, flags=re.DOTALL):
         highlight_data.append(("comment", match.start(), match.end()))
 
     return highlight_data
